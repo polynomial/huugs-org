@@ -268,9 +268,9 @@ function initGenrePage(genreId) {
   document.title = `${toTitleCase(genreId)} Events`;
   
   // Update genre title
-  const genreTitle = document.getElementById('event-title');
+  const genreTitle = document.getElementById('genre-title');
   if (genreTitle) {
-    genreTitle.textContent = `${toTitleCase(genreId)} Events`;
+    genreTitle.textContent = toTitleCase(genreId);
   }
   
   // Add back button to home page
