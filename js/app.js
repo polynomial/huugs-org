@@ -1,5 +1,13 @@
 // Main Application JavaScript
 
+// Debug utility - Set DEBUG to false in production
+const DEBUG = process.env.NODE_ENV !== 'production';
+function debug(...args) {
+    if (DEBUG) {
+        console.log(...args);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // Update footer year
     document.getElementById('year').textContent = new Date().getFullYear();
@@ -72,7 +80,7 @@ async function loadGalleries() {
             document.getElementById('gallery-container').innerHTML = '<p>No galleries found.</p>';
         }
     } catch (error) {
-        console.error('Error loading galleries:', error);
+        debug('Error loading galleries:', error);
         document.getElementById('gallery-container').innerHTML = `<p class="error">Error loading galleries: ${error.message}</p>`;
     }
 }
@@ -118,7 +126,7 @@ async function loadGallery(galleryId, categoryId = null) {
     currentCategory = categoryId;
     
     if (!currentGallery) {
-        console.error('Gallery not found:', galleryId);
+        debug('Gallery not found:', galleryId);
         return;
     }
     
@@ -172,7 +180,7 @@ async function loadGallery(galleryId, categoryId = null) {
         
         renderGallery(currentGallery, photoData, categoryId);
     } catch (error) {
-        console.error('Error loading gallery:', error);
+        debug('Error loading gallery:', error);
         document.getElementById('gallery-container').innerHTML = `<p class="error">Error loading gallery: ${error.message}</p>`;
     }
 }
@@ -283,8 +291,39 @@ function initializeLightbox(photoData) {
     const closeBtn = document.querySelector('.close-lightbox');
     const infoElement = document.querySelector('.image-info');
     
+    // Cleanup function to remove event listeners
+    function cleanupEventListeners() {
+        closeBtn.removeEventListener('click', closeLightbox);
+        document.removeEventListener('keydown', handleKeyDown);
+        lightbox.removeEventListener('click', handleLightboxClick);
+        
+        // Remove thumbnail click handlers
+        photoItems.forEach(item => {
+            item.removeEventListener('click', handleThumbnailClick);
+        });
+    }
+
+    // Event handler functions
+    const closeLightbox = () => {
+        lightbox.classList.remove('active');
+        document.body.classList.remove('no-scroll');
+    };
+    
+    const handleKeyDown = (e) => {
+        if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+            closeLightbox();
+        }
+    };
+    
+    const handleLightboxClick = (e) => {
+        if (e.target === lightbox) {
+            closeLightbox();
+        }
+    };
+    
     // Destroy existing swiper if it exists
     if (swiper) {
+        cleanupEventListeners();
         swiper.destroy(true, true);
         swiper = null;
     }
@@ -343,36 +382,24 @@ function initializeLightbox(photoData) {
     // Setup click handlers for thumbnails
     const photoItems = document.querySelectorAll('.photo-item');
     photoItems.forEach(item => {
-        item.addEventListener('click', () => {
-            const index = parseInt(item.getAttribute('data-index'));
+        const handleThumbnailClick = function() {
+            const index = parseInt(this.getAttribute('data-index'));
             swiper.slideTo(index, 0);
             lightbox.classList.add('active');
             document.body.classList.add('no-scroll');
             updatePhotoInfo(photoData[index]);
-        });
+        };
+        item.addEventListener('click', handleThumbnailClick);
     });
     
     // Close lightbox
-    closeBtn.addEventListener('click', () => {
-        lightbox.classList.remove('active');
-        document.body.classList.remove('no-scroll');
-    });
+    closeBtn.addEventListener('click', closeLightbox);
     
     // Close on escape key
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && lightbox.classList.contains('active')) {
-            lightbox.classList.remove('active');
-            document.body.classList.remove('no-scroll');
-        }
-    });
+    document.addEventListener('keydown', handleKeyDown);
     
     // Close when clicking outside the image
-    lightbox.addEventListener('click', (e) => {
-        if (e.target === lightbox) {
-            lightbox.classList.remove('active');
-            document.body.classList.remove('no-scroll');
-        }
-    });
+    lightbox.addEventListener('click', handleLightboxClick);
 }
 
 // Helper function to preload images for smooth transitions

@@ -1,3 +1,11 @@
+// Debug utility - Set DEBUG to false in production
+const DEBUG = process.env.NODE_ENV !== 'production';
+function debug(...args) {
+    if (DEBUG) {
+        console.log(...args);
+    }
+}
+
 /**
  * Gallery Generator Script
  * 
@@ -51,7 +59,7 @@ async function loadExistingConfig() {
             return JSON.parse(configData);
         }
     } catch (error) {
-        console.warn(`Warning: Could not load existing config: ${error.message}`);
+        debug(`Warning: Could not load existing config: ${error.message}`);
     }
     return [];
 }
@@ -76,7 +84,7 @@ async function processBatch(items, processFn) {
 
 // Process each gallery directory
 async function processGalleries() {
-    console.log('Starting gallery generation...');
+    debug('Starting gallery generation...');
     
     await ensureDirectoriesExist();
     
@@ -94,15 +102,15 @@ async function processGalleries() {
     
     // Process each gallery
     for (const dirName of picDirs) {
-        console.log(`Processing gallery: ${dirName}`);
+        debug(`Processing gallery: ${dirName}`);
         const existingGallery = existingGalleries.get(dirName);
         await processGallery(dirName, existingGallery);
     }
     
     // Write the gallery configuration file
     await writeFileAsync(CONFIG_FILE, JSON.stringify(galleryConfig, null, 2));
-    console.log(`Gallery configuration saved to ${CONFIG_FILE}`);
-    console.log('Gallery generation complete!');
+    debug(`Gallery configuration saved to ${CONFIG_FILE}`);
+    debug('Gallery generation complete!');
 }
 
 // Process a single gallery directory
@@ -130,11 +138,11 @@ async function processGallery(dirName, existingGallery = null) {
     
     // Skip if no images found
     if (imageFiles.length === 0) {
-        console.log(`No images found in ${sourcePath}`);
+        debug(`No images found in ${sourcePath}`);
         return;
     }
     
-    console.log(`Found ${imageFiles.length} images in ${dirName}`);
+    debug(`Found ${imageFiles.length} images in ${dirName}`);
     
     // Auto-detect categories based on subdirectories or file prefixes
     const categories = detectCategories(imageFiles, sourcePath);
@@ -179,7 +187,7 @@ async function processGallery(dirName, existingGallery = null) {
                     }
                 }
             } catch (metaError) {
-                console.warn(`Could not extract metadata from ${fileName}: ${metaError.message}`);
+                debug(`Could not extract metadata from ${fileName}: ${metaError.message}`);
             }
             
             photoEntries.push(photoEntry);
@@ -274,7 +282,7 @@ async function processImageFile(sourceFile, normalizedPath, galleryPath, thumbsP
         
         if (shouldCopy) {
             await copyFileAsync(sourceFile, targetFilePath);
-            console.log(`Copied: ${fileName}`);
+            debug(`Copied: ${fileName}`);
         }
     } catch (error) {
         console.error(`Error copying ${fileName}: ${error.message}`);
@@ -292,7 +300,7 @@ async function processImageFile(sourceFile, normalizedPath, galleryPath, thumbsP
         
         if (shouldGenerateDisplay) {
             await generateDisplayImage(sourceFile, displayFilePath);
-            console.log(`Display: ${fileName}`);
+            debug(`Display: ${fileName}`);
         }
     } catch (error) {
         console.error(`Error generating display image for ${fileName}: ${error.message}`);
@@ -310,7 +318,7 @@ async function processImageFile(sourceFile, normalizedPath, galleryPath, thumbsP
         
         if (shouldGenerateThumbnail) {
             await generateThumbnail(sourceFile, thumbFilePath);
-            console.log(`Thumbnail: ${fileName}`);
+            debug(`Thumbnail: ${fileName}`);
         }
     } catch (error) {
         console.error(`Error generating thumbnail for ${fileName}: ${error.message}`);
