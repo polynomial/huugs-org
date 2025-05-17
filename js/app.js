@@ -6,7 +6,7 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
-  // Initialize app based on current page
+  // Initialize app based on current URL
   initApp();
 });
 
@@ -218,6 +218,9 @@ function displayGenres(genres, container) {
   
   // Add each genre card
   genres.forEach(genre => {
+    // Count events for this genre (default to 0 if missing)
+    const eventsCount = genre.count || 0;
+    
     const card = document.createElement('a');
     card.href = `?genre=${genre.id}`;
     card.className = 'genre-card';
@@ -227,7 +230,7 @@ function displayGenres(genres, container) {
       <img src="${genre.cover}" alt="${genre.title}">
       <div class="genre-info">
         <h2 class="genre-title">${genre.title}</h2>
-        <p class="genre-count">${genre.count} ${genre.count === 1 ? 'event' : 'events'}</p>
+        <p class="genre-count">${eventsCount} ${eventsCount === 1 ? 'event' : 'events'}</p>
       </div>
     `;
     
@@ -570,6 +573,16 @@ function loadEventPhotos(genre, event) {
     eventTitle.textContent = `${eventPath.charAt(0).toUpperCase() + eventPath.slice(1)}`;
   }
   
+  // Add back button
+  const backButton = document.createElement('div');
+  backButton.id = 'back-button';
+  backButton.className = 'back-button';
+  backButton.innerHTML = `<span>Back to ${toTitleCase(genrePath)} Events</span>`;
+  backButton.onclick = () => {
+    window.location.href = `?genre=${genrePath}`;
+  };
+  eventContainer.appendChild(backButton);
+  
   // Get photos for this event from config
   fetch('./js/gallery-config.json')
     .then(response => response.json())
@@ -598,20 +611,10 @@ function loadEventPhotos(genre, event) {
         link.setAttribute('data-fancybox', 'gallery');
         link.setAttribute('data-caption', photo.title || `Photo ${index + 1}`);
         
-        // Add EXIF orientation as a data attribute for Fancybox if available
-        if (photo.orientation) {
-          link.setAttribute('data-orientation', photo.orientation);
-        }
-        
         const img = document.createElement('img');
         img.className = 'lazy';
         img.dataset.src = photo.thumbnail;
         img.alt = photo.title || `Photo ${index + 1}`;
-        
-        // Apply CSS transform based on EXIF orientation if needed
-        if (photo.orientation && photo.orientation > 1) {
-          applyOrientationStyle(img, parseInt(photo.orientation));
-        }
         
         link.appendChild(img);
         photoDiv.appendChild(link);
@@ -624,8 +627,8 @@ function loadEventPhotos(genre, event) {
         use_native: true
       });
       
-      // Initialize Fancybox for the gallery - MAKE SURE THIS RUNS AFTER ADDING PHOTOS
-      console.log('Attempting to initialize Fancybox for gallery...');
+      // Initialize Fancybox for the gallery
+      console.log('Initializing Fancybox for gallery...');
       try {
         if (typeof Fancybox !== 'undefined') {
           // Destroy any existing Fancybox instances first
@@ -649,77 +652,6 @@ function loadEventPhotos(genre, event) {
             },
             Images: {
               initialSize: 'fit',
-            },
-            on: {
-              ready: (fancybox) => {
-                // FIX 2: Added safety checks for carousel and slides
-                console.log('Fancybox ready event fired, applying orientation');
-                if (!fancybox || !fancybox.carousel) {
-                  console.warn('Fancybox ready event fired but carousel not available');
-                  return;
-                }
-                
-                // Apply orientation corrections to Fancybox images
-                const slides = fancybox.carousel.slides;
-                if (!slides || !slides.length) {
-                  console.warn('No slides found in Fancybox carousel');
-                  return;
-                }
-                
-                for (let i = 0; i < slides.length; i++) {
-                  const slide = slides[i];
-                  if (!slide || !slide.$trigger) continue;
-                  
-                  const orientation = slide.$trigger.dataset.orientation;
-                  if (orientation && orientation > 1) {
-                    if (!slide.$el) continue;
-                    
-                    const content = slide.$el.querySelector('.fancybox__content');
-                    if (content) {
-                      content.classList.add('contains-rotated-image');
-                      const img = content.querySelector('img');
-                      if (img) {
-                        applyOrientationStyle(img, parseInt(orientation));
-                      }
-                    }
-                  }
-                }
-              },
-              // Also ensure orientation is applied on slide change
-              "Carousel.change": function(fancybox, carousel, slideIndex) {
-                // FIX 2: Add safety checks for carousel and slides
-                if (!carousel || !carousel.slides) {
-                  console.warn('Carousel or slides not available during slide change');
-                  return;
-                }
-                
-                const slides = carousel.slides;
-                if (slideIndex < 0 || slideIndex >= slides.length) {
-                  console.warn('Invalid slide index during slide change');
-                  return;
-                }
-                
-                const slide = slides[slideIndex];
-                if (!slide || !slide.$trigger || !slide.$el) {
-                  console.warn('Slide or trigger not available during slide change');
-                  return;
-                }
-                
-                const orientation = slide.$trigger.dataset.orientation;
-                if (orientation && orientation > 1) {
-                  const content = slide.$el.querySelector('.fancybox__content');
-                  if (content) {
-                    content.classList.add('contains-rotated-image');
-                    const img = content.querySelector('img');
-                    if (img) {
-                      // Apply orientation after a small delay to ensure the DOM is ready
-                      setTimeout(() => {
-                        applyOrientationStyle(img, parseInt(orientation));
-                      }, 50);
-                    }
-                  }
-                }
-              }
             }
           });
           console.log('Fancybox successfully initialized for gallery');
@@ -793,10 +725,10 @@ function getPhotosFromConfig(config, galleryPath) {
 }
 
 /**
- * Display photos in the gallery grid, handling orientation correctly
+ * Display photos in the gallery grid
  */
 function displayPhotos(photos, container) {
-  container.innerHTML = '';
+  console.log(`Displaying ${photos.length} photos in photo grid`);
   
   if (!photos || photos.length === 0) {
     container.innerHTML = '<p>No photos found for this event.</p>';
@@ -818,20 +750,10 @@ function displayPhotos(photos, container) {
     link.setAttribute('data-fancybox', 'gallery');
     link.setAttribute('data-caption', photo.title || '');
     
-    // Add EXIF orientation as a data attribute for Fancybox if available
-    if (photo.orientation) {
-      link.setAttribute('data-orientation', photo.orientation);
-    }
-    
     const img = document.createElement('img');
     img.className = 'lazy';
     img.dataset.src = photo.thumbnail;
     img.alt = photo.title || 'Photo';
-    
-    // Apply CSS transform based on EXIF orientation if needed
-    if (photo.orientation && photo.orientation > 1) {
-      applyOrientationStyle(img, parseInt(photo.orientation));
-    }
     
     link.appendChild(img);
     photoDiv.appendChild(link);
@@ -851,137 +773,8 @@ function displayPhotos(photos, container) {
     },
     Images: {
       initialSize: 'fit',
-    },
-    on: {
-      ready: function(fancybox) {
-        // Safety check - make sure carousel and slides exist
-        if (!fancybox || !fancybox.carousel || !fancybox.carousel.slides) {
-          console.warn('Fancybox ready event fired but carousel not available yet');
-          return;
-        }
-        
-        console.log('Fancybox ready, processing slides for orientation');
-        try {
-          const slides = fancybox.carousel.slides;
-          for (let i = 0; i < slides.length; i++) {
-            const slide = slides[i];
-            // Make sure slide and trigger exist
-            if (slide && slide.$trigger) {
-              const orientation = slide.$trigger.dataset.orientation;
-              if (orientation && orientation > 1) {
-                // Wait for the content to be loaded
-                setTimeout(() => {
-                  if (slide.$el) {
-                    const content = slide.$el.querySelector('.fancybox__content');
-                    if (content) {
-                      const img = content.querySelector('img');
-                      if (img) {
-                        console.log(`Applying orientation ${orientation} to slide ${i}`);
-                        applyOrientationStyle(img, parseInt(orientation));
-                      }
-                    }
-                  }
-                }, 100); // Short delay to ensure DOM elements are available
-              }
-            }
-          }
-        } catch (error) {
-          console.error('Error applying orientation to Fancybox slides:', error);
-        }
-      },
-      // Also handle slide change events to ensure orientation is applied
-      "Carousel.change": function(fancybox, carousel, slideIndex) {
-        setTimeout(() => {
-          try {
-            const slide = carousel.slides[slideIndex];
-            if (slide && slide.$trigger) {
-              const orientation = slide.$trigger.dataset.orientation;
-              if (orientation && orientation > 1) {
-                const content = slide.$el.querySelector('.fancybox__content');
-                if (content) {
-                  const img = content.querySelector('img');
-                  if (img) {
-                    console.log(`Slide changed: applying orientation ${orientation} to slide ${slideIndex}`);
-                    applyOrientationStyle(img, parseInt(orientation));
-                  }
-                }
-              }
-            }
-          } catch (error) {
-            console.error('Error applying orientation on slide change:', error);
-          }
-        }, 100);
-      }
     }
   });
-}
-
-/**
- * Apply the correct CSS transform for the EXIF orientation value
- * @param {HTMLElement} img - The image element to apply the transform to
- * @param {number} orientation - The EXIF orientation value (1-8)
- */
-function applyOrientationStyle(img, orientation) {
-  // FIX 3: Improve handling of EXIF orientation values
-  if (!orientation || orientation < 1 || orientation > 8) {
-    // Default to normal orientation if invalid
-    orientation = 1;
-  }
-
-  // EXIF orientation values and their corresponding CSS transforms
-  // See: https://www.impulseadventure.com/photo/exif-orientation.html
-  const transforms = {
-    1: 'none',                 // Normal
-    2: 'scaleX(-1)',           // Flip horizontal
-    3: 'rotate(180deg)',       // Rotate 180°
-    4: 'scaleY(-1)',           // Flip vertical
-    5: 'scaleX(-1) rotate(90deg)',  // Flip horizontal and rotate 90° CW
-    6: 'rotate(90deg)',        // Rotate 90° CW
-    7: 'scaleX(-1) rotate(-90deg)', // Flip horizontal and rotate 90° CCW
-    8: 'rotate(-90deg)'        // Rotate 90° CCW
-  };
-  
-  if (transforms[orientation]) {
-    img.style.transform = transforms[orientation];
-    
-    // Add a data attribute to indicate this image has orientation applied
-    img.dataset.orientationApplied = orientation;
-    
-    // Special handling for portrait orientations (5-8)
-    if (orientation >= 5 && orientation <= 8) {
-      img.classList.add('rotated-image');
-      
-      // Check if we're in a Fancybox context
-      const isFancybox = img.closest('.fancybox__content') !== null;
-      if (isFancybox) {
-        img.classList.add('fancybox-rotated');
-        
-        // Get the parent content container and add a class for CSS targeting
-        const contentEl = img.closest('.fancybox__content');
-        if (contentEl) {
-          contentEl.classList.add('contains-rotated-image');
-        }
-      }
-    }
-  }
-}
-
-/**
- * Scan the pics directory as a fallback if config is not available
- */
-function scanDirectories() {
-  // This would be implemented if direct directory scanning is needed
-  // Not fully implemented as it's better to rely on the gallery-config.json
-  console.log('Directory scanning not implemented. Using placeholder data.');
-  
-  const genreGrid = document.getElementById('genre-grid');
-  if (!genreGrid) return;
-  
-  // Display placeholder message
-  genreGrid.innerHTML = `
-    <p>Could not load gallery configuration. Please ensure the thumbnail generation 
-    script has been run to create js/gallery-config.json.</p>
-  `;
 }
 
 /**
@@ -1015,4 +808,22 @@ function toTitleCase(str) {
     .split('-')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
+}
+
+/**
+ * Scan the pics directory as a fallback if config is not available
+ */
+function scanDirectories() {
+  // This would be implemented if direct directory scanning is needed
+  // Not fully implemented as it's better to rely on the gallery-config.json
+  console.log('Directory scanning not implemented. Using placeholder data.');
+  
+  const genreGrid = document.getElementById('genre-grid');
+  if (!genreGrid) return;
+  
+  // Display placeholder message
+  genreGrid.innerHTML = `
+    <p>Could not load gallery configuration. Please ensure the thumbnail generation 
+    script has been run to create js/gallery-config.json.</p>
+  `;
 } 

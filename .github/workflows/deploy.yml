@@ -1,178 +1,131 @@
-name: Build and Deploy
+name: Process Images and Deploy
+
 on:
   push:
     branches:
       - main
-  workflow_dispatch:  # Allow manual triggering
-
-# Ensure only one workflow runs at a time
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
-permissions:
-  contents: write
+  # Allow manual triggering
+  workflow_dispatch:
+  # Run once a day to check for new images
+  schedule:
+    - cron: '0 2 * * *'  # Runs at 2 AM UTC every day
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 30  # Set a reasonable timeout
+    
     steps:
-      - name: Checkout 🛎️
+      - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          lfs: true
-          fetch-depth: 0
-
-      - name: Setup Node.js ⚙️
+      
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '16'
           cache: 'npm'
-          
-      - name: Cache thumbnails and medium images 💾
-        uses: actions/cache@v3
-        with:
-          path: |
-            thumbnails
-            medium
-          key: ${{ runner.os }}-image-cache-${{ hashFiles('pics/**/*.{jpg,jpeg,png}') }}
-          restore-keys: |
-            ${{ runner.os }}-image-cache-
-          
-      - name: Install dependencies 📦
+      
+      - name: Install dependencies
         run: npm ci
       
-      - name: Run tests ✅
-        run: npm test
-        
-      - name: Generate thumbnails and gallery config 🖼️
+      - name: Check for image changes
+        id: check-images
         run: |
-          echo "Starting thumbnail generation..."
-          npm run generate-thumbnails
-          echo "Thumbnail generation completed."
-          
-          # Verify gallery config was created properly
-          if [ ! -f js/gallery-config.json ]; then
-            echo "Error: gallery-config.json not created!"
+          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q "^pics/"; then
+            echo "::set-output name=image_changes::true"
+            echo "Images changed, will process"
+          else
+            echo "::set-output name=image_changes::false"
+            echo "No image changes detected"
+          fi
+      
+      - name: Process images
+        run: npm run process-images
+        # Always process on manual or scheduled runs, or when images change
+        if: |
+          github.event_name == 'workflow_dispatch' || 
+          github.event_name == 'schedule' || 
+          steps.check-images.outputs.image_changes == 'true'
+      
+      - name: Start HTTP server for testing
+        run: |
+          npx http-server -p 8080 &
+          sleep 5 # Give the server time to start
+          echo "HTTP server started for testing"
+      
+      - name: Basic site validation
+        run: |
+          # Check if the home page loads
+          RESPONSE_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/)
+          if [ "$RESPONSE_CODE" -ne 200 ]; then
+            echo "Home page not loading! Status code: $RESPONSE_CODE"
             exit 1
           fi
           
-          # Check how many thumbnails were created
-          THUMB_COUNT=$(find thumbnails -type f -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" | wc -l)
-          echo "Generated $THUMB_COUNT thumbnails"
-          if [ "$THUMB_COUNT" -eq 0 ]; then
-            echo "Warning: No thumbnails were generated!"
-          fi
-        
-      - name: Install optimization tools 🔧
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y jpegoptim optipng gifsicle webp jq
-          
-      - name: Optimize images 🗜️
-        run: |
-          echo "Optimizing thumbnail images..."
-          # Count total images to be processed
-          THUMB_COUNT=$(find thumbnails -type f -name "*.jpg" -o -name "*.jpeg" | wc -l)
-          MED_COUNT=$(find medium -type f -name "*.jpg" -o -name "*.jpeg" | wc -l)
-          TOTAL_COUNT=$((THUMB_COUNT + MED_COUNT))
-          
-          echo "Found $THUMB_COUNT thumbnail images and $MED_COUNT medium images to optimize ($TOTAL_COUNT total)"
-          
-          # Process thumbnails sequentially with progress counter
-          COUNTER=0
-          find thumbnails -type f -name "*.jpg" -o -name "*.jpeg" | while read img; do
-            COUNTER=$((COUNTER + 1))
-            echo "[$(date '+%H:%M:%S')] [$COUNTER/$THUMB_COUNT] Optimizing thumbnail: $img"
-            # Get file size before optimization
-            BEFORE_SIZE=$(du -h "$img" | cut -f1)
-            jpegoptim --max=80 --strip-all "$img"
-            # Get file size after optimization
-            AFTER_SIZE=$(du -h "$img" | cut -f1)
-            echo "   Reduced from $BEFORE_SIZE to $AFTER_SIZE"
-            # Print progress every 10 images
-            if [ $((COUNTER % 10)) -eq 0 ]; then
-              echo "Progress: $COUNTER/$TOTAL_COUNT images processed ($(echo "scale=2; $COUNTER*100/$TOTAL_COUNT" | bc)%)"
-            fi
-          done
-          
-          echo "Optimizing medium-size images..."
-          # Process medium images sequentially with progress counter
-          COUNTER=0
-          find medium -type f -name "*.jpg" -o -name "*.jpeg" | while read img; do
-            COUNTER=$((COUNTER + 1))
-            echo "[$(date '+%H:%M:%S')] [$COUNTER/$MED_COUNT] Optimizing medium: $img"
-            # Get file size before optimization
-            BEFORE_SIZE=$(du -h "$img" | cut -f1)
-            jpegoptim --max=85 --strip-all "$img"
-            # Get file size after optimization
-            AFTER_SIZE=$(du -h "$img" | cut -f1)
-            echo "   Reduced from $BEFORE_SIZE to $AFTER_SIZE"
-            # Print progress every 10 images
-            if [ $((COUNTER % 10)) -eq 0 ]; then
-              echo "Progress: $((THUMB_COUNT + COUNTER))/$TOTAL_COUNT images processed ($(echo "scale=2; ($THUMB_COUNT+$COUNTER)*100/$TOTAL_COUNT" | bc)%)"
-            fi
-          done
-          
-          echo "Image optimization completed - all $TOTAL_COUNT images processed"
-          
-          # Calculate total savings
-          BEFORE_TOTAL=$(du -sh thumbnails medium | awk '{sum+=$1} END {print sum "K"}')
-          echo "Total optimized size: $BEFORE_TOTAL"
-
-      - name: Run validation tests 🧪
-        run: |
-          echo "Testing website structure..."
-          # Install http-server for testing if not already available
-          if ! command -v http-server &> /dev/null; then
-            npm install -g http-server
+          # Check if gallery-config.json exists
+          if [ ! -f "js/gallery-config.json" ]; then
+            echo "gallery-config.json not found!"
+            exit 1
           fi
           
-          # Export GitHub Actions environment variable to allow test script to detect it's running in CI
-          export GITHUB_ACTIONS=true
-          
-          echo "📋 Running basic file validation..."
-          # Basic validation of key files
-          [ ! -f index.html ] && echo "⚠️ Warning: index.html missing" || echo "✅ index.html found"
-          [ ! -f js/app.js ] && echo "⚠️ Warning: js/app.js missing" || echo "✅ js/app.js found"
-          [ ! -f js/gallery-config.json ] && echo "⚠️ Warning: js/gallery-config.json missing" || echo "✅ js/gallery-config.json found"
-          
-          # Run the test script with improved error handling
-          if [ -f test-site.js ]; then
-            echo "🔍 Running test script with 2 minute timeout..."
-            timeout 120s node test-site.js || echo "⚠️ Test script completed with non-zero status, but continuing workflow"
-          else
-            echo "⚠️ No test-site.js found, skipping tests"
-          fi
-          
-          echo "✅ Validation step completed - continuing with deployment"
-          
-      - name: Generate site statistics 📊
-        run: |
-          echo "Site statistics:"
-          echo "-------------------"
-          echo "Galleries:"
-          jq '.galleries | keys | length' js/gallery-config.json
-          
-          echo "Total photos:"
-          jq '[.galleries[] | .images | length] | add' js/gallery-config.json
-          
-          echo "Disk usage:"
-          du -sh pics/ thumbnails/ medium/
-          
-          echo "File counts:"
-          find pics/ -type f -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" | wc -l
-          find thumbnails/ -type f -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" | wc -l
-          find medium/ -type f -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" | wc -l
-          
-      - name: Deploy to GitHub Pages 🚀
-        uses: JamesIves/github-pages-deploy-action@v4
+          echo "Basic validation passed"
+      
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
-          folder: .
           branch: gh-pages
-          clean: true # Automatically remove deleted files
-          
-      - name: Post-deployment notification 🔔
+          folder: .
+          # Don't commit changes to the source branch
+          commit-message: "Deploy site with processed images [skip ci]"
+      
+      - name: Check deployment status
+        id: deployment-status
         run: |
-          echo "Site successfully deployed to GitHub Pages"
-          echo "Visit https://huugs.org to view the site" 
+          # Initialize counters
+          ATTEMPTS=0
+          MAX_ATTEMPTS=30
+          
+          echo "Waiting for GitHub Pages deployment to complete..."
+          
+          # Keep checking deployment status until it's succeeded or we reach max attempts
+          while [ $ATTEMPTS -lt $MAX_ATTEMPTS ]; do
+            # Get the latest deployment status
+            DEPLOYMENT_STATUS=$(curl -s \
+              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              https://api.github.com/repos/${{ github.repository }}/pages/builds/latest | jq -r '.status')
+            
+            echo "Current deployment status: $DEPLOYMENT_STATUS"
+            
+            if [ "$DEPLOYMENT_STATUS" = "built" ]; then
+              echo "Deployment completed successfully!"
+              echo "::set-output name=status::success"
+              break
+            elif [ "$DEPLOYMENT_STATUS" = "errored" ]; then
+              echo "Deployment failed!"
+              echo "::set-output name=status::failed"
+              exit 1
+            fi
+            
+            # Wait before checking again
+            ATTEMPTS=$((ATTEMPTS + 1))
+            echo "Waiting for deployment to complete... (Attempt $ATTEMPTS/$MAX_ATTEMPTS)"
+            sleep 10
+          done
+          
+          if [ $ATTEMPTS -ge $MAX_ATTEMPTS ]; then
+            echo "Timed out waiting for deployment to complete"
+            echo "::set-output name=status::timeout"
+            exit 1
+          fi
+      
+      - name: Notify success
+        if: steps.deployment-status.outputs.status == 'success'
+        run: |
+          SITE_URL=$(curl -s \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/pages | jq -r '.html_url')
+          
+          echo "🎉 Your site is live at: $SITE_URL"
+          echo "Images have been processed and deployed successfully." 

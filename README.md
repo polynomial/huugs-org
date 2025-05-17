@@ -1,63 +1,102 @@
-# Photo Gallery with Automatic Thumbnail Generation
+# Photo Gallery with Automatic Image Processing
 
-This photo gallery website automatically creates optimized thumbnails for improved performance.
+A simple and elegant photo gallery website that automatically processes images in the `pics/` directory, correctly handling EXIF orientation data.
 
 ## Features
 
-- Automatically generates thumbnails and medium-sized images
-- Uses lazy loading for better performance
-- Responsive gallery grid layout
-- Lightbox with navigation controls
-- Optimized for fast loading (reduced from 52MB to ~5MB)
+- Automatic image processing with correct rotation based on EXIF data
+- Generation of thumbnails and medium-sized images
+- Responsive gallery layout for all screen sizes
+- GitHub Actions automation for continuous deployment
+- Fancybox integration for beautiful image lightbox
 
-## Development Setup
+## How to Use
 
-1. **Install Node.js and npm**
-   ```bash
-   # On Debian/Ubuntu
-   sudo apt-get install nodejs npm
-   
-   # On macOS with Homebrew
-   brew install node
+### Adding New Photos
+
+1. Create a directory structure in the `pics/` folder to organize your photos:
+   ```
+   pics/
+   ├── landscape/
+   │   ├── mountains/
+   │   │   ├── image1.jpg
+   │   │   └── image2.jpg
+   │   └── beaches/
+   │       ├── image3.jpg
+   │       └── image4.jpg
+   └── portrait/
+       └── best/
+           ├── image5.jpg
+           └── image6.jpg
    ```
 
-2. **Install dependencies**
-   ```bash
+2. Push your changes to GitHub. The GitHub Actions workflow will:
+   - Process your images (rotate based on EXIF data)
+   - Generate thumbnails and medium-sized versions
+  │   - Deploy your updated site to GitHub Pages
+
+3. Alternatively, you can process images locally with:
+   ```
+   npm run process-images
+   ```
+
+### Local Development
+
+1. Clone the repository:
+   ```
+   git clone https://github.com/yourusername/photos.git
+   ```
+
+2. Install dependencies:
+   ```
    npm install
    ```
 
-3. **Generate thumbnails manually**
-   ```bash
-   node scripts/generate-thumbnails.js
+3. Process images:
+   ```
+   npm run process-images
    ```
 
-## Automatic Thumbnail Generation
+4. Start the local server:
+   ```
+   npm start
+   ```
 
-Thumbnails are generated automatically:
+5. Visit http://localhost:3000 in your browser
 
-1. **On pre-commit (when Node.js is available)**
-   - The Git hook `.githooks/pre-commit` automatically runs the thumbnail generator
-   - Thumbnails and medium-sized images are added to your commit
+## Technical Details
 
-2. **On GitHub Actions deployment**
-   - When changes are pushed to main, GitHub Actions generates thumbnails
-   - Thumbnails are optimized with jpegoptim
-   - Everything is deployed to GitHub Pages
+### Image Processing
 
-## Skip Thumbnail Generation
+Images are processed using the [Sharp](https://sharp.pixelplumbing.com/) library:
 
-If needed, you can skip the thumbnail generation:
+- Thumbnails: 300px max dimension (preserving aspect ratio)
+- Medium: 1200px max dimension (for Fancybox view)
+- Both versions are automatically rotated based on EXIF orientation metadata
 
-```bash
-SKIP_THUMBNAIL_GEN=true git commit -m "Your commit message"
-```
+### Directory Structure
 
-## Image Sizes
+- `pics/`: Original unmodified images (preserved)
+- `thumbnails/`: Generated thumbnail images for grid view
+- `medium/`: Medium-sized images for Fancybox view
+- `js/gallery-config.json`: Automatically generated gallery configuration
 
-- **Original:** Full-size images stored in `pics/` directory
-- **Medium:** 1200px width images for lightbox view in `medium/` directory
-- **Thumbnails:** 300px width images for gallery grid in `thumbnails/` directory
+## Automation
 
-## Gallery Configuration
+The system uses GitHub Actions to:
 
-The gallery configuration is stored in `js/gallery-config.json` and is automatically generated when thumbnails are created. 
+1. Watch for changes to the `pics/` directory
+2. Process new or modified images
+3. Deploy the updated gallery to GitHub Pages
+4. Poll the GitHub Pages deployment status
+5. Report when the site is live
+
+## Customization
+
+- Edit `css/style.css` to customize the appearance
+- Modify `index.html` to change the page structure
+- Update `js/app.js` to adjust gallery behavior
+
+## License
+
+MIT License 
