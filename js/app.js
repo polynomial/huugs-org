@@ -214,9 +214,21 @@ function getEventsFromConfig(config, genreId) {
   const events = new Map();
   const genrePath = `pics/${genreId}`;
   
+  // Log for debugging
+  console.log(`Looking for events in genre: ${genreId}`);
+  console.log(`Available galleries:`, Object.keys(config.galleries));
+  
+  // First, directly check if there are any galleries that match our pattern
+  let foundEvents = false;
+  
   Object.keys(config.galleries).forEach(galleryId => {
+    console.log(`Checking gallery: ${galleryId}`);
+    
     // Check if this is a direct match to the genre or subdirectory
     if (galleryId === genrePath || galleryId.startsWith(genrePath + '/')) {
+      console.log(`Found match: ${galleryId}`);
+      foundEvents = true;
+      
       // Extract event name from path
       const pathParts = galleryId.split('/');
       let eventId;
@@ -226,6 +238,8 @@ function getEventsFromConfig(config, genreId) {
       } else {
         eventId = "general"; // Default event name if it's directly in the genre folder
       }
+      
+      console.log(`Extracted event ID: ${eventId}`);
       
       if (!events.has(eventId)) {
         // Find a cover image
@@ -243,9 +257,52 @@ function getEventsFromConfig(config, genreId) {
           cover: coverImage,
           count: config.galleries[galleryId].images ? config.galleries[galleryId].images.length : 0
         });
+        
+        console.log(`Added event: ${eventTitle} with ${events.get(eventId).count} images`);
       }
     }
   });
+  
+  // If no events were found using the normal method, try a fallback approach
+  if (!foundEvents) {
+    console.log("No events found with standard approach, trying fallback...");
+    
+    // Look for any gallery that contains the genre in its path
+    Object.keys(config.galleries).forEach(galleryId => {
+      if (galleryId.includes(`/${genreId}/`)) {
+        const pathParts = galleryId.split('/');
+        // Find the part after the genre name
+        let genreIndex = -1;
+        pathParts.forEach((part, index) => {
+          if (part === genreId) {
+            genreIndex = index;
+          }
+        });
+        
+        if (genreIndex >= 0 && genreIndex + 1 < pathParts.length) {
+          const eventId = pathParts[genreIndex + 1];
+          
+          if (!events.has(eventId)) {
+            // Find a cover image
+            const coverImage = config.galleries[galleryId].images && 
+                              config.galleries[galleryId].images.length > 0 ?
+                              `./${config.galleries[galleryId].images[0].thumbnail}` :
+                              './thumbnails/placeholder.jpg';
+            
+            events.set(eventId, {
+              id: eventId,
+              title: toTitleCase(eventId.replace(/-/g, ' ')),
+              path: galleryId,
+              cover: coverImage,
+              count: config.galleries[galleryId].images ? config.galleries[galleryId].images.length : 0
+            });
+            
+            console.log(`Added event (fallback): ${eventId} with ${events.get(eventId).count} images`);
+          }
+        }
+      }
+    });
+  }
   
   return Array.from(events.values());
 }
