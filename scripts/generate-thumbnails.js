@@ -92,9 +92,37 @@ function findImagesRecursively(directory, baseDir = directory) {
   return images;
 }
 
+// Create a placeholder image for genres/events without images
+async function createPlaceholderImage() {
+  const placeholderPath = path.join(config.baseDir, 'thumbnails', 'placeholder.jpg');
+  
+  if (!fs.existsSync(placeholderPath)) {
+    try {
+      // Create a simple black placeholder image
+      await sharp({
+        create: {
+          width: config.thumbnailWidth,
+          height: config.thumbnailWidth,
+          channels: 3,
+          background: { r: 240, g: 240, b: 240 }
+        }
+      })
+      .jpeg({ quality: config.quality })
+      .toFile(placeholderPath);
+      
+      console.log(`Created placeholder image: ${placeholderPath}`);
+    } catch (error) {
+      console.error('Error creating placeholder image:', error);
+    }
+  }
+}
+
 // Main function
 async function generateThumbnails() {
   console.log('Starting thumbnail generation...');
+  
+  // Create a placeholder image
+  await createPlaceholderImage();
   
   // Track statistics
   const stats = {
@@ -182,31 +210,63 @@ function generateGalleryConfig(stats) {
     const sourcePath = path.join(config.baseDir, sourceDir);
     
     if (fs.existsSync(sourcePath)) {
-      const items = fs.readdirSync(sourcePath);
+      // First level: genres (e.g., track, nature, etc.)
+      const genres = fs.readdirSync(sourcePath);
       
-      for (const item of items) {
-        const fullPath = path.join(sourcePath, item);
+      for (const genre of genres) {
+        const genrePath = path.join(sourcePath, genre);
         
-        if (fs.statSync(fullPath).isDirectory()) {
-          // This is a gallery
-          const galleryImages = findImagesRecursively(fullPath, sourcePath);
+        if (fs.statSync(genrePath).isDirectory()) {
+          // Second level: events within each genre
+          const events = fs.readdirSync(genrePath);
           
-          if (galleryImages.length > 0) {
-            const galleryId = path.join(sourceDir, item);
+          for (const event of events) {
+            const eventPath = path.join(genrePath, event);
             
-            galleryConfig.galleries[galleryId] = {
-              title: item.charAt(0).toUpperCase() + item.slice(1).replace(/-/g, ' '),
-              description: `${galleryImages.length} images`,
-              images: galleryImages.map(img => {
-                const fileName = path.basename(img.path);
-                return {
-                  original: path.join(img.relativePath),
-                  thumbnail: path.join(config.thumbnailsDir, sourceDir, img.relativePath),
-                  medium: path.join(config.mediumDir, sourceDir, img.relativePath),
-                  title: fileName.replace(/\.(jpg|jpeg|png)$/i, '').replace(/_/g, ' ')
+            if (fs.statSync(eventPath).isDirectory()) {
+              // This is an event directory
+              const galleryId = path.join(sourceDir, genre, event);
+              const galleryImages = findImagesRecursively(eventPath, sourcePath);
+              
+              if (galleryImages.length > 0) {
+                galleryConfig.galleries[galleryId] = {
+                  title: formatTitle(event),
+                  description: `${galleryImages.length} images`,
+                  images: galleryImages.map(img => {
+                    const fileName = path.basename(img.path);
+                    return {
+                      original: path.join(img.relativePath),
+                      thumbnail: path.join(config.thumbnailsDir, sourceDir, img.relativePath),
+                      medium: path.join(config.mediumDir, sourceDir, img.relativePath),
+                      title: formatTitle(fileName.replace(/\.(jpg|jpeg|png)$/i, ''))
+                    };
+                  })
                 };
-              })
-            };
+              }
+            } else if (config.extensions.includes(path.extname(event).toLowerCase())) {
+              // This is an image directly in the genre folder (not in an event subfolder)
+              // Create a "general" event for these images
+              const galleryId = path.join(sourceDir, genre);
+              
+              if (!galleryConfig.galleries[galleryId]) {
+                galleryConfig.galleries[galleryId] = {
+                  title: formatTitle(genre),
+                  description: "General images",
+                  images: []
+                };
+              }
+              
+              // Add this image to the general gallery
+              const imagePath = path.join(genrePath, event);
+              const relativePath = path.relative(sourcePath, imagePath);
+              
+              galleryConfig.galleries[galleryId].images.push({
+                original: relativePath,
+                thumbnail: path.join(config.thumbnailsDir, sourceDir, relativePath),
+                medium: path.join(config.mediumDir, sourceDir, relativePath),
+                title: formatTitle(event.replace(/\.(jpg|jpeg|png)$/i, ''))
+              });
+            }
           }
         }
       }
@@ -217,6 +277,16 @@ function generateGalleryConfig(stats) {
   const configPath = path.join(config.baseDir, 'js', 'gallery-config.json');
   fs.writeFileSync(configPath, JSON.stringify(galleryConfig, null, 2));
   console.log(`Generated gallery config: ${configPath}`);
+}
+
+// Helper function to format titles nicely
+function formatTitle(str) {
+  return str
+    .replace(/_/g, ' ')
+    .replace(/-/g, ' ')
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
 }
 
 // Run the thumbnail generator
