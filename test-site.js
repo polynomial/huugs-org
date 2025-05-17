@@ -36,8 +36,11 @@ const PAGES_TO_TEST = [
 
 // Images to test
 const IMAGES_TO_TEST = [
-  'pics/track/best/thumbnails/IMG_0122.JPG',
-  'pics/track/best/thumbnails/IMG_0488.JPG'
+  'thumbnails/pics/track/best/DSC00221.JPG',
+  'medium/pics/track/best/DSC00221.JPG',
+  'pics/track/best/DSC00221.JPG',
+  'thumbnails/pics/track/best/IMG_0122.JPG',
+  'medium/pics/track/best/IMG_0122.JPG'
 ];
 
 // Required JavaScript functions
@@ -180,18 +183,69 @@ async function testPage(page) {
 // Function to test if an image loads
 async function testImage(imagePath) {
   const url = `http://localhost:${PORT}/${imagePath}`;
-  console.log(`Testing image: ${url}`);
+  console.log(`\nTesting image: ${url}`);
   
   try {
+    console.log(`Sending HTTP request to verify image exists...`);
     // Use curl with -I to just get headers and check status code
-    const result = execSync(`curl -sI "${url}"`).toString();
+    // Add -v for verbose output to help diagnose any issues
+    const result = execSync(`curl -sI -v "${url}" 2>&1`).toString();
     const statusLine = result.split('\n')[0];
     
-    if (statusLine.includes('200 OK')) {
+    // Extract and log more details about the request
+    const requestLines = result.split('\n').filter(line => line.includes('GET') || line.includes('Host:'));
+    requestLines.forEach(line => console.log(`Request detail: ${line.trim()}`));
+    
+    // Check for 200 OK response
+    if (result.includes('HTTP/1.1 200 OK') || result.includes('HTTP/2 200')) {
       console.log(`✓ Image ${imagePath} loaded successfully`);
+      
+      // Get content length if available
+      const contentLengthMatch = result.match(/Content-Length: (\d+)/);
+      if (contentLengthMatch) {
+        const size = parseInt(contentLengthMatch[1]);
+        const sizeKB = (size / 1024).toFixed(2);
+        console.log(`  Image size: ${sizeKB} KB`);
+      }
+      
+      // Get content type if available
+      const contentTypeMatch = result.match(/Content-Type: ([^\r\n]+)/);
+      if (contentTypeMatch) {
+        console.log(`  Content-Type: ${contentTypeMatch[1]}`);
+      }
+      
       return true;
     } else {
-      console.error(`✗ Failed to load image ${imagePath}: ${statusLine}`);
+      // Extract error information for better debugging
+      console.error(`✗ Failed to load image ${imagePath}`);
+      console.error(`  Status: ${statusLine}`);
+      
+      // Log more error details
+      result.split('\n').forEach(line => {
+        if (line.includes('HTTP/') || line.includes('404') || line.includes('error')) {
+          console.error(`  ${line.trim()}`);
+        }
+      });
+      
+      // Try to check if the file exists locally
+      const localPath = path.join(ROOT_DIR, imagePath);
+      if (fs.existsSync(localPath)) {
+        console.error(`  Note: The file exists locally at ${localPath} but couldn't be served`);
+        const stats = fs.statSync(localPath);
+        console.error(`  Local file size: ${(stats.size / 1024).toFixed(2)} KB`);
+      } else {
+        console.error(`  Note: The file does not exist locally at ${localPath}`);
+        
+        // Check if the directory exists
+        const dir = path.dirname(localPath);
+        if (fs.existsSync(dir)) {
+          console.error(`  The directory ${dir} exists, but not the file`);
+          console.error(`  Directory contents: ${fs.readdirSync(dir).join(', ')}`);
+        } else {
+          console.error(`  The directory ${dir} does not exist`);
+        }
+      }
+      
       return false;
     }
   } catch (error) {

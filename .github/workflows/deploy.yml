@@ -72,20 +72,53 @@ jobs:
       - name: Optimize images 🗜️
         run: |
           echo "Optimizing thumbnail images..."
-          # Process thumbnails sequentially to ensure stability
+          # Count total images to be processed
+          THUMB_COUNT=$(find thumbnails -type f -name "*.jpg" -o -name "*.jpeg" | wc -l)
+          MED_COUNT=$(find medium -type f -name "*.jpg" -o -name "*.jpeg" | wc -l)
+          TOTAL_COUNT=$((THUMB_COUNT + MED_COUNT))
+          
+          echo "Found $THUMB_COUNT thumbnail images and $MED_COUNT medium images to optimize ($TOTAL_COUNT total)"
+          
+          # Process thumbnails sequentially with progress counter
+          COUNTER=0
           find thumbnails -type f -name "*.jpg" -o -name "*.jpeg" | while read img; do
-            echo "Optimizing $img"
+            COUNTER=$((COUNTER + 1))
+            echo "[$(date '+%H:%M:%S')] [$COUNTER/$THUMB_COUNT] Optimizing thumbnail: $img"
+            # Get file size before optimization
+            BEFORE_SIZE=$(du -h "$img" | cut -f1)
             jpegoptim --max=80 --strip-all "$img"
+            # Get file size after optimization
+            AFTER_SIZE=$(du -h "$img" | cut -f1)
+            echo "   Reduced from $BEFORE_SIZE to $AFTER_SIZE"
+            # Print progress every 10 images
+            if [ $((COUNTER % 10)) -eq 0 ]; then
+              echo "Progress: $COUNTER/$TOTAL_COUNT images processed ($(echo "scale=2; $COUNTER*100/$TOTAL_COUNT" | bc)%)"
+            fi
           done
           
           echo "Optimizing medium-size images..."
-          # Process medium images sequentially as well
+          # Process medium images sequentially with progress counter
+          COUNTER=0
           find medium -type f -name "*.jpg" -o -name "*.jpeg" | while read img; do
-            echo "Optimizing $img"
+            COUNTER=$((COUNTER + 1))
+            echo "[$(date '+%H:%M:%S')] [$COUNTER/$MED_COUNT] Optimizing medium: $img"
+            # Get file size before optimization
+            BEFORE_SIZE=$(du -h "$img" | cut -f1)
             jpegoptim --max=85 --strip-all "$img"
+            # Get file size after optimization
+            AFTER_SIZE=$(du -h "$img" | cut -f1)
+            echo "   Reduced from $BEFORE_SIZE to $AFTER_SIZE"
+            # Print progress every 10 images
+            if [ $((COUNTER % 10)) -eq 0 ]; then
+              echo "Progress: $((THUMB_COUNT + COUNTER))/$TOTAL_COUNT images processed ($(echo "scale=2; ($THUMB_COUNT+$COUNTER)*100/$TOTAL_COUNT" | bc)%)"
+            fi
           done
           
-          echo "Image optimization completed"
+          echo "Image optimization completed - all $TOTAL_COUNT images processed"
+          
+          # Calculate total savings
+          BEFORE_TOTAL=$(du -sh thumbnails medium | awk '{sum+=$1} END {print sum "K"}')
+          echo "Total optimized size: $BEFORE_TOTAL"
 
       - name: Run validation tests 🧪
         run: |
