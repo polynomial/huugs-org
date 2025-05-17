@@ -1,604 +1,818 @@
 {
-  "version": "1.0",
-  "lastGenerated": "2025-05-17T19:13:53.590Z",
-  "stats": {
-    "totalImages": 96,
-    "totalSizeMB": "961.50",
-    "thumbnailSizeMB": "1.49",
-    "mediumSizeMB": "14.50"
-  },
   "galleries": {
-    "pics/test-gallery/test-category": {
-      "title": "Test Category",
-      "description": "3 images",
-      "images": [
-        {
-          "original": "test-gallery/test-category/test1.jpg",
-          "thumbnail": "thumbnails/pics/test-gallery/test-category/test1.jpg",
-          "medium": "medium/pics/test-gallery/test-category/test1.jpg",
-          "title": "Test1"
-        },
-        {
-          "original": "test-gallery/test-category/test2.jpg",
-          "thumbnail": "thumbnails/pics/test-gallery/test-category/test2.jpg",
-          "medium": "medium/pics/test-gallery/test-category/test2.jpg",
-          "title": "Test2"
-        },
-        {
-          "original": "test-gallery/test-category/test3.jpg",
-          "thumbnail": "thumbnails/pics/test-gallery/test-category/test3.jpg",
-          "medium": "medium/pics/test-gallery/test-category/test3.jpg",
-          "title": "Test3"
-        }
-      ]
-    },
-    "pics/test-gallery": {
-      "title": "Test Gallery",
-      "description": "General images",
-      "images": [
-        {
-          "original": "test-gallery/test1.jpg",
-          "thumbnail": "thumbnails/pics/test-gallery/test1.jpg",
-          "medium": "medium/pics/test-gallery/test1.jpg",
-          "title": "Test1"
-        },
-        {
-          "original": "test-gallery/test2.jpg",
-          "thumbnail": "thumbnails/pics/test-gallery/test2.jpg",
-          "medium": "medium/pics/test-gallery/test2.jpg",
-          "title": "Test2"
-        },
-        {
-          "original": "test-gallery/test3.jpg",
-          "thumbnail": "thumbnails/pics/test-gallery/test3.jpg",
-          "medium": "medium/pics/test-gallery/test3.jpg",
-          "title": "Test3"
-        }
-      ]
-    },
     "pics/track/best": {
       "title": "Best",
-      "description": "90 images",
+      "description": "Photos in pics/track/best",
       "images": [
         {
-          "original": "track/best/DSC00005.JPG",
-          "thumbnail": "thumbnails/pics/track/best/DSC00005.JPG",
-          "medium": "medium/pics/track/best/DSC00005.JPG",
-          "title": "DSC00005"
-        },
-        {
-          "original": "track/best/DSC00216.jpg",
-          "thumbnail": "thumbnails/pics/track/best/DSC00216.jpg",
-          "medium": "medium/pics/track/best/DSC00216.jpg",
-          "title": "DSC00216"
-        },
-        {
-          "original": "track/best/DSC00221.JPG",
-          "thumbnail": "thumbnails/pics/track/best/DSC00221.JPG",
-          "medium": "medium/pics/track/best/DSC00221.JPG",
-          "title": "DSC00221"
-        },
-        {
-          "original": "track/best/DSC00235-EDIT.jpg",
-          "thumbnail": "thumbnails/pics/track/best/DSC00235-EDIT.jpg",
-          "medium": "medium/pics/track/best/DSC00235-EDIT.jpg",
-          "title": "DSC00235 EDIT"
-        },
-        {
-          "original": "track/best/DSC00307-EDIT.jpg",
-          "thumbnail": "thumbnails/pics/track/best/DSC00307-EDIT.jpg",
-          "medium": "medium/pics/track/best/DSC00307-EDIT.jpg",
-          "title": "DSC00307 EDIT"
-        },
-        {
-          "original": "track/best/DSC00324.JPG",
-          "thumbnail": "thumbnails/pics/track/best/DSC00324.JPG",
-          "medium": "medium/pics/track/best/DSC00324.JPG",
-          "title": "DSC00324"
-        },
-        {
-          "original": "track/best/DSC00326.JPG",
-          "thumbnail": "thumbnails/pics/track/best/DSC00326.JPG",
-          "medium": "medium/pics/track/best/DSC00326.JPG",
-          "title": "DSC00326"
-        },
-        {
-          "original": "track/best/DSC00336.JPG",
-          "thumbnail": "thumbnails/pics/track/best/DSC00336.JPG",
-          "medium": "medium/pics/track/best/DSC00336.JPG",
-          "title": "DSC00336"
-        },
-        {
-          "original": "track/best/DSC00351-EDIT.jpg",
-          "thumbnail": "thumbnails/pics/track/best/DSC00351-EDIT.jpg",
-          "medium": "medium/pics/track/best/DSC00351-EDIT.jpg",
-          "title": "DSC00351 EDIT"
-        },
-        {
-          "original": "track/best/DSC00375.JPG",
-          "thumbnail": "thumbnails/pics/track/best/DSC00375.JPG",
-          "medium": "medium/pics/track/best/DSC00375.JPG",
-          "title": "DSC00375"
-        },
-        {
-          "original": "track/best/DSC00378.JPG",
-          "thumbnail": "thumbnails/pics/track/best/DSC00378.JPG",
-          "medium": "medium/pics/track/best/DSC00378.JPG",
-          "title": "DSC00378"
-        },
-        {
-          "original": "track/best/DSC00384-EDIT.jpg",
-          "thumbnail": "thumbnails/pics/track/best/DSC00384-EDIT.jpg",
-          "medium": "medium/pics/track/best/DSC00384-EDIT.jpg",
-          "title": "DSC00384 EDIT"
-        },
-        {
-          "original": "track/best/DSC00384.jpg",
-          "thumbnail": "thumbnails/pics/track/best/DSC00384.jpg",
-          "medium": "medium/pics/track/best/DSC00384.jpg",
-          "title": "DSC00384"
-        },
-        {
-          "original": "track/best/DSC00415.JPG",
-          "thumbnail": "thumbnails/pics/track/best/DSC00415.JPG",
-          "medium": "medium/pics/track/best/DSC00415.JPG",
-          "title": "DSC00415"
-        },
-        {
-          "original": "track/best/DSC00453.JPG",
-          "thumbnail": "thumbnails/pics/track/best/DSC00453.JPG",
-          "medium": "medium/pics/track/best/DSC00453.JPG",
-          "title": "DSC00453"
-        },
-        {
-          "original": "track/best/DSC00511.JPG",
-          "thumbnail": "thumbnails/pics/track/best/DSC00511.JPG",
-          "medium": "medium/pics/track/best/DSC00511.JPG",
-          "title": "DSC00511"
-        },
-        {
-          "original": "track/best/DSC00527.JPG",
-          "thumbnail": "thumbnails/pics/track/best/DSC00527.JPG",
-          "medium": "medium/pics/track/best/DSC00527.JPG",
-          "title": "DSC00527"
-        },
-        {
-          "original": "track/best/DSC00563.JPG",
-          "thumbnail": "thumbnails/pics/track/best/DSC00563.JPG",
-          "medium": "medium/pics/track/best/DSC00563.JPG",
-          "title": "DSC00563"
-        },
-        {
-          "original": "track/best/DSC00629.jpg",
-          "thumbnail": "thumbnails/pics/track/best/DSC00629.jpg",
-          "medium": "medium/pics/track/best/DSC00629.jpg",
-          "title": "DSC00629"
-        },
-        {
-          "original": "track/best/DSC00822.JPG",
-          "thumbnail": "thumbnails/pics/track/best/DSC00822.JPG",
-          "medium": "medium/pics/track/best/DSC00822.JPG",
-          "title": "DSC00822"
-        },
-        {
-          "original": "track/best/DSC00915-EDIT.jpg",
-          "thumbnail": "thumbnails/pics/track/best/DSC00915-EDIT.jpg",
-          "medium": "medium/pics/track/best/DSC00915-EDIT.jpg",
-          "title": "DSC00915 EDIT"
-        },
-        {
-          "original": "track/best/DSC01303.JPG",
-          "thumbnail": "thumbnails/pics/track/best/DSC01303.JPG",
-          "medium": "medium/pics/track/best/DSC01303.JPG",
-          "title": "DSC01303"
-        },
-        {
-          "original": "track/best/IMG_0015.JPG",
-          "thumbnail": "thumbnails/pics/track/best/IMG_0015.JPG",
-          "medium": "medium/pics/track/best/IMG_0015.JPG",
-          "title": "IMG 0015"
-        },
-        {
-          "original": "track/best/IMG_0017.JPG",
-          "thumbnail": "thumbnails/pics/track/best/IMG_0017.JPG",
-          "medium": "medium/pics/track/best/IMG_0017.JPG",
-          "title": "IMG 0017"
-        },
-        {
-          "original": "track/best/IMG_0026.JPG",
-          "thumbnail": "thumbnails/pics/track/best/IMG_0026.JPG",
-          "medium": "medium/pics/track/best/IMG_0026.JPG",
-          "title": "IMG 0026"
-        },
-        {
-          "original": "track/best/IMG_0110.JPG",
-          "thumbnail": "thumbnails/pics/track/best/IMG_0110.JPG",
-          "medium": "medium/pics/track/best/IMG_0110.JPG",
-          "title": "IMG 0110"
-        },
-        {
-          "original": "track/best/IMG_0122.JPG",
-          "thumbnail": "thumbnails/pics/track/best/IMG_0122.JPG",
-          "medium": "medium/pics/track/best/IMG_0122.JPG",
-          "title": "IMG 0122"
-        },
-        {
-          "original": "track/best/IMG_0134.JPG",
-          "thumbnail": "thumbnails/pics/track/best/IMG_0134.JPG",
-          "medium": "medium/pics/track/best/IMG_0134.JPG",
-          "title": "IMG 0134"
-        },
-        {
-          "original": "track/best/IMG_0469.JPG",
-          "thumbnail": "thumbnails/pics/track/best/IMG_0469.JPG",
-          "medium": "medium/pics/track/best/IMG_0469.JPG",
-          "title": "IMG 0469"
-        },
-        {
-          "original": "track/best/IMG_0488.JPG",
-          "thumbnail": "thumbnails/pics/track/best/IMG_0488.JPG",
-          "medium": "medium/pics/track/best/IMG_0488.JPG",
-          "title": "IMG 0488"
-        },
-        {
-          "original": "track/best/IMG_1302.jpg",
-          "thumbnail": "thumbnails/pics/track/best/IMG_1302.jpg",
-          "medium": "medium/pics/track/best/IMG_1302.jpg",
-          "title": "IMG 1302"
-        },
-        {
-          "original": "track/best/IMG_1477.jpg",
-          "thumbnail": "thumbnails/pics/track/best/IMG_1477.jpg",
-          "medium": "medium/pics/track/best/IMG_1477.jpg",
-          "title": "IMG 1477"
-        },
-        {
-          "original": "track/best/IMG_1592.jpg",
-          "thumbnail": "thumbnails/pics/track/best/IMG_1592.jpg",
-          "medium": "medium/pics/track/best/IMG_1592.jpg",
-          "title": "IMG 1592"
-        },
-        {
-          "original": "track/best/IMG_1698.jpg",
-          "thumbnail": "thumbnails/pics/track/best/IMG_1698.jpg",
-          "medium": "medium/pics/track/best/IMG_1698.jpg",
-          "title": "IMG 1698"
-        },
-        {
-          "original": "track/best/IMG_1705.jpg",
-          "thumbnail": "thumbnails/pics/track/best/IMG_1705.jpg",
-          "medium": "medium/pics/track/best/IMG_1705.jpg",
-          "title": "IMG 1705"
-        },
-        {
-          "original": "track/best/IMG_1893.jpg",
-          "thumbnail": "thumbnails/pics/track/best/IMG_1893.jpg",
-          "medium": "medium/pics/track/best/IMG_1893.jpg",
-          "title": "IMG 1893"
-        },
-        {
-          "original": "track/best/IMG_3029-EDIT.jpg",
-          "thumbnail": "thumbnails/pics/track/best/IMG_3029-EDIT.jpg",
-          "medium": "medium/pics/track/best/IMG_3029-EDIT.jpg",
-          "title": "IMG 3029 EDIT"
-        },
-        {
-          "original": "track/best/IMG_3121-EDIT.jpg",
-          "thumbnail": "thumbnails/pics/track/best/IMG_3121-EDIT.jpg",
-          "medium": "medium/pics/track/best/IMG_3121-EDIT.jpg",
-          "title": "IMG 3121 EDIT"
-        },
-        {
-          "original": "track/best/IMG_3242-EDIT.jpg",
-          "thumbnail": "thumbnails/pics/track/best/IMG_3242-EDIT.jpg",
-          "medium": "medium/pics/track/best/IMG_3242-EDIT.jpg",
-          "title": "IMG 3242 EDIT"
-        },
-        {
-          "original": "track/best/IMG_3732-EDIT.jpg",
-          "thumbnail": "thumbnails/pics/track/best/IMG_3732-EDIT.jpg",
-          "medium": "medium/pics/track/best/IMG_3732-EDIT.jpg",
-          "title": "IMG 3732 EDIT"
-        },
-        {
-          "original": "track/best/IMG_3747-EDIT.jpg",
-          "thumbnail": "thumbnails/pics/track/best/IMG_3747-EDIT.jpg",
-          "medium": "medium/pics/track/best/IMG_3747-EDIT.jpg",
-          "title": "IMG 3747 EDIT"
-        },
-        {
-          "original": "track/best/cal_young_track_meet_IMG_0168.JPG",
+          "title": "Cal Young Track Meet IMG 0168",
+          "original": "pics/track/best/cal_young_track_meet_IMG_0168.JPG",
           "thumbnail": "thumbnails/pics/track/best/cal_young_track_meet_IMG_0168.JPG",
           "medium": "medium/pics/track/best/cal_young_track_meet_IMG_0168.JPG",
-          "title": "Cal Young Track Meet IMG 0168"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/cal_young_track_meet_IMG_0182.JPG",
+          "title": "Cal Young Track Meet IMG 0182",
+          "original": "pics/track/best/cal_young_track_meet_IMG_0182.JPG",
           "thumbnail": "thumbnails/pics/track/best/cal_young_track_meet_IMG_0182.JPG",
           "medium": "medium/pics/track/best/cal_young_track_meet_IMG_0182.JPG",
-          "title": "Cal Young Track Meet IMG 0182"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/cal_young_track_meet_IMG_0206.JPG",
+          "title": "Cal Young Track Meet IMG 0206",
+          "original": "pics/track/best/cal_young_track_meet_IMG_0206.JPG",
           "thumbnail": "thumbnails/pics/track/best/cal_young_track_meet_IMG_0206.JPG",
           "medium": "medium/pics/track/best/cal_young_track_meet_IMG_0206.JPG",
-          "title": "Cal Young Track Meet IMG 0206"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/cal_young_track_meet_IMG_0253.JPG",
+          "title": "Cal Young Track Meet IMG 0253",
+          "original": "pics/track/best/cal_young_track_meet_IMG_0253.JPG",
           "thumbnail": "thumbnails/pics/track/best/cal_young_track_meet_IMG_0253.JPG",
           "medium": "medium/pics/track/best/cal_young_track_meet_IMG_0253.JPG",
-          "title": "Cal Young Track Meet IMG 0253"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/cal_young_track_meet_IMG_0338.JPG",
+          "title": "Cal Young Track Meet IMG 0338",
+          "original": "pics/track/best/cal_young_track_meet_IMG_0338.JPG",
           "thumbnail": "thumbnails/pics/track/best/cal_young_track_meet_IMG_0338.JPG",
           "medium": "medium/pics/track/best/cal_young_track_meet_IMG_0338.JPG",
-          "title": "Cal Young Track Meet IMG 0338"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/cal_young_track_meet_IMG_0355.JPG",
+          "title": "Cal Young Track Meet IMG 0355",
+          "original": "pics/track/best/cal_young_track_meet_IMG_0355.JPG",
           "thumbnail": "thumbnails/pics/track/best/cal_young_track_meet_IMG_0355.JPG",
           "medium": "medium/pics/track/best/cal_young_track_meet_IMG_0355.JPG",
-          "title": "Cal Young Track Meet IMG 0355"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/cal_young_track_meet_IMG_0390.JPG",
+          "title": "Cal Young Track Meet IMG 0390",
+          "original": "pics/track/best/cal_young_track_meet_IMG_0390.JPG",
           "thumbnail": "thumbnails/pics/track/best/cal_young_track_meet_IMG_0390.JPG",
           "medium": "medium/pics/track/best/cal_young_track_meet_IMG_0390.JPG",
-          "title": "Cal Young Track Meet IMG 0390"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/cal_young_track_meet_IMG_0396.JPG",
+          "title": "Cal Young Track Meet IMG 0396",
+          "original": "pics/track/best/cal_young_track_meet_IMG_0396.JPG",
           "thumbnail": "thumbnails/pics/track/best/cal_young_track_meet_IMG_0396.JPG",
           "medium": "medium/pics/track/best/cal_young_track_meet_IMG_0396.JPG",
-          "title": "Cal Young Track Meet IMG 0396"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/cal_young_track_meet_IMG_0574.JPG",
+          "title": "Cal Young Track Meet IMG 0574",
+          "original": "pics/track/best/cal_young_track_meet_IMG_0574.JPG",
           "thumbnail": "thumbnails/pics/track/best/cal_young_track_meet_IMG_0574.JPG",
           "medium": "medium/pics/track/best/cal_young_track_meet_IMG_0574.JPG",
-          "title": "Cal Young Track Meet IMG 0574"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/cal_young_track_meet_IMG_0978.JPG",
+          "title": "Cal Young Track Meet IMG 0978",
+          "original": "pics/track/best/cal_young_track_meet_IMG_0978.JPG",
           "thumbnail": "thumbnails/pics/track/best/cal_young_track_meet_IMG_0978.JPG",
           "medium": "medium/pics/track/best/cal_young_track_meet_IMG_0978.JPG",
-          "title": "Cal Young Track Meet IMG 0978"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/cal_young_track_meet_IMG_0983.JPG",
+          "title": "Cal Young Track Meet IMG 0983",
+          "original": "pics/track/best/cal_young_track_meet_IMG_0983.JPG",
           "thumbnail": "thumbnails/pics/track/best/cal_young_track_meet_IMG_0983.JPG",
           "medium": "medium/pics/track/best/cal_young_track_meet_IMG_0983.JPG",
-          "title": "Cal Young Track Meet IMG 0983"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/cal_young_track_meet_IMG_1075.JPG",
+          "title": "Cal Young Track Meet IMG 1075",
+          "original": "pics/track/best/cal_young_track_meet_IMG_1075.JPG",
           "thumbnail": "thumbnails/pics/track/best/cal_young_track_meet_IMG_1075.JPG",
           "medium": "medium/pics/track/best/cal_young_track_meet_IMG_1075.JPG",
-          "title": "Cal Young Track Meet IMG 1075"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/cal_young_track_meet_IMG_1093.JPG",
+          "title": "Cal Young Track Meet IMG 1093",
+          "original": "pics/track/best/cal_young_track_meet_IMG_1093.JPG",
           "thumbnail": "thumbnails/pics/track/best/cal_young_track_meet_IMG_1093.JPG",
           "medium": "medium/pics/track/best/cal_young_track_meet_IMG_1093.JPG",
-          "title": "Cal Young Track Meet IMG 1093"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/cal_young_track_meet_IMG_1201.JPG",
+          "title": "Cal Young Track Meet IMG 1201",
+          "original": "pics/track/best/cal_young_track_meet_IMG_1201.JPG",
           "thumbnail": "thumbnails/pics/track/best/cal_young_track_meet_IMG_1201.JPG",
           "medium": "medium/pics/track/best/cal_young_track_meet_IMG_1201.JPG",
-          "title": "Cal Young Track Meet IMG 1201"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/cal_young_track_meet_IMG_1304.JPG",
+          "title": "Cal Young Track Meet IMG 1304",
+          "original": "pics/track/best/cal_young_track_meet_IMG_1304.JPG",
           "thumbnail": "thumbnails/pics/track/best/cal_young_track_meet_IMG_1304.JPG",
           "medium": "medium/pics/track/best/cal_young_track_meet_IMG_1304.JPG",
-          "title": "Cal Young Track Meet IMG 1304"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/cal_young_track_meet_IMG_1469.JPG",
+          "title": "Cal Young Track Meet IMG 1469",
+          "original": "pics/track/best/cal_young_track_meet_IMG_1469.JPG",
           "thumbnail": "thumbnails/pics/track/best/cal_young_track_meet_IMG_1469.JPG",
           "medium": "medium/pics/track/best/cal_young_track_meet_IMG_1469.JPG",
-          "title": "Cal Young Track Meet IMG 1469"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/cal_young_track_meet_IMG_1858.JPG",
+          "title": "Cal Young Track Meet IMG 1858",
+          "original": "pics/track/best/cal_young_track_meet_IMG_1858.JPG",
           "thumbnail": "thumbnails/pics/track/best/cal_young_track_meet_IMG_1858.JPG",
           "medium": "medium/pics/track/best/cal_young_track_meet_IMG_1858.JPG",
-          "title": "Cal Young Track Meet IMG 1858"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/cal_young_track_meet_IMG_1862.JPG",
+          "title": "Cal Young Track Meet IMG 1862",
+          "original": "pics/track/best/cal_young_track_meet_IMG_1862.JPG",
           "thumbnail": "thumbnails/pics/track/best/cal_young_track_meet_IMG_1862.JPG",
           "medium": "medium/pics/track/best/cal_young_track_meet_IMG_1862.JPG",
-          "title": "Cal Young Track Meet IMG 1862"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/cal_young_track_meet_IMG_2032.JPG",
+          "title": "Cal Young Track Meet IMG 2032",
+          "original": "pics/track/best/cal_young_track_meet_IMG_2032.JPG",
           "thumbnail": "thumbnails/pics/track/best/cal_young_track_meet_IMG_2032.JPG",
           "medium": "medium/pics/track/best/cal_young_track_meet_IMG_2032.JPG",
-          "title": "Cal Young Track Meet IMG 2032"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/cal_young_track_meet_IMG_2033.JPG",
+          "title": "Cal Young Track Meet IMG 2033",
+          "original": "pics/track/best/cal_young_track_meet_IMG_2033.JPG",
           "thumbnail": "thumbnails/pics/track/best/cal_young_track_meet_IMG_2033.JPG",
           "medium": "medium/pics/track/best/cal_young_track_meet_IMG_2033.JPG",
-          "title": "Cal Young Track Meet IMG 2033"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/cal_young_track_meet_IMG_2126.JPG",
+          "title": "Cal Young Track Meet IMG 2126",
+          "original": "pics/track/best/cal_young_track_meet_IMG_2126.JPG",
           "thumbnail": "thumbnails/pics/track/best/cal_young_track_meet_IMG_2126.JPG",
           "medium": "medium/pics/track/best/cal_young_track_meet_IMG_2126.JPG",
-          "title": "Cal Young Track Meet IMG 2126"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/cal_young_track_meet_IMG_2605.JPG",
+          "title": "Cal Young Track Meet IMG 2605",
+          "original": "pics/track/best/cal_young_track_meet_IMG_2605.JPG",
           "thumbnail": "thumbnails/pics/track/best/cal_young_track_meet_IMG_2605.JPG",
           "medium": "medium/pics/track/best/cal_young_track_meet_IMG_2605.JPG",
-          "title": "Cal Young Track Meet IMG 2605"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/cal_young_track_meet_IMG_2792.JPG",
+          "title": "Cal Young Track Meet IMG 2792",
+          "original": "pics/track/best/cal_young_track_meet_IMG_2792.JPG",
           "thumbnail": "thumbnails/pics/track/best/cal_young_track_meet_IMG_2792.JPG",
           "medium": "medium/pics/track/best/cal_young_track_meet_IMG_2792.JPG",
-          "title": "Cal Young Track Meet IMG 2792"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/cal_young_track_meet_IMG_2814.JPG",
+          "title": "Cal Young Track Meet IMG 2814",
+          "original": "pics/track/best/cal_young_track_meet_IMG_2814.JPG",
           "thumbnail": "thumbnails/pics/track/best/cal_young_track_meet_IMG_2814.JPG",
           "medium": "medium/pics/track/best/cal_young_track_meet_IMG_2814.JPG",
-          "title": "Cal Young Track Meet IMG 2814"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/eugene_subdistricts_DSC00343-EDIT.jpg",
+          "title": "DSC00005",
+          "original": "pics/track/best/DSC00005.JPG",
+          "thumbnail": "thumbnails/pics/track/best/DSC00005.JPG",
+          "medium": "medium/pics/track/best/DSC00005.JPG",
+          "width": 7952,
+          "height": 5304,
+          "orientation": 1
+        },
+        {
+          "title": "DSC00216",
+          "original": "pics/track/best/DSC00216.jpg",
+          "thumbnail": "thumbnails/pics/track/best/DSC00216.jpg",
+          "medium": "medium/pics/track/best/DSC00216.jpg",
+          "width": 4146,
+          "height": 3573,
+          "orientation": 1
+        },
+        {
+          "title": "DSC00221",
+          "original": "pics/track/best/DSC00221.JPG",
+          "thumbnail": "thumbnails/pics/track/best/DSC00221.JPG",
+          "medium": "medium/pics/track/best/DSC00221.JPG",
+          "width": 7952,
+          "height": 5304,
+          "orientation": 8
+        },
+        {
+          "title": "DSC00235 EDIT",
+          "original": "pics/track/best/DSC00235-EDIT.jpg",
+          "thumbnail": "thumbnails/pics/track/best/DSC00235-EDIT.jpg",
+          "medium": "medium/pics/track/best/DSC00235-EDIT.jpg",
+          "width": 2410,
+          "height": 3774,
+          "orientation": 1
+        },
+        {
+          "title": "DSC00307 EDIT",
+          "original": "pics/track/best/DSC00307-EDIT.jpg",
+          "thumbnail": "thumbnails/pics/track/best/DSC00307-EDIT.jpg",
+          "medium": "medium/pics/track/best/DSC00307-EDIT.jpg",
+          "width": 2267,
+          "height": 1924,
+          "orientation": 1
+        },
+        {
+          "title": "DSC00324",
+          "original": "pics/track/best/DSC00324.JPG",
+          "thumbnail": "thumbnails/pics/track/best/DSC00324.JPG",
+          "medium": "medium/pics/track/best/DSC00324.JPG",
+          "width": 7952,
+          "height": 5304,
+          "orientation": 8
+        },
+        {
+          "title": "DSC00326",
+          "original": "pics/track/best/DSC00326.JPG",
+          "thumbnail": "thumbnails/pics/track/best/DSC00326.JPG",
+          "medium": "medium/pics/track/best/DSC00326.JPG",
+          "width": 7952,
+          "height": 5304,
+          "orientation": 1
+        },
+        {
+          "title": "DSC00336",
+          "original": "pics/track/best/DSC00336.JPG",
+          "thumbnail": "thumbnails/pics/track/best/DSC00336.JPG",
+          "medium": "medium/pics/track/best/DSC00336.JPG",
+          "width": 7952,
+          "height": 5304,
+          "orientation": 8
+        },
+        {
+          "title": "DSC00351 EDIT",
+          "original": "pics/track/best/DSC00351-EDIT.jpg",
+          "thumbnail": "thumbnails/pics/track/best/DSC00351-EDIT.jpg",
+          "medium": "medium/pics/track/best/DSC00351-EDIT.jpg",
+          "width": 2452,
+          "height": 2148,
+          "orientation": 1
+        },
+        {
+          "title": "DSC00375",
+          "original": "pics/track/best/DSC00375.JPG",
+          "thumbnail": "thumbnails/pics/track/best/DSC00375.JPG",
+          "medium": "medium/pics/track/best/DSC00375.JPG",
+          "width": 7952,
+          "height": 5304,
+          "orientation": 8
+        },
+        {
+          "title": "DSC00378",
+          "original": "pics/track/best/DSC00378.JPG",
+          "thumbnail": "thumbnails/pics/track/best/DSC00378.JPG",
+          "medium": "medium/pics/track/best/DSC00378.JPG",
+          "width": 7952,
+          "height": 5304,
+          "orientation": 8
+        },
+        {
+          "title": "DSC00384 EDIT",
+          "original": "pics/track/best/DSC00384-EDIT.jpg",
+          "thumbnail": "thumbnails/pics/track/best/DSC00384-EDIT.jpg",
+          "medium": "medium/pics/track/best/DSC00384-EDIT.jpg",
+          "width": 4192,
+          "height": 2796,
+          "orientation": 1
+        },
+        {
+          "title": "DSC00384",
+          "original": "pics/track/best/DSC00384.jpg",
+          "thumbnail": "thumbnails/pics/track/best/DSC00384.jpg",
+          "medium": "medium/pics/track/best/DSC00384.jpg",
+          "width": 7952,
+          "height": 5304,
+          "orientation": 1
+        },
+        {
+          "title": "DSC00415",
+          "original": "pics/track/best/DSC00415.JPG",
+          "thumbnail": "thumbnails/pics/track/best/DSC00415.JPG",
+          "medium": "medium/pics/track/best/DSC00415.JPG",
+          "width": 7952,
+          "height": 5304,
+          "orientation": 1
+        },
+        {
+          "title": "DSC00453",
+          "original": "pics/track/best/DSC00453.JPG",
+          "thumbnail": "thumbnails/pics/track/best/DSC00453.JPG",
+          "medium": "medium/pics/track/best/DSC00453.JPG",
+          "width": 7952,
+          "height": 5304,
+          "orientation": 1
+        },
+        {
+          "title": "DSC00511",
+          "original": "pics/track/best/DSC00511.JPG",
+          "thumbnail": "thumbnails/pics/track/best/DSC00511.JPG",
+          "medium": "medium/pics/track/best/DSC00511.JPG",
+          "width": 7952,
+          "height": 5304,
+          "orientation": 1
+        },
+        {
+          "title": "DSC00527",
+          "original": "pics/track/best/DSC00527.JPG",
+          "thumbnail": "thumbnails/pics/track/best/DSC00527.JPG",
+          "medium": "medium/pics/track/best/DSC00527.JPG",
+          "width": 7952,
+          "height": 5304,
+          "orientation": 8
+        },
+        {
+          "title": "DSC00563",
+          "original": "pics/track/best/DSC00563.JPG",
+          "thumbnail": "thumbnails/pics/track/best/DSC00563.JPG",
+          "medium": "medium/pics/track/best/DSC00563.JPG",
+          "width": 7952,
+          "height": 5304,
+          "orientation": 1
+        },
+        {
+          "title": "DSC00629",
+          "original": "pics/track/best/DSC00629.jpg",
+          "thumbnail": "thumbnails/pics/track/best/DSC00629.jpg",
+          "medium": "medium/pics/track/best/DSC00629.jpg",
+          "width": 7952,
+          "height": 5304,
+          "orientation": 1
+        },
+        {
+          "title": "DSC00822",
+          "original": "pics/track/best/DSC00822.JPG",
+          "thumbnail": "thumbnails/pics/track/best/DSC00822.JPG",
+          "medium": "medium/pics/track/best/DSC00822.JPG",
+          "width": 7952,
+          "height": 5304,
+          "orientation": 1
+        },
+        {
+          "title": "DSC00915 EDIT",
+          "original": "pics/track/best/DSC00915-EDIT.jpg",
+          "thumbnail": "thumbnails/pics/track/best/DSC00915-EDIT.jpg",
+          "medium": "medium/pics/track/best/DSC00915-EDIT.jpg",
+          "width": 4072,
+          "height": 2716,
+          "orientation": 1
+        },
+        {
+          "title": "DSC01303",
+          "original": "pics/track/best/DSC01303.JPG",
+          "thumbnail": "thumbnails/pics/track/best/DSC01303.JPG",
+          "medium": "medium/pics/track/best/DSC01303.JPG",
+          "width": 7952,
+          "height": 5304,
+          "orientation": 1
+        },
+        {
+          "title": "Eugene Subdistricts DSC00343 EDIT",
+          "original": "pics/track/best/eugene_subdistricts_DSC00343-EDIT.jpg",
           "thumbnail": "thumbnails/pics/track/best/eugene_subdistricts_DSC00343-EDIT.jpg",
           "medium": "medium/pics/track/best/eugene_subdistricts_DSC00343-EDIT.jpg",
-          "title": "Eugene Subdistricts DSC00343 EDIT"
+          "width": 2216,
+          "height": 1595,
+          "orientation": 1
         },
         {
-          "original": "track/best/eugene_subdistricts_IMG_0531.JPG",
+          "title": "Eugene Subdistricts IMG 0531",
+          "original": "pics/track/best/eugene_subdistricts_IMG_0531.JPG",
           "thumbnail": "thumbnails/pics/track/best/eugene_subdistricts_IMG_0531.JPG",
           "medium": "medium/pics/track/best/eugene_subdistricts_IMG_0531.JPG",
-          "title": "Eugene Subdistricts IMG 0531"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/eugene_subdistricts_IMG_0533.JPG",
+          "title": "Eugene Subdistricts IMG 0533",
+          "original": "pics/track/best/eugene_subdistricts_IMG_0533.JPG",
           "thumbnail": "thumbnails/pics/track/best/eugene_subdistricts_IMG_0533.JPG",
           "medium": "medium/pics/track/best/eugene_subdistricts_IMG_0533.JPG",
-          "title": "Eugene Subdistricts IMG 0533"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/eugene_subdistricts_IMG_0536.JPG",
+          "title": "Eugene Subdistricts IMG 0536",
+          "original": "pics/track/best/eugene_subdistricts_IMG_0536.JPG",
           "thumbnail": "thumbnails/pics/track/best/eugene_subdistricts_IMG_0536.JPG",
           "medium": "medium/pics/track/best/eugene_subdistricts_IMG_0536.JPG",
-          "title": "Eugene Subdistricts IMG 0536"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/eugene_subdistricts_IMG_0664.JPG",
+          "title": "Eugene Subdistricts IMG 0664",
+          "original": "pics/track/best/eugene_subdistricts_IMG_0664.JPG",
           "thumbnail": "thumbnails/pics/track/best/eugene_subdistricts_IMG_0664.JPG",
           "medium": "medium/pics/track/best/eugene_subdistricts_IMG_0664.JPG",
-          "title": "Eugene Subdistricts IMG 0664"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/eugene_subdistricts_IMG_7360.JPG",
+          "title": "Eugene Subdistricts IMG 7360",
+          "original": "pics/track/best/eugene_subdistricts_IMG_7360.JPG",
           "thumbnail": "thumbnails/pics/track/best/eugene_subdistricts_IMG_7360.JPG",
           "medium": "medium/pics/track/best/eugene_subdistricts_IMG_7360.JPG",
-          "title": "Eugene Subdistricts IMG 7360"
+          "width": 3726,
+          "height": 3479,
+          "orientation": 1
         },
         {
-          "original": "track/best/eugene_subdistricts_IMG_7574.JPG",
+          "title": "Eugene Subdistricts IMG 7574",
+          "original": "pics/track/best/eugene_subdistricts_IMG_7574.JPG",
           "thumbnail": "thumbnails/pics/track/best/eugene_subdistricts_IMG_7574.JPG",
           "medium": "medium/pics/track/best/eugene_subdistricts_IMG_7574.JPG",
-          "title": "Eugene Subdistricts IMG 7574"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/eugene_subdistricts_IMG_7634.JPG",
+          "title": "Eugene Subdistricts IMG 7634",
+          "original": "pics/track/best/eugene_subdistricts_IMG_7634.JPG",
           "thumbnail": "thumbnails/pics/track/best/eugene_subdistricts_IMG_7634.JPG",
           "medium": "medium/pics/track/best/eugene_subdistricts_IMG_7634.JPG",
-          "title": "Eugene Subdistricts IMG 7634"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/eugene_subdistricts_IMG_9819.JPG",
+          "title": "Eugene Subdistricts IMG 9819",
+          "original": "pics/track/best/eugene_subdistricts_IMG_9819.JPG",
           "thumbnail": "thumbnails/pics/track/best/eugene_subdistricts_IMG_9819.JPG",
           "medium": "medium/pics/track/best/eugene_subdistricts_IMG_9819.JPG",
-          "title": "Eugene Subdistricts IMG 9819"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/track_south_meet_eugene_DSC00072-EDIT.jpg",
+          "title": "IMG 0015",
+          "original": "pics/track/best/IMG_0015.JPG",
+          "thumbnail": "thumbnails/pics/track/best/IMG_0015.JPG",
+          "medium": "medium/pics/track/best/IMG_0015.JPG",
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
+        },
+        {
+          "title": "IMG 0017",
+          "original": "pics/track/best/IMG_0017.JPG",
+          "thumbnail": "thumbnails/pics/track/best/IMG_0017.JPG",
+          "medium": "medium/pics/track/best/IMG_0017.JPG",
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
+        },
+        {
+          "title": "IMG 0026",
+          "original": "pics/track/best/IMG_0026.JPG",
+          "thumbnail": "thumbnails/pics/track/best/IMG_0026.JPG",
+          "medium": "medium/pics/track/best/IMG_0026.JPG",
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
+        },
+        {
+          "title": "IMG 0110",
+          "original": "pics/track/best/IMG_0110.JPG",
+          "thumbnail": "thumbnails/pics/track/best/IMG_0110.JPG",
+          "medium": "medium/pics/track/best/IMG_0110.JPG",
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
+        },
+        {
+          "title": "IMG 0122",
+          "original": "pics/track/best/IMG_0122.JPG",
+          "thumbnail": "thumbnails/pics/track/best/IMG_0122.JPG",
+          "medium": "medium/pics/track/best/IMG_0122.JPG",
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
+        },
+        {
+          "title": "IMG 0134",
+          "original": "pics/track/best/IMG_0134.JPG",
+          "thumbnail": "thumbnails/pics/track/best/IMG_0134.JPG",
+          "medium": "medium/pics/track/best/IMG_0134.JPG",
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
+        },
+        {
+          "title": "IMG 0469",
+          "original": "pics/track/best/IMG_0469.JPG",
+          "thumbnail": "thumbnails/pics/track/best/IMG_0469.JPG",
+          "medium": "medium/pics/track/best/IMG_0469.JPG",
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
+        },
+        {
+          "title": "IMG 0488",
+          "original": "pics/track/best/IMG_0488.JPG",
+          "thumbnail": "thumbnails/pics/track/best/IMG_0488.JPG",
+          "medium": "medium/pics/track/best/IMG_0488.JPG",
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
+        },
+        {
+          "title": "IMG 1302",
+          "original": "pics/track/best/IMG_1302.jpg",
+          "thumbnail": "thumbnails/pics/track/best/IMG_1302.jpg",
+          "medium": "medium/pics/track/best/IMG_1302.jpg",
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
+        },
+        {
+          "title": "IMG 1477",
+          "original": "pics/track/best/IMG_1477.jpg",
+          "thumbnail": "thumbnails/pics/track/best/IMG_1477.jpg",
+          "medium": "medium/pics/track/best/IMG_1477.jpg",
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
+        },
+        {
+          "title": "IMG 1592",
+          "original": "pics/track/best/IMG_1592.jpg",
+          "thumbnail": "thumbnails/pics/track/best/IMG_1592.jpg",
+          "medium": "medium/pics/track/best/IMG_1592.jpg",
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
+        },
+        {
+          "title": "IMG 1698",
+          "original": "pics/track/best/IMG_1698.jpg",
+          "thumbnail": "thumbnails/pics/track/best/IMG_1698.jpg",
+          "medium": "medium/pics/track/best/IMG_1698.jpg",
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
+        },
+        {
+          "title": "IMG 1705",
+          "original": "pics/track/best/IMG_1705.jpg",
+          "thumbnail": "thumbnails/pics/track/best/IMG_1705.jpg",
+          "medium": "medium/pics/track/best/IMG_1705.jpg",
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
+        },
+        {
+          "title": "IMG 1893",
+          "original": "pics/track/best/IMG_1893.jpg",
+          "thumbnail": "thumbnails/pics/track/best/IMG_1893.jpg",
+          "medium": "medium/pics/track/best/IMG_1893.jpg",
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
+        },
+        {
+          "title": "IMG 3029 EDIT",
+          "original": "pics/track/best/IMG_3029-EDIT.jpg",
+          "thumbnail": "thumbnails/pics/track/best/IMG_3029-EDIT.jpg",
+          "medium": "medium/pics/track/best/IMG_3029-EDIT.jpg",
+          "width": 2633,
+          "height": 1658,
+          "orientation": 1
+        },
+        {
+          "title": "IMG 3121 EDIT",
+          "original": "pics/track/best/IMG_3121-EDIT.jpg",
+          "thumbnail": "thumbnails/pics/track/best/IMG_3121-EDIT.jpg",
+          "medium": "medium/pics/track/best/IMG_3121-EDIT.jpg",
+          "width": 2187,
+          "height": 1764,
+          "orientation": 1
+        },
+        {
+          "title": "IMG 3242 EDIT",
+          "original": "pics/track/best/IMG_3242-EDIT.jpg",
+          "thumbnail": "thumbnails/pics/track/best/IMG_3242-EDIT.jpg",
+          "medium": "medium/pics/track/best/IMG_3242-EDIT.jpg",
+          "width": 3792,
+          "height": 2528,
+          "orientation": 1
+        },
+        {
+          "title": "IMG 3732 EDIT",
+          "original": "pics/track/best/IMG_3732-EDIT.jpg",
+          "thumbnail": "thumbnails/pics/track/best/IMG_3732-EDIT.jpg",
+          "medium": "medium/pics/track/best/IMG_3732-EDIT.jpg",
+          "width": 2486,
+          "height": 1900,
+          "orientation": 1
+        },
+        {
+          "title": "IMG 3747 EDIT",
+          "original": "pics/track/best/IMG_3747-EDIT.jpg",
+          "thumbnail": "thumbnails/pics/track/best/IMG_3747-EDIT.jpg",
+          "medium": "medium/pics/track/best/IMG_3747-EDIT.jpg",
+          "width": 1784,
+          "height": 1991,
+          "orientation": 1
+        },
+        {
+          "title": "Track South Meet Eugene DSC00072 EDIT",
+          "original": "pics/track/best/track_south_meet_eugene_DSC00072-EDIT.jpg",
           "thumbnail": "thumbnails/pics/track/best/track_south_meet_eugene_DSC00072-EDIT.jpg",
           "medium": "medium/pics/track/best/track_south_meet_eugene_DSC00072-EDIT.jpg",
-          "title": "Track South Meet Eugene DSC00072 EDIT"
+          "width": 2722,
+          "height": 1824,
+          "orientation": 1
         },
         {
-          "original": "track/best/track_south_meet_eugene_DSC00132.JPG",
+          "title": "Track South Meet Eugene DSC00132",
+          "original": "pics/track/best/track_south_meet_eugene_DSC00132.JPG",
           "thumbnail": "thumbnails/pics/track/best/track_south_meet_eugene_DSC00132.JPG",
           "medium": "medium/pics/track/best/track_south_meet_eugene_DSC00132.JPG",
-          "title": "Track South Meet Eugene DSC00132"
+          "width": 7952,
+          "height": 5304,
+          "orientation": 1
         },
         {
-          "original": "track/best/track_south_meet_eugene_DSC00196-EDIT.jpg",
+          "title": "Track South Meet Eugene DSC00196 EDIT",
+          "original": "pics/track/best/track_south_meet_eugene_DSC00196-EDIT.jpg",
           "thumbnail": "thumbnails/pics/track/best/track_south_meet_eugene_DSC00196-EDIT.jpg",
           "medium": "medium/pics/track/best/track_south_meet_eugene_DSC00196-EDIT.jpg",
-          "title": "Track South Meet Eugene DSC00196 EDIT"
+          "width": 2749,
+          "height": 1917,
+          "orientation": 1
         },
         {
-          "original": "track/best/track_south_meet_eugene_DSC00249.JPG",
+          "title": "Track South Meet Eugene DSC00249",
+          "original": "pics/track/best/track_south_meet_eugene_DSC00249.JPG",
           "thumbnail": "thumbnails/pics/track/best/track_south_meet_eugene_DSC00249.JPG",
           "medium": "medium/pics/track/best/track_south_meet_eugene_DSC00249.JPG",
-          "title": "Track South Meet Eugene DSC00249"
+          "width": 7952,
+          "height": 5304,
+          "orientation": 1
         },
         {
-          "original": "track/best/track_south_meet_eugene_DSC00279-EDIT.jpg",
+          "title": "Track South Meet Eugene DSC00279 EDIT",
+          "original": "pics/track/best/track_south_meet_eugene_DSC00279-EDIT.jpg",
           "thumbnail": "thumbnails/pics/track/best/track_south_meet_eugene_DSC00279-EDIT.jpg",
           "medium": "medium/pics/track/best/track_south_meet_eugene_DSC00279-EDIT.jpg",
-          "title": "Track South Meet Eugene DSC00279 EDIT"
+          "width": 1973,
+          "height": 2164,
+          "orientation": 1
         },
         {
-          "original": "track/best/track_south_meet_eugene_DSC00481-EDIT.jpg",
+          "title": "Track South Meet Eugene DSC00481 EDIT",
+          "original": "pics/track/best/track_south_meet_eugene_DSC00481-EDIT.jpg",
           "thumbnail": "thumbnails/pics/track/best/track_south_meet_eugene_DSC00481-EDIT.jpg",
           "medium": "medium/pics/track/best/track_south_meet_eugene_DSC00481-EDIT.jpg",
-          "title": "Track South Meet Eugene DSC00481 EDIT"
+          "width": 2796,
+          "height": 1966,
+          "orientation": 1
         },
         {
-          "original": "track/best/track_south_meet_eugene_DSC00533-EDIT.jpg",
+          "title": "Track South Meet Eugene DSC00533 EDIT",
+          "original": "pics/track/best/track_south_meet_eugene_DSC00533-EDIT.jpg",
           "thumbnail": "thumbnails/pics/track/best/track_south_meet_eugene_DSC00533-EDIT.jpg",
           "medium": "medium/pics/track/best/track_south_meet_eugene_DSC00533-EDIT.jpg",
-          "title": "Track South Meet Eugene DSC00533 EDIT"
+          "width": 1821,
+          "height": 2156,
+          "orientation": 1
         },
         {
-          "original": "track/best/track_south_meet_eugene_DSC00550-EDIT.jpg",
+          "title": "Track South Meet Eugene DSC00550 EDIT",
+          "original": "pics/track/best/track_south_meet_eugene_DSC00550-EDIT.jpg",
           "thumbnail": "thumbnails/pics/track/best/track_south_meet_eugene_DSC00550-EDIT.jpg",
           "medium": "medium/pics/track/best/track_south_meet_eugene_DSC00550-EDIT.jpg",
-          "title": "Track South Meet Eugene DSC00550 EDIT"
+          "width": 1836,
+          "height": 1628,
+          "orientation": 1
         },
         {
-          "original": "track/best/track_south_meet_eugene_DSC00580-EDIT.jpg",
+          "title": "Track South Meet Eugene DSC00580 EDIT",
+          "original": "pics/track/best/track_south_meet_eugene_DSC00580-EDIT.jpg",
           "thumbnail": "thumbnails/pics/track/best/track_south_meet_eugene_DSC00580-EDIT.jpg",
           "medium": "medium/pics/track/best/track_south_meet_eugene_DSC00580-EDIT.jpg",
-          "title": "Track South Meet Eugene DSC00580 EDIT"
+          "width": 1463,
+          "height": 1631,
+          "orientation": 1
         },
         {
-          "original": "track/best/track_south_meet_eugene_DSC00603-EDIT.jpg",
+          "title": "Track South Meet Eugene DSC00603 EDIT",
+          "original": "pics/track/best/track_south_meet_eugene_DSC00603-EDIT.jpg",
           "thumbnail": "thumbnails/pics/track/best/track_south_meet_eugene_DSC00603-EDIT.jpg",
           "medium": "medium/pics/track/best/track_south_meet_eugene_DSC00603-EDIT.jpg",
-          "title": "Track South Meet Eugene DSC00603 EDIT"
+          "width": 2006,
+          "height": 1465,
+          "orientation": 1
         },
         {
-          "original": "track/best/track_south_meet_eugene_IMG_6999.JPG",
+          "title": "Track South Meet Eugene IMG 6999",
+          "original": "pics/track/best/track_south_meet_eugene_IMG_6999.JPG",
           "thumbnail": "thumbnails/pics/track/best/track_south_meet_eugene_IMG_6999.JPG",
           "medium": "medium/pics/track/best/track_south_meet_eugene_IMG_6999.JPG",
-          "title": "Track South Meet Eugene IMG 6999"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/track_south_meet_eugene_IMG_7038-EDIT.jpg",
+          "title": "Track South Meet Eugene IMG 7038 EDIT",
+          "original": "pics/track/best/track_south_meet_eugene_IMG_7038-EDIT.jpg",
           "thumbnail": "thumbnails/pics/track/best/track_south_meet_eugene_IMG_7038-EDIT.jpg",
           "medium": "medium/pics/track/best/track_south_meet_eugene_IMG_7038-EDIT.jpg",
-          "title": "Track South Meet Eugene IMG 7038 EDIT"
+          "width": 2853,
+          "height": 2150,
+          "orientation": 1
         },
         {
-          "original": "track/best/track_south_meet_eugene_IMG_7053.JPG",
+          "title": "Track South Meet Eugene IMG 7053",
+          "original": "pics/track/best/track_south_meet_eugene_IMG_7053.JPG",
           "thumbnail": "thumbnails/pics/track/best/track_south_meet_eugene_IMG_7053.JPG",
           "medium": "medium/pics/track/best/track_south_meet_eugene_IMG_7053.JPG",
-          "title": "Track South Meet Eugene IMG 7053"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/track_south_meet_eugene_IMG_7068-EDIT.jpg",
+          "title": "Track South Meet Eugene IMG 7068 EDIT",
+          "original": "pics/track/best/track_south_meet_eugene_IMG_7068-EDIT.jpg",
           "thumbnail": "thumbnails/pics/track/best/track_south_meet_eugene_IMG_7068-EDIT.jpg",
           "medium": "medium/pics/track/best/track_south_meet_eugene_IMG_7068-EDIT.jpg",
-          "title": "Track South Meet Eugene IMG 7068 EDIT"
+          "width": 2080,
+          "height": 1723,
+          "orientation": 1
         },
         {
-          "original": "track/best/track_south_meet_eugene_IMG_7082.JPG",
+          "title": "Track South Meet Eugene IMG 7082",
+          "original": "pics/track/best/track_south_meet_eugene_IMG_7082.JPG",
           "thumbnail": "thumbnails/pics/track/best/track_south_meet_eugene_IMG_7082.JPG",
           "medium": "medium/pics/track/best/track_south_meet_eugene_IMG_7082.JPG",
-          "title": "Track South Meet Eugene IMG 7082"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         },
         {
-          "original": "track/best/track_south_meet_eugene_IMG_7211.JPG",
+          "title": "Track South Meet Eugene IMG 7211",
+          "original": "pics/track/best/track_south_meet_eugene_IMG_7211.JPG",
           "thumbnail": "thumbnails/pics/track/best/track_south_meet_eugene_IMG_7211.JPG",
           "medium": "medium/pics/track/best/track_south_meet_eugene_IMG_7211.JPG",
-          "title": "Track South Meet Eugene IMG 7211"
+          "width": 6000,
+          "height": 4000,
+          "orientation": 1
         }
       ]
     }

@@ -87,32 +87,117 @@ function initHomePage() {
 }
 
 /**
- * Extract genres from the config file
+ * Load all genres from the configuration
+ */
+function loadAllGenres() {
+  console.log('Loading all genres');
+  
+  const genreContainer = document.getElementById('genre-container');
+  if (!genreContainer) {
+    console.error('Genre container not found');
+    return;
+  }
+  
+  // Get the grid to add genres to
+  const genreGrid = document.getElementById('genre-grid');
+  if (!genreGrid) {
+    console.error('Genre grid not found');
+    return;
+  }
+  
+  // Get gallery configuration
+  fetch('./js/gallery-config.json')
+    .then(response => response.json())
+    .then(config => {
+      // Process galleries to get unique genres
+      const genres = getGenresFromConfig(config);
+      console.log(`Found ${genres.length} genres`);
+      
+      if (genres.length === 0) {
+        genreGrid.innerHTML = '<p>No photo genres found. Add photos to the "pics" directory.</p>';
+        return;
+      }
+      
+      // Add each genre to the grid
+      genres.forEach(genre => {
+        // Skip the test gallery
+        if (genre.id === 'test-gallery') {
+          return;
+        }
+        
+        const genreItem = document.createElement('div');
+        genreItem.className = 'genre-item';
+        
+        const link = document.createElement('a');
+        link.href = `?genre=${genre.id}`;
+        
+        const img = document.createElement('img');
+        img.className = 'lazy';
+        img.dataset.src = genre.cover || './thumbnails/placeholder.jpg';
+        img.alt = genre.title;
+        
+        const title = document.createElement('h3');
+        title.textContent = genre.title;
+        
+        link.appendChild(img);
+        link.appendChild(title);
+        genreItem.appendChild(link);
+        genreGrid.appendChild(genreItem);
+      });
+      
+      // Initialize lazy loading for images
+      new LazyLoad({
+        elements_selector: '.lazy',
+        use_native: true
+      });
+    })
+    .catch(error => {
+      console.error('Error loading gallery config:', error);
+      genreGrid.innerHTML = '<p>Error loading genres. Please try again later.</p>';
+    });
+}
+
+/**
+ * Extract unique genres from the configuration
  */
 function getGenresFromConfig(config) {
   if (!config.galleries) return [];
   
   const genres = new Map();
   
-  Object.keys(config.galleries).forEach(galleryId => {
-    // Extract genre from gallery path (first part of path)
-    const pathParts = galleryId.split('/');
-    if (pathParts.length >= 2) {
-      const genre = pathParts[1]; // e.g., "track" from "pics/track/best"
+  // Process each gallery
+  Object.keys(config.galleries).forEach(galleryPath => {
+    const pathParts = galleryPath.split('/');
+    
+    // Skip if the path doesn't have the expected format
+    if (pathParts.length < 2 || pathParts[0] !== 'pics') {
+      return;
+    }
+    
+    // Extract genre from the path (second segment after 'pics')
+    const genreId = pathParts[1];
+    
+    // Skip the test gallery
+    if (genreId === 'test-gallery') {
+      return;
+    }
+    
+    // Add genre if not already added
+    if (!genres.has(genreId)) {
+      // Find a cover image from the first gallery of this genre
+      const gallery = config.galleries[galleryPath];
+      const coverImage = gallery.images && gallery.images.length > 0 ?
+                         `./${gallery.images[0].thumbnail}` : 
+                         './thumbnails/placeholder.jpg';
       
-      if (!genres.has(genre)) {
-        genres.set(genre, {
-          id: genre,
-          title: toTitleCase(genre),
-          path: `pics/${genre}`,
-          cover: findCoverImage(config, genre),
-          count: 0
-        });
-      }
+      genres.set(genreId, {
+        id: genreId,
+        title: toTitleCase(genreId.replace(/-/g, ' ')),
+        path: galleryPath,
+        cover: coverImage
+      });
       
-      // Update the event count for this genre
-      const genreData = genres.get(genre);
-      genreData.count++;
+      console.log(`Added genre: ${genreId}`);
     }
   });
   
@@ -170,52 +255,110 @@ function findCoverImage(config, genre) {
 }
 
 /**
- * Initialize a genre page showing all events
+ * Initialize the genre page - show events for a genre
  */
 function initGenrePage(genreId) {
-  // First, update the page structure
-  document.title = `${toTitleCase(genreId)} Photos`;
+  console.log(`Initializing genre page for genre=${genreId}`);
   
-  const main = document.querySelector('main');
-  if (!main) return;
+  // Hide other containers and show event container
+  hideAllContainers();
+  showContainer('event-container');
   
-  main.innerHTML = `
-    <div class="events-header">
-      <a href="index.html" class="back-link">← Back to Genres</a>
-      <h2>${toTitleCase(genreId)} Events</h2>
-    </div>
-    <div class="events-grid" id="events-grid">
-      <!-- Events will be loaded here -->
-    </div>
-  `;
+  // Update page title
+  document.title = `${toTitleCase(genreId)} Events`;
+  
+  // Update genre title
+  const genreTitle = document.getElementById('genre-title');
+  if (genreTitle) {
+    genreTitle.textContent = toTitleCase(genreId);
+  }
+  
+  // Add back button to home page
+  const backButton = document.getElementById('back-button');
+  if (backButton) {
+    backButton.style.display = 'block';
+    backButton.onclick = () => {
+      window.location.href = '/';
+    };
+    backButton.querySelector('span').textContent = 'Back to Genres';
+  }
   
   // Load events for this genre
   loadGenreEvents(genreId);
 }
 
 /**
- * Load all events for a specific genre
+ * Load events for a specific genre
  */
 function loadGenreEvents(genreId) {
-  const eventsGrid = document.getElementById('events-grid');
-  if (!eventsGrid) return;
+  console.log(`Loading events for genre: ${genreId}`);
   
-  // Load the gallery configuration
+  // Clear previous event content
+  const eventContainer = document.querySelector('#event-container');
+  if (!eventContainer) {
+    console.error('Event container not found');
+    return;
+  }
+  
+  // Create event list container if it doesn't exist
+  let eventList = document.getElementById('event-list');
+  if (!eventList) {
+    eventList = document.createElement('div');
+    eventList.id = 'event-list';
+    eventList.className = 'event-grid';
+    eventContainer.appendChild(eventList);
+  } else {
+    eventList.innerHTML = '';
+  }
+  
+  // Get events for this genre from config
   fetch('./js/gallery-config.json')
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Gallery config not found');
-      }
-      return response.json();
-    })
+    .then(response => response.json())
     .then(config => {
-      // Get events from the config
       const events = getEventsFromConfig(config, genreId);
-      displayEvents(events, eventsGrid, genreId);
+      console.log(`Retrieved ${events.length} events for genre ${genreId}`);
+      
+      if (events.length === 0) {
+        eventList.innerHTML = `<p>No events found for ${toTitleCase(genreId)}. Add photos to the 'pics/${genreId}' directory.</p>`;
+        return;
+      }
+      
+      // Add events to grid
+      events.forEach(event => {
+        const eventDiv = document.createElement('div');
+        eventDiv.className = 'event-item';
+        
+        const link = document.createElement('a');
+        link.href = `?genre=${genreId}&event=${event.id}`;
+        
+        const img = document.createElement('img');
+        img.className = 'lazy event-thumbnail';
+        img.dataset.src = event.cover;
+        img.alt = event.title;
+        
+        const title = document.createElement('h3');
+        title.textContent = event.title;
+        
+        const count = document.createElement('span');
+        count.className = 'photo-count';
+        count.textContent = `${event.count} photos`;
+        
+        link.appendChild(img);
+        link.appendChild(title);
+        link.appendChild(count);
+        eventDiv.appendChild(link);
+        eventList.appendChild(eventDiv);
+      });
+      
+      // Initialize lazy loading for images
+      new LazyLoad({
+        elements_selector: '.lazy',
+        use_native: true
+      });
     })
     .catch(error => {
       console.error('Error loading gallery config:', error);
-      eventsGrid.innerHTML = '<p>Error loading events. Please try again later.</p>';
+      eventList.innerHTML = `<p>Error loading events: ${error.message}</p>`;
     });
 }
 
@@ -455,10 +598,20 @@ function loadEventPhotos(genre, event) {
         link.setAttribute('data-fancybox', 'gallery');
         link.setAttribute('data-caption', photo.title || `Photo ${index + 1}`);
         
+        // Add EXIF orientation as a data attribute for Fancybox if available
+        if (photo.orientation) {
+          link.setAttribute('data-orientation', photo.orientation);
+        }
+        
         const img = document.createElement('img');
         img.className = 'lazy';
         img.dataset.src = photo.thumbnail;
         img.alt = photo.title || `Photo ${index + 1}`;
+        
+        // Apply CSS transform based on EXIF orientation if needed
+        if (photo.orientation && photo.orientation > 1) {
+          applyOrientationStyle(img, parseInt(photo.orientation));
+        }
         
         link.appendChild(img);
         photoDiv.appendChild(link);
@@ -490,7 +643,32 @@ function loadEventPhotos(genre, event) {
             transitionEffect: "fade",
             preventCaptionOverlap: true,
             hideScrollbar: true,
-            clickContent: 'next'
+            clickContent: 'next',
+            caption: function (fancybox, slide) {
+              return slide.caption || '';
+            },
+            Images: {
+              initialSize: 'fit',
+            },
+            on: {
+              ready: (fancybox) => {
+                // Apply orientation corrections to Fancybox images
+                const slides = fancybox.carousel.slides;
+                for (let i = 0; i < slides.length; i++) {
+                  const slide = slides[i];
+                  const orientation = slide.$trigger.dataset.orientation;
+                  if (orientation && orientation > 1) {
+                    const content = slide.$el.querySelector('.fancybox__content');
+                    if (content) {
+                      const img = content.querySelector('img');
+                      if (img) {
+                        applyOrientationStyle(img, parseInt(orientation));
+                      }
+                    }
+                  }
+                }
+              }
+            }
           });
           console.log('Fancybox successfully initialized for gallery');
         } else {
@@ -505,7 +683,32 @@ function loadEventPhotos(genre, event) {
               console.log('Fancybox script loaded, initializing...');
               Fancybox.bind('[data-fancybox="gallery"]', {
                 loop: true,
-                buttons: ["zoom", "slideShow", "fullScreen", "download", "thumbs", "close"]
+                buttons: ["zoom", "slideShow", "fullScreen", "download", "thumbs", "close"],
+                caption: function (fancybox, slide) {
+                  return slide.caption || '';
+                },
+                Images: {
+                  initialSize: 'fit',
+                },
+                on: {
+                  ready: (fancybox) => {
+                    // Apply orientation corrections to Fancybox images
+                    const slides = fancybox.carousel.slides;
+                    for (let i = 0; i < slides.length; i++) {
+                      const slide = slides[i];
+                      const orientation = slide.$trigger.dataset.orientation;
+                      if (orientation && orientation > 1) {
+                        const content = slide.$el.querySelector('.fancybox__content');
+                        if (content) {
+                          const img = content.querySelector('img');
+                          if (img) {
+                            applyOrientationStyle(img, parseInt(orientation));
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
               });
             };
             document.head.appendChild(script);
@@ -547,7 +750,8 @@ function getPhotosFromConfig(config, galleryPath) {
       thumbnail: `./${image.thumbnail}`,
       medium: `./${image.medium}`,
       original: `./${image.original || image.medium}`,
-      title: image.title || ''
+      title: image.title || '',
+      orientation: image.orientation || null
     }));
   }
   
@@ -571,7 +775,8 @@ function getPhotosFromConfig(config, galleryPath) {
         thumbnail: `./${image.thumbnail}`,
         medium: `./${image.medium}`,
         original: `./${image.original || image.medium}`,
-        title: image.title || ''
+        title: image.title || '',
+        orientation: image.orientation || null
       }));
     }
   }
@@ -581,33 +786,116 @@ function getPhotosFromConfig(config, galleryPath) {
 }
 
 /**
- * Display photos in a grid with Fancybox integration
+ * Display photos in the gallery grid, handling orientation correctly
  */
 function displayPhotos(photos, container) {
-  if (photos.length === 0) {
+  container.innerHTML = '';
+  
+  if (!photos || photos.length === 0) {
     container.innerHTML = '<p>No photos found for this event.</p>';
     return;
   }
   
-  // Clear the container
-  container.innerHTML = '';
+  // Create a gallery element for photos
+  const gallery = document.createElement('div');
+  gallery.className = 'photo-grid';
+  container.appendChild(gallery);
   
-  // Add each photo
-  photos.forEach((photo, index) => {
-    const item = document.createElement('a');
-    item.href = photo.medium;
-    item.className = 'photo-item';
-    item.setAttribute('data-fancybox', 'gallery');
-    item.setAttribute('data-caption', photo.title);
+  // Add photos to the gallery
+  photos.forEach(photo => {
+    const photoDiv = document.createElement('div');
+    photoDiv.className = 'photo-item';
     
-    // Create the thumbnail
+    const link = document.createElement('a');
+    link.href = photo.medium;
+    link.setAttribute('data-fancybox', 'gallery');
+    link.setAttribute('data-caption', photo.title || '');
+    
+    // Add EXIF orientation as a data attribute for Fancybox if available
+    if (photo.orientation) {
+      link.setAttribute('data-orientation', photo.orientation);
+    }
+    
     const img = document.createElement('img');
-    img.src = photo.thumbnail;
-    img.alt = photo.title || `Photo ${index + 1}`;
+    img.className = 'lazy';
+    img.dataset.src = photo.thumbnail;
+    img.alt = photo.title || 'Photo';
     
-    item.appendChild(img);
-    container.appendChild(item);
+    // Apply CSS transform based on EXIF orientation if needed
+    if (photo.orientation && photo.orientation > 1) {
+      applyOrientationStyle(img, parseInt(photo.orientation));
+    }
+    
+    link.appendChild(img);
+    photoDiv.appendChild(link);
+    gallery.appendChild(photoDiv);
   });
+  
+  // Initialize LazyLoad for images
+  new LazyLoad({
+    elements_selector: '.lazy',
+    use_native: true
+  });
+  
+  // Initialize Fancybox for lightbox functionality
+  Fancybox.bind('[data-fancybox="gallery"]', {
+    caption: function (fancybox, slide) {
+      return slide.caption || '';
+    },
+    Images: {
+      initialSize: 'fit',
+    },
+    on: {
+      ready: (fancybox) => {
+        // Apply orientation corrections to Fancybox images
+        const slides = fancybox.carousel.slides;
+        for (let i = 0; i < slides.length; i++) {
+          const slide = slides[i];
+          const orientation = slide.$trigger.dataset.orientation;
+          if (orientation && orientation > 1) {
+            const content = slide.$el.querySelector('.fancybox__content');
+            if (content) {
+              const img = content.querySelector('img');
+              if (img) {
+                applyOrientationStyle(img, parseInt(orientation));
+              }
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+/**
+ * Apply the correct CSS transform for the EXIF orientation value
+ * @param {HTMLElement} img - The image element to apply the transform to
+ * @param {number} orientation - The EXIF orientation value (1-8)
+ */
+function applyOrientationStyle(img, orientation) {
+  // EXIF orientation values and their corresponding CSS transforms
+  // See: https://www.impulseadventure.com/photo/exif-orientation.html
+  const transforms = {
+    1: 'none',                 // Normal
+    2: 'scaleX(-1)',           // Flip horizontal
+    3: 'rotate(180deg)',       // Rotate 180°
+    4: 'scaleY(-1)',           // Flip vertical
+    5: 'scaleX(-1) rotate(90deg)',  // Flip horizontal and rotate 90° CW
+    6: 'rotate(90deg)',        // Rotate 90° CW
+    7: 'scaleX(-1) rotate(-90deg)', // Flip horizontal and rotate 90° CCW
+    8: 'rotate(-90deg)'        // Rotate 90° CCW
+  };
+  
+  if (transforms[orientation]) {
+    img.style.transform = transforms[orientation];
+    
+    // For orientations that make the image portrait instead of landscape (5-8),
+    // we need to adjust the aspect ratio
+    if (orientation >= 5 && orientation <= 8) {
+      img.style.objectFit = 'contain';
+      img.style.maxHeight = '100%';
+    }
+  }
 }
 
 /**
