@@ -217,57 +217,8 @@ function generateGalleryConfig(stats) {
         const genrePath = path.join(sourcePath, genre);
         
         if (fs.statSync(genrePath).isDirectory()) {
-          // Second level: events within each genre
-          const events = fs.readdirSync(genrePath);
-          
-          for (const event of events) {
-            const eventPath = path.join(genrePath, event);
-            
-            if (fs.statSync(eventPath).isDirectory()) {
-              // This is an event directory
-              const galleryId = path.join(sourceDir, genre, event);
-              const galleryImages = findImagesRecursively(eventPath, sourcePath);
-              
-              if (galleryImages.length > 0) {
-                galleryConfig.galleries[galleryId] = {
-                  title: formatTitle(event),
-                  description: `${galleryImages.length} images`,
-                  images: galleryImages.map(img => {
-                    const fileName = path.basename(img.path);
-                    return {
-                      original: path.join(img.relativePath),
-                      thumbnail: path.join(config.thumbnailsDir, sourceDir, img.relativePath),
-                      medium: path.join(config.mediumDir, sourceDir, img.relativePath),
-                      title: formatTitle(fileName.replace(/\.(jpg|jpeg|png)$/i, ''))
-                    };
-                  })
-                };
-              }
-            } else if (config.extensions.includes(path.extname(event).toLowerCase())) {
-              // This is an image directly in the genre folder (not in an event subfolder)
-              // Create a "general" event for these images
-              const galleryId = path.join(sourceDir, genre);
-              
-              if (!galleryConfig.galleries[galleryId]) {
-                galleryConfig.galleries[galleryId] = {
-                  title: formatTitle(genre),
-                  description: "General images",
-                  images: []
-                };
-              }
-              
-              // Add this image to the general gallery
-              const imagePath = path.join(genrePath, event);
-              const relativePath = path.relative(sourcePath, imagePath);
-              
-              galleryConfig.galleries[galleryId].images.push({
-                original: relativePath,
-                thumbnail: path.join(config.thumbnailsDir, sourceDir, relativePath),
-                medium: path.join(config.mediumDir, sourceDir, relativePath),
-                title: formatTitle(event.replace(/\.(jpg|jpeg|png)$/i, ''))
-              });
-            }
-          }
+          // Process subdirectories (events) within each genre
+          processGenreDirectory(genrePath, genre, sourceDir, sourcePath, galleryConfig);
         }
       }
     }
@@ -277,6 +228,99 @@ function generateGalleryConfig(stats) {
   const configPath = path.join(config.baseDir, 'js', 'gallery-config.json');
   fs.writeFileSync(configPath, JSON.stringify(galleryConfig, null, 2));
   console.log(`Generated gallery config: ${configPath}`);
+}
+
+/**
+ * Process a genre directory to find events and images
+ */
+function processGenreDirectory(genrePath, genre, sourceDir, sourcePath, galleryConfig) {
+  const items = fs.readdirSync(genrePath);
+  
+  // Check if there are directories - these would be event directories
+  const hasEventDirs = items.some(item => {
+    const itemPath = path.join(genrePath, item);
+    return fs.statSync(itemPath).isDirectory();
+  });
+  
+  if (hasEventDirs) {
+    // Process each event directory
+    for (const event of items) {
+      const eventPath = path.join(genrePath, event);
+      
+      if (fs.statSync(eventPath).isDirectory()) {
+        // This is an event directory
+        const galleryId = path.join(sourceDir, genre, event);
+        const galleryImages = findImagesRecursively(eventPath, sourcePath);
+        
+        if (galleryImages.length > 0) {
+          galleryConfig.galleries[galleryId] = {
+            title: formatTitle(event),
+            description: `${galleryImages.length} images`,
+            images: galleryImages.map(img => {
+              const fileName = path.basename(img.path);
+              return {
+                original: path.join(img.relativePath),
+                thumbnail: path.join(config.thumbnailsDir, sourceDir, img.relativePath),
+                medium: path.join(config.mediumDir, sourceDir, img.relativePath),
+                title: formatTitle(fileName.replace(/\.(jpg|jpeg|png)$/i, ''))
+              };
+            })
+          };
+        }
+      }
+    }
+  } else {
+    // If there are no event directories, treat this genre directory as an event itself
+    const galleryId = path.join(sourceDir, genre);
+    const galleryImages = findImagesRecursively(genrePath, sourcePath);
+    
+    if (galleryImages.length > 0) {
+      galleryConfig.galleries[galleryId] = {
+        title: formatTitle(genre),
+        description: `${galleryImages.length} images`,
+        images: galleryImages.map(img => {
+          const fileName = path.basename(img.path);
+          return {
+            original: path.join(img.relativePath),
+            thumbnail: path.join(config.thumbnailsDir, sourceDir, img.relativePath),
+            medium: path.join(config.mediumDir, sourceDir, img.relativePath),
+            title: formatTitle(fileName.replace(/\.(jpg|jpeg|png)$/i, ''))
+          };
+        })
+      };
+    }
+  }
+  
+  // Also process any direct images in the genre directory
+  const directImages = items.filter(item => {
+    const itemPath = path.join(genrePath, item);
+    return !fs.statSync(itemPath).isDirectory() && config.extensions.includes(path.extname(item).toLowerCase());
+  });
+  
+  if (directImages.length > 0) {
+    const galleryId = path.join(sourceDir, genre);
+    
+    if (!galleryConfig.galleries[galleryId]) {
+      galleryConfig.galleries[galleryId] = {
+        title: formatTitle(genre),
+        description: "General images",
+        images: []
+      };
+    }
+    
+    // Add direct images to the gallery
+    directImages.forEach(image => {
+      const imagePath = path.join(genrePath, image);
+      const relativePath = path.relative(sourcePath, imagePath);
+      
+      galleryConfig.galleries[galleryId].images.push({
+        original: relativePath,
+        thumbnail: path.join(config.thumbnailsDir, sourceDir, relativePath),
+        medium: path.join(config.mediumDir, sourceDir, relativePath),
+        title: formatTitle(image.replace(/\.(jpg|jpeg|png)$/i, ''))
+      });
+    });
+  }
 }
 
 // Helper function to format titles nicely
