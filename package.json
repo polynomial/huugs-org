@@ -1,12 +1,21 @@
 {
-  "name": "photo-gallery-debug",
+  "name": "huugs-org",
   "version": "1.0.0",
-  "description": "Debug environment for photo gallery website",
+  "description": "Photo gallery website",
   "private": true,
   "scripts": {
-    "debug": "node debug-app.js"
+    "debug": "node debug-app.js",
+    "generate": "node generate-galleries.js",
+    "serve": "http-server -p 3000",
+    "start": "npm run generate && npm run serve",
+    "test": "node test-site.js",
+    "test:fix": "node test-site.js && node fix-issues.js",
+    "test:auto": "node auto-test.js",
+    "test:simple": "node simple-test.js", 
+    "test:nix": "nix-shell -p nodejs_18 --run 'node test-site.js'"
   },
   "dependencies": {
-    "jsdom": "^22.1.0"
+    "jsdom": "^22.1.0",
+    "sharp": "^0.32.5"
   }
 } 
