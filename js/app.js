@@ -598,10 +598,20 @@ function loadEventPhotos(genre, event) {
         link.setAttribute('data-fancybox', 'gallery');
         link.setAttribute('data-caption', photo.title || `Photo ${index + 1}`);
         
+        // Add EXIF orientation as a data attribute for Fancybox if available
+        if (photo.orientation) {
+          link.setAttribute('data-orientation', photo.orientation);
+        }
+        
         const img = document.createElement('img');
         img.className = 'lazy';
         img.dataset.src = photo.thumbnail;
         img.alt = photo.title || `Photo ${index + 1}`;
+        
+        // Apply CSS transform based on EXIF orientation if needed
+        if (photo.orientation && photo.orientation > 1) {
+          applyOrientationStyle(img, parseInt(photo.orientation));
+        }
         
         link.appendChild(img);
         photoDiv.appendChild(link);
@@ -633,7 +643,32 @@ function loadEventPhotos(genre, event) {
             transitionEffect: "fade",
             preventCaptionOverlap: true,
             hideScrollbar: true,
-            clickContent: 'next'
+            clickContent: 'next',
+            caption: function (fancybox, slide) {
+              return slide.caption || '';
+            },
+            Images: {
+              initialSize: 'fit',
+            },
+            on: {
+              ready: (fancybox) => {
+                // Apply orientation corrections to Fancybox images
+                const slides = fancybox.carousel.slides;
+                for (let i = 0; i < slides.length; i++) {
+                  const slide = slides[i];
+                  const orientation = slide.$trigger.dataset.orientation;
+                  if (orientation && orientation > 1) {
+                    const content = slide.$el.querySelector('.fancybox__content');
+                    if (content) {
+                      const img = content.querySelector('img');
+                      if (img) {
+                        applyOrientationStyle(img, parseInt(orientation));
+                      }
+                    }
+                  }
+                }
+              }
+            }
           });
           console.log('Fancybox successfully initialized for gallery');
         } else {
@@ -648,7 +683,32 @@ function loadEventPhotos(genre, event) {
               console.log('Fancybox script loaded, initializing...');
               Fancybox.bind('[data-fancybox="gallery"]', {
                 loop: true,
-                buttons: ["zoom", "slideShow", "fullScreen", "download", "thumbs", "close"]
+                buttons: ["zoom", "slideShow", "fullScreen", "download", "thumbs", "close"],
+                caption: function (fancybox, slide) {
+                  return slide.caption || '';
+                },
+                Images: {
+                  initialSize: 'fit',
+                },
+                on: {
+                  ready: (fancybox) => {
+                    // Apply orientation corrections to Fancybox images
+                    const slides = fancybox.carousel.slides;
+                    for (let i = 0; i < slides.length; i++) {
+                      const slide = slides[i];
+                      const orientation = slide.$trigger.dataset.orientation;
+                      if (orientation && orientation > 1) {
+                        const content = slide.$el.querySelector('.fancybox__content');
+                        if (content) {
+                          const img = content.querySelector('img');
+                          if (img) {
+                            applyOrientationStyle(img, parseInt(orientation));
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
               });
             };
             document.head.appendChild(script);
@@ -690,7 +750,8 @@ function getPhotosFromConfig(config, galleryPath) {
       thumbnail: `./${image.thumbnail}`,
       medium: `./${image.medium}`,
       original: `./${image.original || image.medium}`,
-      title: image.title || ''
+      title: image.title || '',
+      orientation: image.orientation || null
     }));
   }
   
@@ -714,7 +775,8 @@ function getPhotosFromConfig(config, galleryPath) {
         thumbnail: `./${image.thumbnail}`,
         medium: `./${image.medium}`,
         original: `./${image.original || image.medium}`,
-        title: image.title || ''
+        title: image.title || '',
+        orientation: image.orientation || null
       }));
     }
   }
@@ -724,33 +786,116 @@ function getPhotosFromConfig(config, galleryPath) {
 }
 
 /**
- * Display photos in a grid with Fancybox integration
+ * Display photos in the gallery grid, handling orientation correctly
  */
 function displayPhotos(photos, container) {
-  if (photos.length === 0) {
+  container.innerHTML = '';
+  
+  if (!photos || photos.length === 0) {
     container.innerHTML = '<p>No photos found for this event.</p>';
     return;
   }
   
-  // Clear the container
-  container.innerHTML = '';
+  // Create a gallery element for photos
+  const gallery = document.createElement('div');
+  gallery.className = 'photo-grid';
+  container.appendChild(gallery);
   
-  // Add each photo
-  photos.forEach((photo, index) => {
-    const item = document.createElement('a');
-    item.href = photo.medium;
-    item.className = 'photo-item';
-    item.setAttribute('data-fancybox', 'gallery');
-    item.setAttribute('data-caption', photo.title);
+  // Add photos to the gallery
+  photos.forEach(photo => {
+    const photoDiv = document.createElement('div');
+    photoDiv.className = 'photo-item';
     
-    // Create the thumbnail
+    const link = document.createElement('a');
+    link.href = photo.medium;
+    link.setAttribute('data-fancybox', 'gallery');
+    link.setAttribute('data-caption', photo.title || '');
+    
+    // Add EXIF orientation as a data attribute for Fancybox if available
+    if (photo.orientation) {
+      link.setAttribute('data-orientation', photo.orientation);
+    }
+    
     const img = document.createElement('img');
-    img.src = photo.thumbnail;
-    img.alt = photo.title || `Photo ${index + 1}`;
+    img.className = 'lazy';
+    img.dataset.src = photo.thumbnail;
+    img.alt = photo.title || 'Photo';
     
-    item.appendChild(img);
-    container.appendChild(item);
+    // Apply CSS transform based on EXIF orientation if needed
+    if (photo.orientation && photo.orientation > 1) {
+      applyOrientationStyle(img, parseInt(photo.orientation));
+    }
+    
+    link.appendChild(img);
+    photoDiv.appendChild(link);
+    gallery.appendChild(photoDiv);
   });
+  
+  // Initialize LazyLoad for images
+  new LazyLoad({
+    elements_selector: '.lazy',
+    use_native: true
+  });
+  
+  // Initialize Fancybox for lightbox functionality
+  Fancybox.bind('[data-fancybox="gallery"]', {
+    caption: function (fancybox, slide) {
+      return slide.caption || '';
+    },
+    Images: {
+      initialSize: 'fit',
+    },
+    on: {
+      ready: (fancybox) => {
+        // Apply orientation corrections to Fancybox images
+        const slides = fancybox.carousel.slides;
+        for (let i = 0; i < slides.length; i++) {
+          const slide = slides[i];
+          const orientation = slide.$trigger.dataset.orientation;
+          if (orientation && orientation > 1) {
+            const content = slide.$el.querySelector('.fancybox__content');
+            if (content) {
+              const img = content.querySelector('img');
+              if (img) {
+                applyOrientationStyle(img, parseInt(orientation));
+              }
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+/**
+ * Apply the correct CSS transform for the EXIF orientation value
+ * @param {HTMLElement} img - The image element to apply the transform to
+ * @param {number} orientation - The EXIF orientation value (1-8)
+ */
+function applyOrientationStyle(img, orientation) {
+  // EXIF orientation values and their corresponding CSS transforms
+  // See: https://www.impulseadventure.com/photo/exif-orientation.html
+  const transforms = {
+    1: 'none',                 // Normal
+    2: 'scaleX(-1)',           // Flip horizontal
+    3: 'rotate(180deg)',       // Rotate 180°
+    4: 'scaleY(-1)',           // Flip vertical
+    5: 'scaleX(-1) rotate(90deg)',  // Flip horizontal and rotate 90° CW
+    6: 'rotate(90deg)',        // Rotate 90° CW
+    7: 'scaleX(-1) rotate(-90deg)', // Flip horizontal and rotate 90° CCW
+    8: 'rotate(-90deg)'        // Rotate 90° CCW
+  };
+  
+  if (transforms[orientation]) {
+    img.style.transform = transforms[orientation];
+    
+    // For orientations that make the image portrait instead of landscape (5-8),
+    // we need to adjust the aspect ratio
+    if (orientation >= 5 && orientation <= 8) {
+      img.style.objectFit = 'contain';
+      img.style.maxHeight = '100%';
+    }
+  }
 }
 
 /**
