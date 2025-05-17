@@ -3,43 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Photography Gallery</title>
-    <meta name="description" content="A beautiful photography gallery showcasing track events and more">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="favicon.png">
+    <title>Track Photos Gallery</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f5f5f5;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        h1 {
+            color: #444;
+        }
+        
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-gap: 15px;
+        }
+        
+        .gallery-item {
+            background-color: #fff;
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .gallery-item:hover {
+            transform: translateY(-5px);
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .gallery-item .caption {
+            padding: 10px;
+            text-align: center;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Lightbox styles */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .lightbox.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .lightbox img {
+            max-width: 90%;
+            max-height: 80vh;
+            margin-bottom: 20px;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+        }
+
+        .lightbox-caption {
+            color: white;
+            font-size: 18px;
+        }
+    </style>
 </head>
 <body>
     <header>
-        <div class="container">
-            <h1>Photography Gallery</h1>
-            <nav id="main-nav">
-                <!-- Navigation links will be dynamically generated here -->
-            </nav>
-        </div>
+        <h1>Track Photos Gallery</h1>
+        <p>A collection of the best track photos</p>
     </header>
-
-    <main>
-        <div class="container">
-            <div id="gallery-container">
-                <!-- Gallery content will be loaded here -->
-                <div class="loading">Loading galleries...</div>
-            </div>
-        </div>
-    </main>
-
-    <footer>
-        <div class="container">
-            <p>&copy; <span id="year"></span> Photography Gallery</p>
-        </div>
-    </footer>
-
-    <!-- External libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js"></script>
     
-    <!-- Application script -->
-    <script src="js/app.js"></script>
+    <div class="gallery" id="gallery">
+        <!-- Gallery items will be dynamically added here -->
+    </div>
+
+    <!-- Lightbox for image viewing -->
+    <div class="lightbox" id="lightbox">
+        <span class="lightbox-close" id="lightbox-close">&times;</span>
+        <img id="lightbox-img" src="" alt="">
+        <div class="lightbox-caption" id="lightbox-caption"></div>
+    </div>
+    
+    <footer>
+        <p>&copy; 2025 Track Photos Gallery</p>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const gallery = document.getElementById('gallery');
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+            const lightboxCaption = document.getElementById('lightbox-caption');
+            const lightboxClose = document.getElementById('lightbox-close');
+            
+            // Image list
+            const imageFiles = [
+                'DSC00005.JPG', 'DSC00216.jpg', 'DSC00221.JPG', 'DSC00235-EDIT.jpg',
+                'DSC00307-EDIT.jpg', 'DSC00324.JPG', 'DSC00326.JPG', 'DSC00336.JPG',
+                'DSC00351-EDIT.jpg', 'DSC00375.JPG', 'DSC00378.JPG', 'DSC00384-EDIT.jpg',
+                'DSC00384.jpg', 'DSC00415.JPG', 'DSC00453.JPG', 'DSC00511.JPG',
+                'DSC00527.JPG', 'DSC00563.JPG', 'DSC00629.jpg', 'DSC00822.JPG',
+                'DSC00915-EDIT.jpg', 'DSC01303.JPG', 'IMG_0015.JPG', 'IMG_0017.JPG',
+                'IMG_0026.JPG', 'IMG_0110.JPG', 'IMG_0122.JPG', 'IMG_0134.JPG',
+                'IMG_0469.JPG', 'IMG_0488.JPG', 'IMG_1302.jpg', 'IMG_1477.jpg',
+                'IMG_1592.jpg', 'IMG_1698.jpg', 'IMG_1705.jpg', 'IMG_1893.jpg',
+                'IMG_3029-EDIT.jpg', 'IMG_3121-EDIT.jpg', 'IMG_3242-EDIT.jpg',
+                'IMG_3732-EDIT.jpg', 'IMG_3747-EDIT.jpg'
+            ];
+            
+            // Create a gallery item for each image
+            imageFiles.forEach(file => {
+                const item = document.createElement('div');
+                item.className = 'gallery-item';
+                
+                const img = document.createElement('img');
+                img.src = `pics/track/best/${file}`;
+                img.alt = formatCaption(file);
+                img.loading = 'lazy'; // Lazy load images
+                
+                const caption = document.createElement('div');
+                caption.className = 'caption';
+                caption.textContent = formatCaption(file);
+                
+                // Click event for lightbox
+                item.addEventListener('click', () => {
+                    lightboxImg.src = `pics/track/best/${file}`;
+                    lightboxCaption.textContent = formatCaption(file);
+                    lightbox.classList.add('active');
+                });
+                
+                item.appendChild(img);
+                item.appendChild(caption);
+                gallery.appendChild(item);
+            });
+            
+            // Close lightbox when clicking the close button
+            lightboxClose.addEventListener('click', () => {
+                lightbox.classList.remove('active');
+            });
+            
+            // Close lightbox when clicking outside the image
+            lightbox.addEventListener('click', (e) => {
+                if (e.target === lightbox) {
+                    lightbox.classList.remove('active');
+                }
+            });
+            
+            // Format caption from filename
+            function formatCaption(filename) {
+                return filename
+                    .replace(/\.(jpg|jpeg|png)$/i, '')
+                    .replace(/-/g, ' ')
+                    .replace(/([A-Z])/g, ' $1')
+                    .trim();
+            }
+        });
+    </script>
 </body>
-</html> 
+</html>
