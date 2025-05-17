@@ -1,1 +1,35 @@
-[{"filename":"test1.jpg","title":"Test Photo 1","date":"2025-05-17T04:17:35.144Z","category":"test-category"},{"filename":"test2.jpg","title":"Test Photo 2","date":"2025-05-17T04:17:35.144Z","category":"test-category"},{"filename":"test3.jpg","title":"Test Photo 3","date":"2025-05-17T04:17:35.144Z","category":"test-category"}] 
+[
+  {
+    "filename": "test-category/test3.jpg",
+    "title": "Test3",
+    "date": "2025-05-17T05:01:40.252Z",
+    "category": "test-category",
+    "dimensions": {
+      "width": 7952,
+      "height": 5304
+    },
+    "exif": {}
+  },
+  {
+    "filename": "test-category/test2.jpg",
+    "title": "Test2",
+    "date": "2025-05-17T05:01:35.780Z",
+    "category": "test-category",
+    "dimensions": {
+      "width": 7952,
+      "height": 5304
+    },
+    "exif": {}
+  },
+  {
+    "filename": "test-category/test1.jpg",
+    "title": "Test1",
+    "date": "2025-05-17T05:01:30.709Z",
+    "category": "test-category",
+    "dimensions": {
+      "width": 7952,
+      "height": 5304
+    },
+    "exif": {}
+  }
+]
