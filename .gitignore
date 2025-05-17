@@ -1,22 +1,16 @@
 # Dependencies
 node_modules/
 
-# Large media files
-*.mp4
-*.mov
-*.zip
-*.rar
+# System files
+.DS_Store
+*.swp
+*.swo
+.vscode/
+.idea/
 
 # Logs
-logs
 *.log
-npm-debug.log*
 
-# Mac OS files
-.DS_Store
-
-# Editor directories and files
-.idea
-.vscode
-*.swp
-*.swo 
+# Keep thumbnails and medium-sized images in the repository
+!thumbnails/
+!medium/
