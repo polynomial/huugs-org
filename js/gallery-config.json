@@ -1,0 +1,16 @@
+[
+  {
+    "id": "track",
+    "title": "Track",
+    "description": "A collection of photography from track events",
+    "photoCount": 90,
+    "categories": [
+      {
+        "id": "best",
+        "title": "Best",
+        "photoCount": 90
+      }
+    ],
+    "updatedAt": "2025-05-17T01:44:41.884Z"
+  }
+]
