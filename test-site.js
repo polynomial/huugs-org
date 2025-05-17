@@ -17,7 +17,7 @@ const PAGES_TO_TEST = [
   {
     path: '/',
     expectedTitle: 'Photography Collection',
-    expectedElements: ['#genre-container'],
+    expectedElements: ['#genre-container', '#genre-grid'],
     shouldNotContain: ['No genres found']
   },
   {
@@ -38,6 +38,18 @@ const PAGES_TO_TEST = [
 const IMAGES_TO_TEST = [
   'pics/track/best/thumbnails/IMG_0122.JPG',
   'pics/track/best/thumbnails/IMG_0488.JPG'
+];
+
+// Required JavaScript functions
+const REQUIRED_FUNCTIONS = [
+  'initApp',
+  'initHomePage', 
+  'initGenrePage', 
+  'initEventPage',
+  'hideAllContainers',
+  'showContainer',
+  'loadEventPhotos',
+  'getPhotosFromConfig'
 ];
 
 // A simple HTTP server to serve the website
@@ -251,6 +263,86 @@ function validateGalleryConfig() {
   }
 }
 
+// Function to validate JavaScript functions
+function validateJavaScriptFunctions() {
+  console.log('\nValidating JavaScript functions...');
+  
+  try {
+    const appJsPath = path.join(ROOT_DIR, 'js', 'app.js');
+    
+    // Check if app.js exists
+    if (!fs.existsSync(appJsPath)) {
+      console.error('✗ app.js file not found');
+      return false;
+    }
+    
+    // Read app.js content
+    const appJsContent = fs.readFileSync(appJsPath, 'utf8');
+    
+    // Check for required functions
+    let allFunctionsFound = true;
+    for (const functionName of REQUIRED_FUNCTIONS) {
+      const functionRegex = new RegExp(`function\\s+${functionName}\\s*\\(`, 'i');
+      if (!functionRegex.test(appJsContent)) {
+        console.error(`✗ Required function "${functionName}" not found in app.js`);
+        allFunctionsFound = false;
+      } else {
+        console.log(`✓ Found required function "${functionName}" in app.js`);
+      }
+    }
+    
+    return allFunctionsFound;
+  } catch (error) {
+    console.error(`Error validating JavaScript functions: ${error.message}`);
+    return false;
+  }
+}
+
+// Function to validate HTML structure
+function validateHtmlStructure() {
+  console.log('\nValidating HTML structure...');
+  
+  try {
+    const indexHtmlPath = path.join(ROOT_DIR, 'index.html');
+    
+    // Check if index.html exists
+    if (!fs.existsSync(indexHtmlPath)) {
+      console.error('✗ index.html file not found');
+      return false;
+    }
+    
+    // Read index.html content
+    const indexHtmlContent = fs.readFileSync(indexHtmlPath, 'utf8');
+    
+    // Check for required containers
+    const requiredContainers = ['genre-container', 'event-container', 'photo-container'];
+    let allContainersFound = true;
+    
+    for (const container of requiredContainers) {
+      const containerRegex = new RegExp(`id=["']${container}["']`, 'i');
+      if (!containerRegex.test(indexHtmlContent)) {
+        console.error(`✗ Required container "${container}" not found in index.html`);
+        allContainersFound = false;
+      } else {
+        console.log(`✓ Found required container "${container}" in index.html`);
+      }
+    }
+    
+    // Check for Fancybox script
+    if (!indexHtmlContent.includes('fancybox.umd.js')) {
+      console.error('✗ Fancybox script not found in index.html');
+      allContainersFound = false;
+    } else {
+      console.log('✓ Found Fancybox script in index.html');
+    }
+    
+    return allContainersFound;
+  } catch (error) {
+    console.error(`Error validating HTML structure: ${error.message}`);
+    return false;
+  }
+}
+
 // Main function to run all tests
 async function runTests() {
   console.log('Starting site validation tests...');
@@ -259,6 +351,14 @@ async function runTests() {
   const server = startServer();
   
   try {
+    // Validate JavaScript functions
+    const jsValid = validateJavaScriptFunctions();
+    console.log(`JavaScript Functions Test: ${jsValid ? 'PASS' : 'FAIL'}`);
+    
+    // Validate HTML structure
+    const htmlValid = validateHtmlStructure();
+    console.log(`HTML Structure Test: ${htmlValid ? 'PASS' : 'FAIL'}`);
+    
     // Test gallery configuration
     const configValid = validateGalleryConfig();
     console.log(`Gallery Configuration Test: ${configValid ? 'PASS' : 'FAIL'}`);
@@ -280,7 +380,7 @@ async function runTests() {
     console.log(`Image Loading Tests: ${allImagesPass ? 'PASS' : 'FAIL'}`);
     
     // Output overall test result
-    const allTestsPass = configValid && allPagesPass && allImagesPass;
+    const allTestsPass = jsValid && htmlValid && configValid && allPagesPass && allImagesPass;
     console.log(`\nFinal Test Result: ${allTestsPass ? 'PASS' : 'FAIL'}`);
     
     return allTestsPass;
