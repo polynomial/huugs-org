@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -23,44 +24,114 @@ jobs:
           node-version: '18'
           cache: 'npm'
           
+      - name: Cache thumbnails and medium images 💾
+        uses: actions/cache@v3
+        with:
+          path: |
+            thumbnails
+            medium
+          key: ${{ runner.os }}-image-cache-${{ hashFiles('pics/**/*.{jpg,jpeg,png}') }}
+          restore-keys: |
+            ${{ runner.os }}-image-cache-
+          
       - name: Install dependencies 📦
         run: npm ci
       
-      - name: Generate thumbnails and optimize images 🖼️
+      - name: Run tests ✅
+        run: npm test
+        
+      - name: Generate thumbnails and gallery config 🖼️
         run: |
           echo "Starting thumbnail generation..."
-          node scripts/generate-thumbnails.js
+          npm run generate-thumbnails
           echo "Thumbnail generation completed."
+          
+          # Verify gallery config was created properly
+          if [ ! -f js/gallery-config.json ]; then
+            echo "Error: gallery-config.json not created!"
+            exit 1
+          fi
+          
+          # Check how many thumbnails were created
+          THUMB_COUNT=$(find thumbnails -type f -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" | wc -l)
+          echo "Generated $THUMB_COUNT thumbnails"
+          if [ "$THUMB_COUNT" -eq 0 ]; then
+            echo "Warning: No thumbnails were generated!"
+          fi
         
-      - name: Install additional optimization tools 🛠️
+      - name: Install and run optimization tools 🗜️
         run: |
           sudo apt-get update
           sudo apt-get install -y jpegoptim optipng gifsicle webp
           
-      - name: Further optimize generated images 🗜️
-        run: |
-          echo "Further optimizing generated thumbnails and medium images..."
-          find thumbnails -type f -name "*.jpg" -exec jpegoptim --max=80 --strip-all {} \;
-          find thumbnails -type f -name "*.jpeg" -exec jpegoptim --max=80 --strip-all {} \;
-          find medium -type f -name "*.jpg" -exec jpegoptim --max=85 --strip-all {} \;
-          find medium -type f -name "*.jpeg" -exec jpegoptim --max=85 --strip-all {} \;
-          echo "Image optimization completed."
+          echo "Optimizing thumbnail images..."
+          find thumbnails -type f -name "*.jpg" -o -name "*.jpeg" | xargs -P 4 -I{} jpegoptim --max=80 --strip-all {}
+          
+          echo "Optimizing medium-size images..."
+          find medium -type f -name "*.jpg" -o -name "*.jpeg" | xargs -P 4 -I{} jpegoptim --max=85 --strip-all {}
+          
+          echo "Image optimization completed"
 
-      - name: Check generated files 📊
+      - name: Run validation tests 🧪
         run: |
-          echo "Checking generated file structure:"
-          ls -la thumbnails/
-          ls -la medium/
-          echo "Checking gallery configuration:"
-          cat js/gallery-config.json
-          echo "Total number of thumbnails:"
-          find thumbnails -type f -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" | wc -l
-          echo "Total file sizes:"
+          echo "Testing website structure..."
+          # Install http-server for testing
+          npm install -g http-server
+          
+          # Start server in background
+          http-server -p 8080 &
+          SERVER_PID=$!
+          
+          # Wait for server to start
+          sleep 3
+          
+          # Run the site testing script if it exists
+          if [ -f test-site.js ]; then
+            node test-site.js
+            TEST_RESULT=$?
+            
+            if [ $TEST_RESULT -ne 0 ]; then
+              echo "Site validation tests failed!"
+              kill $SERVER_PID
+              exit 1
+            fi
+          else
+            # Basic validation if no test script exists
+            echo "Checking key files exist..."
+            [ ! -f index.html ] && echo "Error: index.html missing" && exit 1
+            [ ! -f js/app.js ] && echo "Error: js/app.js missing" && exit 1
+            [ ! -f js/gallery-config.json ] && echo "Error: js/gallery-config.json missing" && exit 1
+          fi
+          
+          # Kill the server
+          kill $SERVER_PID
+          
+      - name: Generate site statistics 📊
+        run: |
+          echo "Site statistics:"
+          echo "-------------------"
+          echo "Galleries:"
+          jq '.galleries | keys | length' js/gallery-config.json
+          
+          echo "Total photos:"
+          jq '[.galleries[] | .images | length] | add' js/gallery-config.json
+          
+          echo "Disk usage:"
           du -sh pics/ thumbnails/ medium/
+          
+          echo "File counts:"
+          find pics/ -type f -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" | wc -l
+          find thumbnails/ -type f -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" | wc -l
+          find medium/ -type f -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" | wc -l
           
       - name: Deploy to GitHub Pages 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: .
           branch: gh-pages
-          clean: true # Automatically remove deleted files 
+          clean: true # Automatically remove deleted files
+          
+      - name: Post-deployment notification 🔔
+        run: |
+          echo "Site successfully deployed to GitHub Pages"
+          echo "Visit https://huugs.org to view the site" 
