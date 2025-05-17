@@ -197,7 +197,7 @@ async function processGallery(dirName, existingGallery = null) {
             
             return true;
         } catch (error) {
-            console.error(`Error processing ${file}:`, error);
+            debug(`Error processing ${file}:`, error);
             return false;
         }
     });
@@ -285,7 +285,7 @@ async function processImageFile(sourceFile, normalizedPath, galleryPath, thumbsP
             debug(`Copied: ${fileName}`);
         }
     } catch (error) {
-        console.error(`Error copying ${fileName}: ${error.message}`);
+        debug(`Error copying ${fileName}: ${error.message}`);
     }
     
     // Generate display version (smaller for web)
@@ -303,7 +303,7 @@ async function processImageFile(sourceFile, normalizedPath, galleryPath, thumbsP
             debug(`Display: ${fileName}`);
         }
     } catch (error) {
-        console.error(`Error generating display image for ${fileName}: ${error.message}`);
+        debug(`Error generating display image for ${fileName}: ${error.message}`);
     }
     
     // Generate thumbnail
@@ -321,7 +321,7 @@ async function processImageFile(sourceFile, normalizedPath, galleryPath, thumbsP
             debug(`Thumbnail: ${fileName}`);
         }
     } catch (error) {
-        console.error(`Error generating thumbnail for ${fileName}: ${error.message}`);
+        debug(`Error generating thumbnail for ${fileName}: ${error.message}`);
     }
 }
 
@@ -341,7 +341,7 @@ async function generateDisplayImage(sourceFile, targetFile) {
             })
             .toFile(targetFile);
     } catch (error) {
-        console.error(`Error generating display image for ${sourceFile}:`, error);
+        debug(`Error generating display image for ${sourceFile}:`, error);
         // Fallback
         await copyFileAsync(sourceFile, targetFile);
     }
@@ -364,12 +364,12 @@ async function generateThumbnail(sourceFile, targetFile) {
             })
             .toFile(targetFile);
     } catch (error) {
-        console.error(`Error generating thumbnail for ${sourceFile}:`, error);
+        debug(`Error generating thumbnail for ${sourceFile}:`, error);
         // Fallback
         try {
             await copyFileAsync(sourceFile, targetFile);
         } catch (copyError) {
-            console.error(`Error copying fallback thumbnail for ${sourceFile}:`, copyError);
+            debug(`Error copying fallback thumbnail for ${sourceFile}:`, copyError);
         }
     }
 }
@@ -394,7 +394,7 @@ async function getImagesRecursively(dir) {
             }
         }
     } catch (error) {
-        console.error(`Error reading directory ${dir}:`, error);
+        debug(`Error reading directory ${dir}:`, error);
     }
     
     return results;
@@ -503,13 +503,13 @@ async function getFileDate(filepath) {
         const stats = await statAsync(filepath);
         return stats.mtime.toISOString();
     } catch (error) {
-        console.error(`Error getting file date for ${filepath}:`, error);
+        debug(`Error getting file date for ${filepath}:`, error);
         return new Date().toISOString();
     }
 }
 
 // Run the gallery generation
 processGalleries().catch(error => {
-    console.error('Gallery generation failed:', error);
+    debug('Gallery generation failed:', error);
     process.exit(1);
 }); 
