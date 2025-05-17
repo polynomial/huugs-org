@@ -1,4 +1,4 @@
-// Debug utility - Set DEBUG to false in production
+// Debug utility - Node.js compatible version
 const DEBUG = process.env.NODE_ENV !== 'production';
 function debug(...args) {
     if (DEBUG) {
