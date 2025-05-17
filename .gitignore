@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Generated content
+galleries/
+
+# Large media files
+*.mp4
+*.mov
+*.zip
+*.rar
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Mac OS files
+.DS_Store
+
+# Editor directories and files
+.idea
+.vscode
+*.swp
+*.swo 

@@ -1,0 +1,30 @@
+name: Build and Deploy
+on:
+  push:
+    branches:
+      - main
+permissions:
+  contents: write
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js ⚙️
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Install dependencies 📦
+        run: npm ci
+        
+      - name: Generate galleries 🖼️
+        run: npm run generate
+        
+      - name: Deploy to GitHub Pages 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: .
+          branch: gh-pages 

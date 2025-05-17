@@ -1,0 +1,19 @@
+{
+  "name": "track-photography",
+  "version": "1.0.0",
+  "description": "Photography portfolio site for track events",
+  "main": "index.html",
+  "scripts": {
+    "generate": "node generate-galleries.js",
+    "serve": "http-server -p 3000",
+    "start": "npm run generate && npm run serve"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "sharp": "^0.32.1"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+} 
