@@ -1,1 +1,16 @@
-[{"id":"test-gallery","title":"Test Gallery","description":"For debugging purposes","photoCount":3,"categories":[{"id":"test-category","title":"Test Category","photoCount":3}],"updatedAt":"2025-05-17T04:17:35.143Z"}]
+[
+  {
+    "id": "track",
+    "title": "Track",
+    "description": "A collection of 90 photos",
+    "photoCount": 90,
+    "categories": [
+      {
+        "id": "best",
+        "title": "Best",
+        "photoCount": 90
+      }
+    ],
+    "updatedAt": "2025-05-17T04:50:37.990Z"
+  }
+]

@@ -1,9 +1,6 @@
 # Dependencies
 node_modules/
 
-# Generated content
-galleries/
-
 # Large media files
 *.mp4
 *.mov
