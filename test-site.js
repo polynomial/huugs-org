@@ -189,7 +189,8 @@ async function testImage(imagePath) {
     console.log(`Sending HTTP request to verify image exists...`);
     // Use curl with -I to just get headers and check status code
     // Add -v for verbose output to help diagnose any issues
-    const result = execSync(`curl -sI -v "${url}" 2>&1`).toString();
+    // Add --max-time 10 to timeout after 10 seconds
+    const result = execSync(`curl -sI -v --max-time 10 "${url}" 2>&1`).toString();
     const statusLine = result.split('\n')[0];
     
     // Extract and log more details about the request
@@ -404,6 +405,13 @@ async function runTests() {
   // Start the test server
   const server = startServer();
   
+  // Set a timeout of 2 minutes for all tests
+  const testTimeout = setTimeout(() => {
+    console.error('Test suite timed out after 2 minutes. Terminating...');
+    server.close();
+    process.exit(1);
+  }, 120000);
+  
   try {
     // Validate JavaScript functions
     const jsValid = validateJavaScriptFunctions();
@@ -417,18 +425,27 @@ async function runTests() {
     const configValid = validateGalleryConfig();
     console.log(`Gallery Configuration Test: ${configValid ? 'PASS' : 'FAIL'}`);
     
-    // Test pages
+    // Test pages with timeout per page
     let allPagesPass = true;
     for (const page of PAGES_TO_TEST) {
+      console.log(`\n==== Testing page: ${page.path} ====`);
+      const pageStartTime = Date.now();
       const pagePass = await testPage(page);
+      const pageTestTime = (Date.now() - pageStartTime) / 1000;
+      console.log(`Page test completed in ${pageTestTime.toFixed(2)} seconds`);
       if (!pagePass) allPagesPass = false;
     }
     console.log(`Page Content Tests: ${allPagesPass ? 'PASS' : 'FAIL'}`);
     
-    // Test images
+    // Test images with timeout per image
     let allImagesPass = true;
+    console.log(`\n==== Testing ${IMAGES_TO_TEST.length} images ====`);
     for (const image of IMAGES_TO_TEST) {
+      console.log(`\n--- Testing image: ${image} ---`);
+      const imageStartTime = Date.now();
       const imagePass = await testImage(image);
+      const imageTestTime = (Date.now() - imageStartTime) / 1000;
+      console.log(`Image test completed in ${imageTestTime.toFixed(2)} seconds`);
       if (!imagePass) allImagesPass = false;
     }
     console.log(`Image Loading Tests: ${allImagesPass ? 'PASS' : 'FAIL'}`);
@@ -437,7 +454,13 @@ async function runTests() {
     const allTestsPass = jsValid && htmlValid && configValid && allPagesPass && allImagesPass;
     console.log(`\nFinal Test Result: ${allTestsPass ? 'PASS' : 'FAIL'}`);
     
+    // Clear the timeout since tests completed successfully
+    clearTimeout(testTimeout);
+    
     return allTestsPass;
+  } catch (error) {
+    console.error('Test suite failed with error:', error);
+    return false;
   } finally {
     // Shut down the server
     console.log('Stopping test server...');
