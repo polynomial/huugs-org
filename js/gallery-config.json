@@ -2,7 +2,7 @@
   {
     "id": "track",
     "title": "Track",
-    "description": "A collection of photography from track events",
+    "description": "A collection of 90 photos",
     "photoCount": 90,
     "categories": [
       {
@@ -11,6 +11,6 @@
         "photoCount": 90
       }
     ],
-    "updatedAt": "2025-05-17T04:44:15.880Z"
+    "updatedAt": "2025-05-17T04:55:32.071Z"
   }
 ]

@@ -1,0 +1,12 @@
+{
+  "name": "photo-gallery-debug",
+  "version": "1.0.0",
+  "description": "Debug environment for photo gallery website",
+  "private": true,
+  "scripts": {
+    "debug": "node debug-app.js"
+  },
+  "dependencies": {
+    "jsdom": "^22.1.0"
+  }
+} 

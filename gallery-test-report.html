@@ -1,0 +1,294 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gallery Website Test Report</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1, h2, h3 {
+      color: #2c3e50;
+    }
+    .summary {
+      display: flex;
+      justify-content: space-between;
+      background-color: #f8f9fa;
+      padding: 20px;
+      border-radius: 5px;
+      margin-bottom: 30px;
+    }
+    .score {
+      font-size: 48px;
+      font-weight: bold;
+      color: #f39c12;
+    }
+    .score-label {
+      font-size: 14px;
+      color: #7f8c8d;
+    }
+    .counts {
+      display: flex;
+      gap: 15px;
+    }
+    .count-item {
+      text-align: center;
+      padding: 10px;
+      border-radius: 5px;
+      min-width: 100px;
+    }
+    .passed {
+      background-color: #e6f7ee;
+      color: #27ae60;
+    }
+    .warnings {
+      background-color: #fef5e7;
+      color: #f39c12;
+    }
+    .failed {
+      background-color: #fdedec;
+      color: #e74c3c;
+    }
+    .section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 5px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .check-list {
+      list-style-type: none;
+      padding-left: 10px;
+    }
+    .check-list li {
+      margin-bottom: 8px;
+      padding-left: 25px;
+      position: relative;
+    }
+    .check-list li:before {
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+    .check-pass:before {
+      content: "✅";
+    }
+    .check-warn:before {
+      content: "⚠️";
+    }
+    .check-fail:before {
+      content: "❌";
+    }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 15px;
+    }
+    .feature-card {
+      border: 1px solid #eee;
+      border-radius: 5px;
+      padding: 15px;
+      background-color: #f8f9fa;
+    }
+    .feature-name {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 50px;
+      color: #7f8c8d;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Gallery Website Test Report</h1>
+  <p>Generated on 5/16/2025, 9:24:47 PM</p>
+  
+  <div class="summary">
+    <div>
+      <div class="score">70%</div>
+      <div class="score-label">Overall Score</div>
+    </div>
+    <div class="counts">
+      <div class="count-item passed">
+        <div>7</div>
+        <div>Passed</div>
+      </div>
+      <div class="count-item warnings">
+        <div>3</div>
+        <div>Warnings</div>
+      </div>
+      <div class="count-item failed">
+        <div>0</div>
+        <div>Failed</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="section">
+    <h2>File Checks</h2>
+    <ul class="check-list">
+      <li class="check-pass">Required file exists: index.html</li>
+      <li class="check-pass">Required file exists: css/style.css</li>
+      <li class="check-pass">Required file exists: js/app.js</li>
+      <li class="check-pass">Required file exists: js/gallery-config.json</li>
+      <li class="check-pass">Required file exists: favicon.svg</li>
+      <li class="check-pass">Recommended file exists: README.md</li>
+      <li class="check-pass">Gallery config contains 1 galleries</li>
+      <li class="check-warn">Missing recommended file: robots.txt</li>
+      <li class="check-warn">Missing recommended file: sitemap.xml</li>
+      <li class="check-warn">Gallery folder not found: galleries/track</li>
+      
+    </ul>
+  </div>
+  
+  <div class="section">
+    <h2>HTML Analysis</h2>
+    <h3>Features Detected</h3>
+    <div class="features">
+      
+        <div class="feature-card">
+          <div class="feature-name">viewport meta tag</div>
+          <div>Found 1 instances</div>
+        </div>
+      
+      
+        <div class="feature-card">
+          <div class="feature-name">semantic HTML5 elements</div>
+          <div>Found 4 instances</div>
+        </div>
+      
+      
+        <div class="feature-card">
+          <div class="feature-name">aria attributes</div>
+          <div>Not found</div>
+        </div>
+      
+    </div>
+    
+    
+      <h3>Suggestions</h3>
+      <ul class="check-list">
+        <li class="check-warn">Consider adding aria attributes to improve the website.</li>
+      </ul>
+    
+  </div>
+  
+  <div class="section">
+    <h2>CSS Analysis</h2>
+    <h3>Features Detected</h3>
+    <div class="features">
+      
+        <div class="feature-card">
+          <div class="feature-name">display: flex</div>
+          <div>Found 1 instances in 1 files</div>
+          <div><small>Files: style.css</small></div>
+        </div>
+      
+      
+        <div class="feature-card">
+          <div class="feature-name">grid layout</div>
+          <div>Found 1 instances in 1 files</div>
+          <div><small>Files: style.css</small></div>
+        </div>
+      
+      
+        <div class="feature-card">
+          <div class="feature-name">media queries</div>
+          <div>Found 1 instances in 1 files</div>
+          <div><small>Files: style.css</small></div>
+        </div>
+      
+      
+        <div class="feature-card">
+          <div class="feature-name">CSS variables</div>
+          <div>Found 1 instances in 1 files</div>
+          <div><small>Files: style.css</small></div>
+        </div>
+      
+      
+        <div class="feature-card">
+          <div class="feature-name">animations</div>
+          <div>Found 1 instances in 1 files</div>
+          <div><small>Files: style.css</small></div>
+        </div>
+      
+    </div>
+    
+    
+      <h3>Suggestions</h3>
+      <ul class="check-list">
+        <li class="check-warn">style.css uses 12 vendor prefixes. Consider using autoprefixer.</li>
+      </ul>
+    
+  </div>
+  
+  <div class="section">
+    <h2>JavaScript Analysis</h2>
+    <h3>Features Detected</h3>
+    <div class="features">
+      
+        <div class="feature-card">
+          <div class="feature-name">async/await</div>
+          <div>Found 10 instances in 1 files</div>
+          <div><small>Files: app.js</small></div>
+        </div>
+      
+      
+        <div class="feature-card">
+          <div class="feature-name">arrow functions</div>
+          <div>Found 19 instances in 1 files</div>
+          <div><small>Files: app.js</small></div>
+        </div>
+      
+      
+        <div class="feature-card">
+          <div class="feature-name">template literals</div>
+          <div>Found 22 instances in 1 files</div>
+          <div><small>Files: app.js</small></div>
+        </div>
+      
+      
+        <div class="feature-card">
+          <div class="feature-name">promises</div>
+          <div>Found 1 instances in 1 files</div>
+          <div><small>Files: app.js</small></div>
+        </div>
+      
+      
+        <div class="feature-card">
+          <div class="feature-name">fetch API</div>
+          <div>Found 4 instances in 1 files</div>
+          <div><small>Files: app.js</small></div>
+        </div>
+      
+    </div>
+    
+    
+      <h3>Potential Issues</h3>
+      <ul class="check-list">
+        <li class="check-warn">app.js contains 1 console.log statements. Remove them in production.</li>
+        <li class="check-warn">app.js may have event listener memory leaks. 7 listeners added but only 4 removed.</li>
+      </ul>
+    
+  </div>
+  
+  
+  
+  
+  
+  <div class="footer">
+    <p>Generated by Gallery Website Static Analysis Tool</p>
+  </div>
+</body>
+</html>
+  
