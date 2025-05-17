@@ -1,7 +1,7 @@
 // Main Application JavaScript
 
-// Debug utility - Set DEBUG to false in production
-const DEBUG = process.env.NODE_ENV !== 'production';
+// Debug utility - Browser-compatible version
+const DEBUG = false; // Set to true during development, false in production
 function debug(...args) {
     if (DEBUG) {
         console.log(...args);
