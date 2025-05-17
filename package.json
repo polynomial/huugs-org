@@ -8,7 +8,7 @@
     "generate-thumbnails": "node scripts/generate-thumbnails.js",
     "test": "node test-site.js || echo \"Tests failed but continuing...\" && exit 0",
     "dev": "http-server -p 3000 & open http://localhost:3000",
-    "optimize": "find thumbnails medium -type f -name \"*.jpg\" -o -name \"*.jpeg\" | xargs -P 4 -I{} jpegoptim --max=80 --strip-all {}"
+    "optimize": "echo 'Optimizing images...' && find thumbnails medium -type f -name \"*.jpg\" -o -name \"*.jpeg\" | while read img; do echo \"Processing $img\"; jpegoptim --max=80 --strip-all \"$img\"; done"
   },
   "dependencies": {
     "sharp": "^0.32.6",

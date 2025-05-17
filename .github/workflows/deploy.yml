@@ -5,6 +5,11 @@ on:
       - main
   workflow_dispatch:  # Allow manual triggering
 
+# Ensure only one workflow runs at a time
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
@@ -59,27 +64,40 @@ jobs:
             echo "Warning: No thumbnails were generated!"
           fi
         
-      - name: Install and run optimization tools 🗜️
+      - name: Install optimization tools 🔧
         run: |
           sudo apt-get update
-          sudo apt-get install -y jpegoptim optipng gifsicle webp
+          sudo apt-get install -y jpegoptim optipng gifsicle webp jq
           
+      - name: Optimize images 🗜️
+        run: |
           echo "Optimizing thumbnail images..."
-          find thumbnails -type f -name "*.jpg" -o -name "*.jpeg" | xargs -P 4 -I{} jpegoptim --max=80 --strip-all {}
+          # Process thumbnails sequentially to ensure stability
+          find thumbnails -type f -name "*.jpg" -o -name "*.jpeg" | while read img; do
+            echo "Optimizing $img"
+            jpegoptim --max=80 --strip-all "$img"
+          done
           
           echo "Optimizing medium-size images..."
-          find medium -type f -name "*.jpg" -o -name "*.jpeg" | xargs -P 4 -I{} jpegoptim --max=85 --strip-all {}
+          # Process medium images sequentially as well
+          find medium -type f -name "*.jpg" -o -name "*.jpeg" | while read img; do
+            echo "Optimizing $img"
+            jpegoptim --max=85 --strip-all "$img"
+          done
           
           echo "Image optimization completed"
 
       - name: Run validation tests 🧪
         run: |
           echo "Testing website structure..."
-          # Install http-server for testing
-          npm install -g http-server
+          # Install http-server for testing if not already available
+          if ! command -v http-server &> /dev/null; then
+            npm install -g http-server
+          fi
           
-          # Start server in background
-          http-server -p 8080 &
+          # Start server in background with a unique port
+          TEST_PORT=8081
+          http-server -p $TEST_PORT &
           SERVER_PID=$!
           
           # Wait for server to start
@@ -87,12 +105,13 @@ jobs:
           
           # Run the site testing script if it exists
           if [ -f test-site.js ]; then
+            echo "Running test script..."
             node test-site.js
             TEST_RESULT=$?
             
             if [ $TEST_RESULT -ne 0 ]; then
               echo "Site validation tests failed!"
-              kill $SERVER_PID
+              kill $SERVER_PID || true
               exit 1
             fi
           else
@@ -104,7 +123,7 @@ jobs:
           fi
           
           # Kill the server
-          kill $SERVER_PID
+          kill $SERVER_PID || true
           
       - name: Generate site statistics 📊
         run: |
