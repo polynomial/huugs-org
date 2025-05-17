@@ -38,7 +38,7 @@ function loadGalleryImages(galleryPath, container) {
     
     const img = document.createElement('img');
     img.className = 'lazy';
-    img.dataset.src = `pics/${galleryPath}/${image}`;
+    img.dataset.src = `./pics/${galleryPath}/${image}`;
     img.alt = image.replace(/\.(jpg|jpeg|png|gif)$/i, '').replace(/_/g, ' ');
     
     item.appendChild(img);
