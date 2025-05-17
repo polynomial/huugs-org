@@ -215,27 +215,34 @@ function getEventsFromConfig(config, genreId) {
   const genrePath = `pics/${genreId}`;
   
   Object.keys(config.galleries).forEach(galleryId => {
-    if (galleryId.startsWith(genrePath + '/')) {
+    // Check if this is a direct match to the genre or subdirectory
+    if (galleryId === genrePath || galleryId.startsWith(genrePath + '/')) {
       // Extract event name from path
       const pathParts = galleryId.split('/');
+      let eventId;
+      
       if (pathParts.length >= 3) {
-        const eventId = pathParts[2]; // e.g., "best" from "pics/track/best"
+        eventId = pathParts[2]; // e.g., "best" from "pics/track/best"
+      } else {
+        eventId = "general"; // Default event name if it's directly in the genre folder
+      }
+      
+      if (!events.has(eventId)) {
+        // Find a cover image
+        const coverImage = config.galleries[galleryId].images && 
+                           config.galleries[galleryId].images.length > 0 ?
+                           `./${config.galleries[galleryId].images[0].thumbnail}` :
+                           './thumbnails/placeholder.jpg';
         
-        if (!events.has(eventId)) {
-          // Find a cover image
-          const coverImage = config.galleries[galleryId].images && 
-                             config.galleries[galleryId].images.length > 0 ?
-                             `./${config.galleries[galleryId].images[0].thumbnail}` :
-                             './thumbnails/placeholder.jpg';
-          
-          events.set(eventId, {
-            id: eventId,
-            title: toTitleCase(eventId.replace(/-/g, ' ')),
-            path: galleryId,
-            cover: coverImage,
-            count: config.galleries[galleryId].images ? config.galleries[galleryId].images.length : 0
-          });
-        }
+        const eventTitle = eventId === "general" ? "General" : toTitleCase(eventId.replace(/-/g, ' '));
+        
+        events.set(eventId, {
+          id: eventId,
+          title: eventTitle,
+          path: galleryId,
+          cover: coverImage,
+          count: config.galleries[galleryId].images ? config.galleries[galleryId].images.length : 0
+        });
       }
     }
   });
@@ -305,7 +312,12 @@ function loadEventPhotos(genreId, eventId) {
   const photosGrid = document.getElementById('photos-grid');
   if (!photosGrid) return;
   
-  const galleryPath = `pics/${genreId}/${eventId}`;
+  let galleryPath;
+  if (eventId === "general") {
+    galleryPath = `pics/${genreId}`;
+  } else {
+    galleryPath = `pics/${genreId}/${eventId}`;
+  }
   
   // Load the gallery configuration
   fetch('./js/gallery-config.json')
