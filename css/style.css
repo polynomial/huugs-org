@@ -146,11 +146,13 @@ main {
   display: block;
 }
 
-/* Preserve aspect ratio and height for rotated images */
+/* Enhanced styles for rotated images */
 .photo-item img[style*="rotate(90deg)"],
 .photo-item img[style*="rotate(-90deg)"] {
   max-width: 100%;
-  object-fit: contain;
+  width: auto;
+  height: 100%;
+  transform-origin: center center;
 }
 
 .photo-item:hover img {
@@ -160,6 +162,22 @@ main {
 /* Fancybox enhancements for orientation */
 .fancybox__content img {
   transform-origin: center center;
+}
+
+.fancybox__content img[style*="rotate(90deg)"],
+.fancybox__content img[style*="rotate(-90deg)"] {
+  max-width: none;
+  max-height: 80vh;
+  width: auto;
+  margin: 0 auto;
+}
+
+/* Special styling for portrait orientation in Fancybox */
+.fancybox__content {
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Fancybox customization */
