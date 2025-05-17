@@ -1,0 +1,35 @@
+[
+  {
+    "filename": "test3.jpg",
+    "title": "Test3",
+    "date": "2025-05-17T05:02:48.748Z",
+    "category": null,
+    "dimensions": {
+      "width": 7952,
+      "height": 5304
+    },
+    "exif": {}
+  },
+  {
+    "filename": "test2.jpg",
+    "title": "Test2",
+    "date": "2025-05-17T05:02:48.671Z",
+    "category": null,
+    "dimensions": {
+      "width": 7952,
+      "height": 5304
+    },
+    "exif": {}
+  },
+  {
+    "filename": "test1.jpg",
+    "title": "Test1",
+    "date": "2025-05-17T05:02:48.573Z",
+    "category": null,
+    "dimensions": {
+      "width": 7952,
+      "height": 5304
+    },
+    "exif": {}
+  }
+]
