@@ -10,3 +10,7 @@ node_modules/
 
 # Logs
 *.log
+
+# Keep thumbnails and medium-sized images in the repository
+!thumbnails/
+!medium/

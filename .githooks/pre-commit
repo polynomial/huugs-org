@@ -1,0 +1,45 @@
+#!/bin/bash
+
+echo "Running pre-commit hook to generate thumbnails..."
+
+# Get the root directory of the git repo
+ROOT_DIR=$(git rev-parse --show-toplevel)
+cd "$ROOT_DIR" || exit 1
+
+# Create thumbnails directory structure if it doesn't exist
+mkdir -p thumbnails
+mkdir -p medium
+
+# Check if Node.js is installed
+if ! command -v node &> /dev/null; then
+    echo "Error: Node.js is not installed. Cannot generate thumbnails."
+    echo "Please install Node.js or run the thumbnail generator manually before committing."
+    exit 1
+fi
+
+# Check if sharp is installed
+if ! node -e "try { require('sharp'); console.log('sharp is installed'); } catch(e) { console.error('sharp is not installed'); process.exit(1); }"; then
+    echo "Installing sharp package..."
+    if command -v npm &> /dev/null; then
+        npm install --no-save sharp
+    else
+        echo "Error: npm not found. Cannot install sharp."
+        echo "Please install sharp manually: npm install sharp"
+        exit 1
+    fi
+fi
+
+# Run the thumbnail generator
+if [ -f scripts/generate-thumbnails.js ]; then
+    echo "Generating thumbnails..."
+    node scripts/generate-thumbnails.js
+    
+    # Add the thumbnails to the commit
+    git add thumbnails/ medium/ js/gallery-config.json
+    
+    echo "Thumbnails generated and added to the commit."
+else
+    echo "Warning: scripts/generate-thumbnails.js not found. Skipping thumbnail generation."
+fi
+
+exit 0 
