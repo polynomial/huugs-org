@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Track Photos Gallery</title>
+    <meta name="description" content="A gallery of track photography">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -116,96 +119,33 @@
     </style>
 </head>
 <body>
-    <header>
-        <h1>Track Photos Gallery</h1>
-        <p>A collection of the best track photos</p>
-    </header>
-    
-    <div class="gallery" id="gallery">
-        <!-- Gallery items will be dynamically added here -->
+    <div class="container">
+        <header>
+            <h1>Track Photography</h1>
+            <p>A collection of my favorite track photos</p>
+        </header>
+
+        <main>
+            <div class="gallery">
+                <!-- Gallery items will be loaded by JavaScript -->
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2023 Track Photos Gallery. All rights reserved.</p>
+        </footer>
     </div>
 
-    <!-- Lightbox for image viewing -->
-    <div class="lightbox" id="lightbox">
-        <span class="lightbox-close" id="lightbox-close">&times;</span>
-        <img id="lightbox-img" src="" alt="">
-        <div class="lightbox-caption" id="lightbox-caption"></div>
+    <!-- Lightbox -->
+    <div class="lightbox">
+        <div class="lightbox-content">
+            <img src="" alt="" class="lightbox-image">
+            <div class="lightbox-close">&times;</div>
+            <div class="lightbox-prev">&lt;</div>
+            <div class="lightbox-next">&gt;</div>
+        </div>
     </div>
-    
-    <footer>
-        <p>&copy; 2025 Track Photos Gallery</p>
-    </footer>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const gallery = document.getElementById('gallery');
-            const lightbox = document.getElementById('lightbox');
-            const lightboxImg = document.getElementById('lightbox-img');
-            const lightboxCaption = document.getElementById('lightbox-caption');
-            const lightboxClose = document.getElementById('lightbox-close');
-            
-            // Image list
-            const imageFiles = [
-                'DSC00005.JPG', 'DSC00216.jpg', 'DSC00221.JPG', 'DSC00235-EDIT.jpg',
-                'DSC00307-EDIT.jpg', 'DSC00324.JPG', 'DSC00326.JPG', 'DSC00336.JPG',
-                'DSC00351-EDIT.jpg', 'DSC00375.JPG', 'DSC00378.JPG', 'DSC00384-EDIT.jpg',
-                'DSC00384.jpg', 'DSC00415.JPG', 'DSC00453.JPG', 'DSC00511.JPG',
-                'DSC00527.JPG', 'DSC00563.JPG', 'DSC00629.jpg', 'DSC00822.JPG',
-                'DSC00915-EDIT.jpg', 'DSC01303.JPG', 'IMG_0015.JPG', 'IMG_0017.JPG',
-                'IMG_0026.JPG', 'IMG_0110.JPG', 'IMG_0122.JPG', 'IMG_0134.JPG',
-                'IMG_0469.JPG', 'IMG_0488.JPG', 'IMG_1302.jpg', 'IMG_1477.jpg',
-                'IMG_1592.jpg', 'IMG_1698.jpg', 'IMG_1705.jpg', 'IMG_1893.jpg',
-                'IMG_3029-EDIT.jpg', 'IMG_3121-EDIT.jpg', 'IMG_3242-EDIT.jpg',
-                'IMG_3732-EDIT.jpg', 'IMG_3747-EDIT.jpg'
-            ];
-            
-            // Create a gallery item for each image
-            imageFiles.forEach(file => {
-                const item = document.createElement('div');
-                item.className = 'gallery-item';
-                
-                const img = document.createElement('img');
-                img.src = `pics/track/best/${file}`;
-                img.alt = formatCaption(file);
-                img.loading = 'lazy'; // Lazy load images
-                
-                const caption = document.createElement('div');
-                caption.className = 'caption';
-                caption.textContent = formatCaption(file);
-                
-                // Click event for lightbox
-                item.addEventListener('click', () => {
-                    lightboxImg.src = `pics/track/best/${file}`;
-                    lightboxCaption.textContent = formatCaption(file);
-                    lightbox.classList.add('active');
-                });
-                
-                item.appendChild(img);
-                item.appendChild(caption);
-                gallery.appendChild(item);
-            });
-            
-            // Close lightbox when clicking the close button
-            lightboxClose.addEventListener('click', () => {
-                lightbox.classList.remove('active');
-            });
-            
-            // Close lightbox when clicking outside the image
-            lightbox.addEventListener('click', (e) => {
-                if (e.target === lightbox) {
-                    lightbox.classList.remove('active');
-                }
-            });
-            
-            // Format caption from filename
-            function formatCaption(filename) {
-                return filename
-                    .replace(/\.(jpg|jpeg|png)$/i, '')
-                    .replace(/-/g, ' ')
-                    .replace(/([A-Z])/g, ' $1')
-                    .trim();
-            }
-        });
-    </script>
+
+    <script src="js/app.js"></script>
 </body>
 </html>
