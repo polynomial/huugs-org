@@ -1,6 +1,6 @@
 # Track Photography
 
-A photography portfolio website for track events, hosted at [track.huugs.org](https://track.huugs.org).
+A photography portfolio website for track events, hosted at [huugs.org](https://huugs.org).
 
 ## Features
 
@@ -52,11 +52,11 @@ To add a new gallery:
 The website is configured to be hosted on GitHub Pages. To deploy:
 
 1. Push your changes to the GitHub repository
-2. GitHub Actions will automatically build and deploy the site to track.huugs.org
+2. GitHub Actions will automatically build and deploy the site to huugs.org
 
 ## Custom Domain Setup
 
-This site is configured to use the custom domain `track.huugs.org`. If you need to reconfigure the domain:
+This site is configured to use the custom domain `huugs.org`. If you need to reconfigure the domain:
 
 1. Update the CNAME file in the repository
 2. Configure your domain's DNS settings to point to GitHub Pages
