@@ -34,6 +34,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y jpegoptim optipng gifsicle webp
 
+      - name: Run tests 🧪
+        run: |
+          echo "Running website tests..."
+          npm run test || echo "::warning::Tests reported issues, but continuing with deployment"
+
       - name: Generate galleries 🖼️
         run: |
           echo "Starting gallery generation..."

@@ -66,3 +66,33 @@ This site is configured to use the custom domain `huugs.org`. If you need to rec
 - Built with vanilla JavaScript, HTML, and CSS
 - Uses [Swiper](https://swiperjs.com/) for the image carousel
 - Uses [Sharp](https://sharp.pixelplumbing.com/) for image processing and thumbnail generation
+
+## Testing
+
+This project includes several testing tools to validate the website functionality:
+
+- `test-site.js`: Main testing script that checks for file structure, CSS validation, JS errors, and more
+- `fix-issues.js`: Automatically fixes common issues detected by the test script
+- `simple-test.js`: A lightweight test for core functionality using a minimal JSDOM environment
+- `auto-test.js`: Comprehensive testing with full browser environment simulation
+
+### Running Tests
+
+```bash
+# Run the main test script
+npm run test
+
+# Run tests and automatically fix issues
+npm run test:fix
+
+# Run the simplified test (avoids async/await issues with JSDOM)
+npm run test:simple
+
+# Run comprehensive automated testing
+npm run test:auto
+
+# Run tests in a Nix environment
+npm run test:nix
+```
+
+For more details on testing, see [README-testing.md](./README-testing.md).
