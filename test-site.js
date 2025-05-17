@@ -1,0 +1,302 @@
+/**
+ * Comprehensive test script for the photo gallery website
+ * This script validates the structure and functionality of the site
+ */
+
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
+const { execSync } = require('child_process');
+
+// Configuration
+const PORT = 8989;
+const ROOT_DIR = process.cwd();
+
+// Pages to test
+const PAGES_TO_TEST = [
+  {
+    path: '/',
+    expectedTitle: 'Photography Collection',
+    expectedElements: ['#genre-container'],
+    shouldNotContain: ['No genres found']
+  },
+  {
+    path: '/?genre=track',
+    expectedTitle: 'Track Events',
+    expectedElements: ['#genre-title', '#event-list'],
+    shouldNotContain: ['No events found for Track']
+  },
+  {
+    path: '/?genre=track&event=best',
+    expectedTitle: 'Best',
+    expectedElements: ['#event-title', '.photo-grid'],
+    shouldNotContain: ['No photos found for best']
+  }
+];
+
+// Images to test
+const IMAGES_TO_TEST = [
+  'pics/track/best/thumbnails/IMG_0122.JPG',
+  'pics/track/best/thumbnails/IMG_0488.JPG'
+];
+
+// A simple HTTP server to serve the website
+function startServer() {
+  const server = http.createServer((req, res) => {
+    // Parse URL to get pathname
+    let url = new URL(req.url, `http://${req.headers.host}`);
+    let pathname = url.pathname;
+    
+    // Default to index.html for root or if no extension
+    if (pathname === '/' || !path.extname(pathname)) {
+      pathname = '/index.html';
+    }
+    
+    // Construct file path
+    const filePath = path.join(ROOT_DIR, pathname.substring(1));
+    
+    // Check if file exists
+    fs.access(filePath, fs.constants.F_OK, (err) => {
+      if (err) {
+        console.error(`File not found: ${filePath}`);
+        res.writeHead(404, { 'Content-Type': 'text/plain' });
+        res.end('File not found');
+        return;
+      }
+      
+      // Read file and serve
+      fs.readFile(filePath, (err, data) => {
+        if (err) {
+          res.writeHead(500, { 'Content-Type': 'text/plain' });
+          res.end('Internal Server Error');
+          return;
+        }
+        
+        // Set content type based on file extension
+        const ext = path.extname(pathname).toLowerCase();
+        let contentType = 'text/html';
+        
+        switch (ext) {
+          case '.js':
+            contentType = 'text/javascript';
+            break;
+          case '.css':
+            contentType = 'text/css';
+            break;
+          case '.json':
+            contentType = 'application/json';
+            break;
+          case '.png':
+            contentType = 'image/png';
+            break;
+          case '.jpg':
+          case '.jpeg':
+            contentType = 'image/jpeg';
+            break;
+          case '.gif':
+            contentType = 'image/gif';
+            break;
+        }
+        
+        res.writeHead(200, { 'Content-Type': contentType });
+        res.end(data);
+      });
+    });
+  });
+  
+  server.listen(PORT, () => {
+    console.log(`Test server started on port ${PORT}`);
+  });
+  
+  return server;
+}
+
+// Function to test if a page loads and contains expected elements
+async function testPage(page) {
+  const url = `http://localhost:${PORT}${page.path}`;
+  console.log(`Testing page: ${url}`);
+  
+  try {
+    // We'll use curl to fetch the page content
+    const content = execSync(`curl -s "${url}"`).toString();
+    
+    // Check for expected title
+    if (page.expectedTitle) {
+      const titleRegex = new RegExp(`<title>.*${page.expectedTitle}.*</title>`, 'i');
+      if (!titleRegex.test(content)) {
+        console.error(`✗ Failed to find expected title "${page.expectedTitle}" on page ${page.path}`);
+        return false;
+      }
+      console.log(`✓ Found expected title "${page.expectedTitle}" on page ${page.path}`);
+    }
+    
+    // Check for expected elements (simplified check)
+    let allElementsFound = true;
+    for (const selector of page.expectedElements) {
+      // A very simplified check - just checking if the ID or class appears in the HTML
+      const pattern = selector.startsWith('#') 
+        ? `id="${selector.substring(1)}"`
+        : `class="${selector.substring(1)}"`;
+      
+      if (!content.includes(pattern)) {
+        console.error(`✗ Failed to find element with selector "${selector}" on page ${page.path}`);
+        allElementsFound = false;
+      } else {
+        console.log(`✓ Found element with selector "${selector}" on page ${page.path}`);
+      }
+    }
+    
+    // Check for text that should not be present
+    let noUnwantedText = true;
+    for (const text of page.shouldNotContain) {
+      if (content.includes(text)) {
+        console.error(`✗ Found unwanted text "${text}" on page ${page.path}`);
+        noUnwantedText = false;
+      } else {
+        console.log(`✓ Page ${page.path} does not contain unwanted text "${text}"`);
+      }
+    }
+    
+    // Page test passes if all conditions are met
+    return allElementsFound && noUnwantedText;
+  } catch (error) {
+    console.error(`Error testing page ${page.path}: ${error.message}`);
+    return false;
+  }
+}
+
+// Function to test if an image loads
+async function testImage(imagePath) {
+  const url = `http://localhost:${PORT}/${imagePath}`;
+  console.log(`Testing image: ${url}`);
+  
+  try {
+    // Use curl with -I to just get headers and check status code
+    const result = execSync(`curl -sI "${url}"`).toString();
+    const statusLine = result.split('\n')[0];
+    
+    if (statusLine.includes('200 OK')) {
+      console.log(`✓ Image ${imagePath} loaded successfully`);
+      return true;
+    } else {
+      console.error(`✗ Failed to load image ${imagePath}: ${statusLine}`);
+      return false;
+    }
+  } catch (error) {
+    console.error(`Error testing image ${imagePath}: ${error.message}`);
+    return false;
+  }
+}
+
+// Function to validate gallery configuration
+function validateGalleryConfig() {
+  console.log('Validating gallery configuration...');
+  
+  try {
+    const configPath = path.join(ROOT_DIR, 'js', 'gallery-config.json');
+    
+    // Check if config file exists
+    if (!fs.existsSync(configPath)) {
+      console.error('✗ Gallery config file not found');
+      return false;
+    }
+    
+    // Parse config file
+    const config = JSON.parse(fs.readFileSync(configPath));
+    
+    // Check if galleries exist
+    if (!config.galleries || Object.keys(config.galleries).length === 0) {
+      console.error('✗ No galleries found in config');
+      return false;
+    }
+    
+    console.log(`✓ Found ${Object.keys(config.galleries).length} galleries in config`);
+    
+    // Check for track/best gallery specifically
+    let trackBestGallery = null;
+    for (const galleryPath of Object.keys(config.galleries)) {
+      if (galleryPath.includes('track/best')) {
+        trackBestGallery = galleryPath;
+        break;
+      }
+    }
+    
+    if (!trackBestGallery) {
+      console.error('✗ Could not find track/best gallery in config');
+      return false;
+    }
+    
+    console.log(`✓ Found track/best gallery: ${trackBestGallery}`);
+    
+    // Check if gallery has images
+    const gallery = config.galleries[trackBestGallery];
+    if (!gallery.images || gallery.images.length === 0) {
+      console.error('✗ No images found in track/best gallery');
+      return false;
+    }
+    
+    console.log(`✓ Found ${gallery.images.length} images in track/best gallery`);
+    
+    // Print the first few image paths from the gallery for debugging
+    console.log('Sample image paths from gallery:');
+    for (let i = 0; i < Math.min(3, gallery.images.length); i++) {
+      console.log(`  - Thumbnail: ${gallery.images[i].thumbnail}`);
+      console.log(`    Medium: ${gallery.images[i].medium}`);
+    }
+    
+    return true;
+  } catch (error) {
+    console.error(`Error validating gallery config: ${error.message}`);
+    return false;
+  }
+}
+
+// Main function to run all tests
+async function runTests() {
+  console.log('Starting site validation tests...');
+  
+  // Start the test server
+  const server = startServer();
+  
+  try {
+    // Test gallery configuration
+    const configValid = validateGalleryConfig();
+    console.log(`Gallery Configuration Test: ${configValid ? 'PASS' : 'FAIL'}`);
+    
+    // Test pages
+    let allPagesPass = true;
+    for (const page of PAGES_TO_TEST) {
+      const pagePass = await testPage(page);
+      if (!pagePass) allPagesPass = false;
+    }
+    console.log(`Page Content Tests: ${allPagesPass ? 'PASS' : 'FAIL'}`);
+    
+    // Test images
+    let allImagesPass = true;
+    for (const image of IMAGES_TO_TEST) {
+      const imagePass = await testImage(image);
+      if (!imagePass) allImagesPass = false;
+    }
+    console.log(`Image Loading Tests: ${allImagesPass ? 'PASS' : 'FAIL'}`);
+    
+    // Output overall test result
+    const allTestsPass = configValid && allPagesPass && allImagesPass;
+    console.log(`\nFinal Test Result: ${allTestsPass ? 'PASS' : 'FAIL'}`);
+    
+    return allTestsPass;
+  } finally {
+    // Shut down the server
+    console.log('Stopping test server...');
+    server.close();
+  }
+}
+
+// Run the tests
+runTests()
+  .then(result => {
+    process.exit(result ? 0 : 1);
+  })
+  .catch(error => {
+    console.error('Test suite failed with error:', error);
+    process.exit(1);
+  }); 
