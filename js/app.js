@@ -478,7 +478,7 @@ function getEventsFromConfig(config, genreId) {
  */
 function displayEvents(events, container, genreId) {
   if (!events || events.length === 0) {
-    container.innerHTML = `<p>No events found for ${toTitleCase(genreId)}. Add photos to the "pics/${genreId}" directory.</p>`;
+    container.innerHTML = `<p>No events found for ${genreId ? toTitleCase(genreId) : 'this genre'}. Add photos to the ${genreId ? `"pics/${genreId}"` : ''} directory.</p>`;
     return;
   }
   
@@ -652,18 +652,70 @@ function loadEventPhotos(genre, event) {
             },
             on: {
               ready: (fancybox) => {
+                // FIX 2: Added safety checks for carousel and slides
+                console.log('Fancybox ready event fired, applying orientation');
+                if (!fancybox || !fancybox.carousel) {
+                  console.warn('Fancybox ready event fired but carousel not available');
+                  return;
+                }
+                
                 // Apply orientation corrections to Fancybox images
                 const slides = fancybox.carousel.slides;
+                if (!slides || !slides.length) {
+                  console.warn('No slides found in Fancybox carousel');
+                  return;
+                }
+                
                 for (let i = 0; i < slides.length; i++) {
                   const slide = slides[i];
+                  if (!slide || !slide.$trigger) continue;
+                  
                   const orientation = slide.$trigger.dataset.orientation;
                   if (orientation && orientation > 1) {
+                    if (!slide.$el) continue;
+                    
                     const content = slide.$el.querySelector('.fancybox__content');
                     if (content) {
+                      content.classList.add('contains-rotated-image');
                       const img = content.querySelector('img');
                       if (img) {
                         applyOrientationStyle(img, parseInt(orientation));
                       }
+                    }
+                  }
+                }
+              },
+              // Also ensure orientation is applied on slide change
+              "Carousel.change": function(fancybox, carousel, slideIndex) {
+                // FIX 2: Add safety checks for carousel and slides
+                if (!carousel || !carousel.slides) {
+                  console.warn('Carousel or slides not available during slide change');
+                  return;
+                }
+                
+                const slides = carousel.slides;
+                if (slideIndex < 0 || slideIndex >= slides.length) {
+                  console.warn('Invalid slide index during slide change');
+                  return;
+                }
+                
+                const slide = slides[slideIndex];
+                if (!slide || !slide.$trigger || !slide.$el) {
+                  console.warn('Slide or trigger not available during slide change');
+                  return;
+                }
+                
+                const orientation = slide.$trigger.dataset.orientation;
+                if (orientation && orientation > 1) {
+                  const content = slide.$el.querySelector('.fancybox__content');
+                  if (content) {
+                    content.classList.add('contains-rotated-image');
+                    const img = content.querySelector('img');
+                    if (img) {
+                      // Apply orientation after a small delay to ensure the DOM is ready
+                      setTimeout(() => {
+                        applyOrientationStyle(img, parseInt(orientation));
+                      }, 50);
                     }
                   }
                 }
@@ -673,51 +725,6 @@ function loadEventPhotos(genre, event) {
           console.log('Fancybox successfully initialized for gallery');
         } else {
           console.error('Fancybox is not defined - check if it is properly loaded');
-          
-          // Add Fancybox scripts if they're missing
-          if (!document.querySelector('script[src*="fancybox"]')) {
-            console.log('Attempting to load Fancybox scripts dynamically...');
-            const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js';
-            script.onload = () => {
-              console.log('Fancybox script loaded, initializing...');
-              Fancybox.bind('[data-fancybox="gallery"]', {
-                loop: true,
-                buttons: ["zoom", "slideShow", "fullScreen", "download", "thumbs", "close"],
-                caption: function (fancybox, slide) {
-                  return slide.caption || '';
-                },
-                Images: {
-                  initialSize: 'fit',
-                },
-                on: {
-                  ready: (fancybox) => {
-                    // Apply orientation corrections to Fancybox images
-                    const slides = fancybox.carousel.slides;
-                    for (let i = 0; i < slides.length; i++) {
-                      const slide = slides[i];
-                      const orientation = slide.$trigger.dataset.orientation;
-                      if (orientation && orientation > 1) {
-                        const content = slide.$el.querySelector('.fancybox__content');
-                        if (content) {
-                          const img = content.querySelector('img');
-                          if (img) {
-                            applyOrientationStyle(img, parseInt(orientation));
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              });
-            };
-            document.head.appendChild(script);
-            
-            const link = document.createElement('link');
-            link.rel = 'stylesheet';
-            link.href = 'https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css';
-            document.head.appendChild(link);
-          }
         }
       } catch (e) {
         console.error('Error initializing Fancybox:', e);
@@ -915,6 +922,12 @@ function displayPhotos(photos, container) {
  * @param {number} orientation - The EXIF orientation value (1-8)
  */
 function applyOrientationStyle(img, orientation) {
+  // FIX 3: Improve handling of EXIF orientation values
+  if (!orientation || orientation < 1 || orientation > 8) {
+    // Default to normal orientation if invalid
+    orientation = 1;
+  }
+
   // EXIF orientation values and their corresponding CSS transforms
   // See: https://www.impulseadventure.com/photo/exif-orientation.html
   const transforms = {
@@ -930,36 +943,25 @@ function applyOrientationStyle(img, orientation) {
   
   if (transforms[orientation]) {
     img.style.transform = transforms[orientation];
-    // Fix orientation by directly setting the CSS transform
-    if (orientation === 6) {
-      // Rotate 90 degrees clockwise (most common smartphone portrait)
-      img.style.transform = 'rotate(90deg)';
-      img.style.transformOrigin = 'center center';
-      // Force dimensions to handle the rotation
-      img.style.objectFit = 'contain';
+    
+    // Add a data attribute to indicate this image has orientation applied
+    img.dataset.orientationApplied = orientation;
+    
+    // Special handling for portrait orientations (5-8)
+    if (orientation >= 5 && orientation <= 8) {
+      img.classList.add('rotated-image');
       
       // Check if we're in a Fancybox context
       const isFancybox = img.closest('.fancybox__content') !== null;
       if (isFancybox) {
-        // In Fancybox, additional adjustments for full-size view
-        img.style.maxWidth = 'none';
-        img.style.maxHeight = '80vh';
+        img.classList.add('fancybox-rotated');
+        
+        // Get the parent content container and add a class for CSS targeting
+        const contentEl = img.closest('.fancybox__content');
+        if (contentEl) {
+          contentEl.classList.add('contains-rotated-image');
+        }
       }
-    } else if (orientation === 8) {
-      // Rotate 90 degrees counter-clockwise
-      img.style.transform = 'rotate(-90deg)';
-      img.style.transformOrigin = 'center center';
-      img.style.objectFit = 'contain';
-    } else if (orientation === 3) {
-      // Rotate 180 degrees
-      img.style.transform = 'rotate(180deg)';
-    }
-    
-    // For orientations that make the image portrait instead of landscape (5-8),
-    // we need to adjust the aspect ratio
-    if (orientation >= 5 && orientation <= 8) {
-      img.style.objectFit = 'contain';
-      img.style.maxHeight = '100%';
     }
   }
 }

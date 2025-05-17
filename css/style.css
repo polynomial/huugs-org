@@ -147,6 +147,13 @@ main {
 }
 
 /* Enhanced styles for rotated images */
+.photo-item img.rotated-image {
+  object-fit: contain;
+  max-height: 100%;
+  max-width: 100%;
+}
+
+/* Improved handling for orientation 6 and 8 (90° rotations) */
 .photo-item img[style*="rotate(90deg)"],
 .photo-item img[style*="rotate(-90deg)"] {
   max-width: 100%;
@@ -160,24 +167,47 @@ main {
 }
 
 /* Fancybox enhancements for orientation */
-.fancybox__content img {
-  transform-origin: center center;
-}
-
-.fancybox__content img[style*="rotate(90deg)"],
-.fancybox__content img[style*="rotate(-90deg)"] {
-  max-width: none;
-  max-height: 80vh;
-  width: auto;
-  margin: 0 auto;
-}
-
-/* Special styling for portrait orientation in Fancybox */
 .fancybox__content {
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.fancybox__content img {
+  transform-origin: center center;
+}
+
+/* Special handling for portrait orientation in Fancybox */
+.fancybox__content.contains-rotated-image {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fancybox__content img.rotated-image,
+.fancybox__content img.fancybox-rotated {
+  object-fit: contain;
+  max-height: 80vh !important;
+  width: auto !important;
+  max-width: none !important;
+}
+
+/* For 90° rotations, we need special handling */
+.fancybox__content img[style*="rotate(90deg)"],
+.fancybox__content img[style*="rotate(-90deg)"] {
+  max-width: none !important;
+  max-height: 80vh !important;
+  width: auto !important;
+  margin: 0 auto;
+}
+
+/* For 180° rotations */
+.fancybox__content img[style*="rotate(180deg)"] {
+  max-width: 100% !important;
+  max-height: 80vh !important;
 }
 
 /* Fancybox customization */
