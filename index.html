@@ -29,8 +29,26 @@
     </header>
 
     <main>
-        <div class="genre-grid" id="genre-grid">
-            <!-- Genre items will be loaded here via JavaScript -->
+        <!-- Genre Container (Home Page) -->
+        <div id="genre-container">
+            <h2>Photo Genres</h2>
+            <div class="genre-grid" id="genre-grid">
+                <!-- Genre items will be loaded here via JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Event Container (Genre Page) -->
+        <div id="event-container" style="display: none;">
+            <div id="back-button" class="back-button">
+                <span>Back to Genres</span>
+            </div>
+            <h2 id="event-title">Event Title</h2>
+            <!-- Event photos will be loaded here -->
+        </div>
+        
+        <!-- Photo Container (Individual Photo View) -->
+        <div id="photo-container" style="display: none;">
+            <!-- Individual photo view -->
         </div>
     </main>
 

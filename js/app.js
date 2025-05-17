@@ -629,6 +629,29 @@ function scanDirectories() {
 }
 
 /**
+ * Helper functions to show/hide containers
+ */
+function hideAllContainers() {
+  // Hide all main container elements
+  const containers = ['genre-container', 'event-container', 'photo-container'];
+  containers.forEach(id => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.style.display = 'none';
+    }
+  });
+}
+
+function showContainer(containerId) {
+  const container = document.getElementById(containerId);
+  if (container) {
+    container.style.display = 'block';
+  } else {
+    console.error(`Container with ID "${containerId}" not found`);
+  }
+}
+
+/**
  * Helper to convert a string to title case
  */
 function toTitleCase(str) {
