@@ -2,6 +2,12 @@
 
 echo "Running pre-commit hook to generate thumbnails..."
 
+# Allow skipping thumbnail generation with an environment variable
+if [ "$SKIP_THUMBNAIL_GEN" = "true" ]; then
+    echo "Skipping thumbnail generation (SKIP_THUMBNAIL_GEN=true)."
+    exit 0
+fi
+
 # Get the root directory of the git repo
 ROOT_DIR=$(git rev-parse --show-toplevel)
 cd "$ROOT_DIR" || exit 1
@@ -12,9 +18,10 @@ mkdir -p medium
 
 # Check if Node.js is installed
 if ! command -v node &> /dev/null; then
-    echo "Error: Node.js is not installed. Cannot generate thumbnails."
-    echo "Please install Node.js or run the thumbnail generator manually before committing."
-    exit 1
+    echo "Warning: Node.js is not installed. Cannot generate thumbnails."
+    echo "Proceeding with commit anyway, but thumbnails won't be generated."
+    echo "To generate thumbnails, install Node.js or run manually later."
+    exit 0  # Exit with success to allow commit
 fi
 
 # Check if sharp is installed
@@ -23,9 +30,9 @@ if ! node -e "try { require('sharp'); console.log('sharp is installed'); } catch
     if command -v npm &> /dev/null; then
         npm install --no-save sharp
     else
-        echo "Error: npm not found. Cannot install sharp."
-        echo "Please install sharp manually: npm install sharp"
-        exit 1
+        echo "Warning: npm not found. Cannot install sharp."
+        echo "Proceeding with commit anyway, but thumbnails won't be generated."
+        exit 0  # Allow commit to proceed
     fi
 fi
 

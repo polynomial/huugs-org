@@ -9,6 +9,6 @@
     "test": "echo \"No tests specified\" && exit 0"
   },
   "dependencies": {
-    "sharp": "^0.32.1"
+    "sharp": "^0.32.6"
   }
-} 
+}
