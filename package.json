@@ -1,19 +1,21 @@
 {
-  "name": "track-photography",
+  "name": "huugs-org",
   "version": "1.0.0",
-  "description": "Photography portfolio site for track events",
-  "main": "index.html",
+  "description": "Photo gallery website",
+  "private": true,
   "scripts": {
+    "debug": "node debug-app.js",
     "generate": "node generate-galleries.js",
     "serve": "http-server -p 3000",
-    "start": "npm run generate && npm run serve"
+    "start": "npm run generate && npm run serve",
+    "test": "node test-site.js",
+    "test:fix": "node test-site.js && node fix-issues.js",
+    "test:auto": "node auto-test.js",
+    "test:simple": "node simple-test.js", 
+    "test:nix": "nix-shell -p nodejs_18 --run 'node test-site.js'"
   },
-  "author": "",
-  "license": "MIT",
   "dependencies": {
-    "sharp": "^0.32.1"
-  },
-  "devDependencies": {
-    "http-server": "^14.1.1"
+    "jsdom": "^22.1.0",
+    "sharp": "^0.32.5"
   }
 } 
