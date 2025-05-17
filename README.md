@@ -64,6 +64,29 @@ A simple and elegant photo gallery website that automatically processes images i
 
 5. Visit http://localhost:3000 in your browser
 
+### Using GitHub with Personal Access Token
+
+If you don't have SSH access configured, you can use HTTPS with a Personal Access Token (PAT) to push changes to GitHub:
+
+1. Generate a Personal Access Token:
+   - Go to GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)
+   - Click "Generate new token" → "Generate new token (classic)"
+   - Give your token a name and select the "repo" scope
+   - Click "Generate token" and copy the token (you'll only see it once)
+
+2. Use the token when pushing changes:
+   ```
+   git remote set-url origin https://USERNAME:TOKEN@github.com/USERNAME/photos.git
+   ```
+   Replace USERNAME with your GitHub username and TOKEN with your personal access token.
+
+3. Now you can push changes normally:
+   ```
+   git add .
+   git commit -m "Your commit message"
+   git push
+   ```
+
 ## Technical Details
 
 ### Image Processing
