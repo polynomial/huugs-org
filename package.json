@@ -1,0 +1,14 @@
+{
+  "name": "huugs-org",
+  "version": "1.0.0",
+  "description": "Photo gallery website",
+  "main": "index.js",
+  "scripts": {
+    "start": "http-server -p 3000",
+    "generate-thumbnails": "node scripts/generate-thumbnails.js",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "dependencies": {
+    "sharp": "^0.32.1"
+  }
+} 

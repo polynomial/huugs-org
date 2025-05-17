@@ -11,14 +11,26 @@ function initGallery() {
   const galleryContainer = document.querySelector('.gallery');
   if (!galleryContainer) return;
   
-  // Get all image directories from the pics/ folder
-  // For now, we'll hard-code the track/best gallery
-  const galleries = ['track/best'];
-  
-  // Load images for each gallery
-  galleries.forEach(gallery => {
-    loadGalleryImages(gallery, galleryContainer);
-  });
+  // Check if we have a gallery config file
+  fetch('./js/gallery-config.json')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Gallery config not found');
+      }
+      return response.json();
+    })
+    .then(config => {
+      // Use gallery config if available
+      loadGalleriesFromConfig(config, galleryContainer);
+    })
+    .catch(error => {
+      console.error('Error loading gallery config:', error);
+      // Fallback to direct loading
+      const galleries = ['track/best'];
+      galleries.forEach(gallery => {
+        loadGalleryImages(gallery, galleryContainer);
+      });
+    });
   
   // Initialize lazy loading
   new LazyLoad({
@@ -26,7 +38,51 @@ function initGallery() {
   });
 }
 
-// Function to load gallery images
+// Function to load galleries from config file
+function loadGalleriesFromConfig(config, container) {
+  if (!config.galleries) return;
+  
+  // For each gallery in the config
+  Object.keys(config.galleries).forEach(galleryId => {
+    const gallery = config.galleries[galleryId];
+    const galleryTitle = document.createElement('h2');
+    galleryTitle.textContent = gallery.title;
+    container.appendChild(galleryTitle);
+    
+    if (gallery.description) {
+      const galleryDesc = document.createElement('p');
+      galleryDesc.className = 'gallery-description';
+      galleryDesc.textContent = gallery.description;
+      container.appendChild(galleryDesc);
+    }
+    
+    const galleryGrid = document.createElement('div');
+    galleryGrid.className = 'gallery-grid';
+    container.appendChild(galleryGrid);
+    
+    // Add each image
+    gallery.images.forEach(image => {
+      const item = document.createElement('div');
+      item.className = 'gallery-item';
+      
+      const img = document.createElement('img');
+      img.className = 'lazy';
+      img.dataset.src = `./${image.thumbnail}`;
+      img.alt = image.title;
+      
+      item.appendChild(img);
+      galleryGrid.appendChild(item);
+      
+      // Add click event for lightbox
+      item.addEventListener('click', function() {
+        // Use medium sized image for lightbox
+        openLightbox(`./${image.medium}`, image.title);
+      });
+    });
+  });
+}
+
+// Function to load gallery images (fallback method)
 function loadGalleryImages(galleryPath, container) {
   // For this simple version, we'll use the images directly from the pics folder
   // In a real app, you might want to generate thumbnails or use a JSON file with metadata
@@ -117,19 +173,63 @@ function initLightbox() {
   });
 }
 
-function openLightbox(imageSrc) {
+function openLightbox(imageSrc, imageTitle) {
   const lightbox = document.querySelector('.lightbox');
   const lightboxImage = lightbox.querySelector('.lightbox-image');
+  const lightboxTitle = lightbox.querySelector('.lightbox-title');
   
   if (!lightbox || !lightboxImage) return;
   
   // Set the image source
   lightboxImage.src = imageSrc;
   
+  // Set title if provided
+  if (lightboxTitle && imageTitle) {
+    lightboxTitle.textContent = imageTitle;
+    lightboxTitle.style.display = 'block';
+  } else if (lightboxTitle) {
+    lightboxTitle.style.display = 'none';
+  }
+  
   // Find index of current image and set up gallery array for navigation
-  const galleryItems = document.querySelectorAll('.gallery-item img');
-  currentGalleryImages = Array.from(galleryItems).map(img => img.dataset.src);
-  currentImageIndex = currentGalleryImages.indexOf(imageSrc);
+  const galleryItems = document.querySelectorAll('.gallery-item');
+  currentGalleryImages = [];
+  currentImageIndex = -1;
+  
+  // We need to check if we're using the new config-based approach
+  const configImages = document.querySelectorAll('.gallery-item[data-medium]');
+  
+  if (configImages.length > 0) {
+    // Using new approach with thumbnails and medium images
+    galleryItems.forEach((item, index) => {
+      const medium = item.getAttribute('data-medium');
+      const title = item.getAttribute('data-title');
+      currentGalleryImages.push({ src: medium, title: title });
+      
+      if (medium === imageSrc) {
+        currentImageIndex = index;
+      }
+    });
+  } else {
+    // Using old approach with direct image references
+    galleryItems.forEach((item, index) => {
+      const img = item.querySelector('img');
+      if (img) {
+        const src = img.dataset.src;
+        currentGalleryImages.push({ src: src, title: img.alt });
+        
+        if (src === imageSrc) {
+          currentImageIndex = index;
+        }
+      }
+    });
+  }
+  
+  // If image not found in gallery, add it as standalone
+  if (currentImageIndex === -1) {
+    currentGalleryImages.push({ src: imageSrc, title: imageTitle || '' });
+    currentImageIndex = currentGalleryImages.length - 1;
+  }
   
   // Show the lightbox
   lightbox.classList.add('active');
@@ -160,7 +260,19 @@ function showNextImage() {
 
 function updateLightboxImage() {
   const lightboxImage = document.querySelector('.lightbox-image');
+  const lightboxTitle = document.querySelector('.lightbox-title');
+  
   if (!lightboxImage) return;
   
-  lightboxImage.src = currentGalleryImages[currentImageIndex];
+  const current = currentGalleryImages[currentImageIndex];
+  lightboxImage.src = current.src;
+  
+  if (lightboxTitle) {
+    if (current.title) {
+      lightboxTitle.textContent = current.title;
+      lightboxTitle.style.display = 'block';
+    } else {
+      lightboxTitle.style.display = 'none';
+    }
+  }
 } 

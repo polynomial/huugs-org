@@ -167,4 +167,71 @@ footer {
   header p {
     font-size: 1em;
   }
+}
+
+/* Add gallery grid styles */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-gap: 10px;
+  margin-bottom: 30px;
+}
+
+/* Style gallery descriptions */
+.gallery-description {
+  margin-bottom: 15px;
+  color: #666;
+}
+
+/* Style gallery titles */
+.gallery h2 {
+  margin-top: 30px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+}
+
+/* Add title to lightbox */
+.lightbox-title {
+  color: white;
+  text-align: center;
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.7);
+  position: absolute;
+  bottom: 50px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+}
+
+/* Update lightbox navigation */
+.lightbox-nav {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+.lightbox-prev, .lightbox-next {
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  color: white;
+  padding: 10px 15px;
+  margin: 0 5px;
+  font-size: 20px;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.3s;
+}
+
+.lightbox-prev:hover, .lightbox-next:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+/* Layout updates */
+@media (max-width: 767px) {
+  .gallery-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
 } 

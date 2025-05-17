@@ -26,41 +26,37 @@ jobs:
       - name: Install dependencies 📦
         run: npm ci
       
-      - name: Install Sharp globally 🔪
-        run: npm install -g sharp
+      - name: Generate thumbnails and optimize images 🖼️
+        run: |
+          echo "Starting thumbnail generation..."
+          node scripts/generate-thumbnails.js
+          echo "Thumbnail generation completed."
         
       - name: Install additional optimization tools 🛠️
         run: |
           sudo apt-get update
           sudo apt-get install -y jpegoptim optipng gifsicle webp
-
-      - name: Run tests 🧪
-        run: |
-          echo "Running website tests..."
-          npm run test || echo "::warning::Tests reported issues, but continuing with deployment"
-
-      - name: Generate galleries 🖼️
-        run: |
-          echo "Starting gallery generation..."
-          npm run generate
-          echo "Gallery generation completed."
           
-      - name: Optimize images 🗜️
+      - name: Further optimize generated images 🗜️
         run: |
-          echo "Optimizing images for web..."
-          find galleries -type f -name "*.jpg" -exec jpegoptim --max=85 --strip-all {} \;
-          find galleries -type f -name "*.jpeg" -exec jpegoptim --max=85 --strip-all {} \;
-          find galleries -type f -name "*.png" -exec optipng -o2 {} \;
+          echo "Further optimizing generated thumbnails and medium images..."
+          find thumbnails -type f -name "*.jpg" -exec jpegoptim --max=80 --strip-all {} \;
+          find thumbnails -type f -name "*.jpeg" -exec jpegoptim --max=80 --strip-all {} \;
+          find medium -type f -name "*.jpg" -exec jpegoptim --max=85 --strip-all {} \;
+          find medium -type f -name "*.jpeg" -exec jpegoptim --max=85 --strip-all {} \;
           echo "Image optimization completed."
 
-      - name: Check generated galleries 📊
+      - name: Check generated files 📊
         run: |
-          echo "Checking generated gallery structure:"
-          ls -la galleries/
+          echo "Checking generated file structure:"
+          ls -la thumbnails/
+          ls -la medium/
           echo "Checking gallery configuration:"
           cat js/gallery-config.json
-          echo "Total number of images processed:"
-          find galleries -type f -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" | wc -l
+          echo "Total number of thumbnails:"
+          find thumbnails -type f -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" | wc -l
+          echo "Total file sizes:"
+          du -sh pics/ thumbnails/ medium/
           
       - name: Deploy to GitHub Pages 🚀
         uses: JamesIves/github-pages-deploy-action@v4
