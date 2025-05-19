@@ -1,7 +1,7 @@
 /**
- * Photography Collection App
+ * Huugs Media Photography Collection App
  * 
- * Handles loading genres, events, and photos
+ * Handles loading collections, events, and photos
  * with Fancybox integration for the lightbox view
  */
 
@@ -39,19 +39,19 @@ function initApp() {
     // Event page - show photos
     const genre = urlParams.get('genre');
     const event = urlParams.get('event');
-    console.log(`Initializing event page: genre=${genre}, event=${event}`);
+    console.log(`Initializing event page: collection=${genre}, event=${event}`);
     trackEvent('Navigation', 'View Event', `${genre}/${event}`);
     initEventPage(genre, event);
   } else if (urlParams.has('genre')) {
-    // Genre page - show events
+    // Collection page - show events
     const genre = urlParams.get('genre');
-    console.log(`Initializing genre page: genre=${genre}`);
-    trackEvent('Navigation', 'View Genre', genre);
+    console.log(`Initializing collection page: collection=${genre}`);
+    trackEvent('Navigation', 'View Collection', genre);
     initGenrePage(genre);
   } else {
-    // Home page - show genres
+    // Home page - show collections
     console.log("Initializing home page");
-    trackEvent('Navigation', 'View Home', 'All Genres');
+    trackEvent('Navigation', 'View Home', 'All Collections');
     initHomePage();
   }
   
@@ -86,7 +86,7 @@ function initApp() {
 }
 
 /**
- * Initialize the home page with all photo genres
+ * Initialize the home page with all photo collections
  */
 function initHomePage() {
   const genreGrid = document.getElementById('genre-grid');
@@ -101,7 +101,7 @@ function initHomePage() {
       return response.json();
     })
     .then(config => {
-      // Get unique genres from the config
+      // Get unique collections from the config
       const genres = getGenresFromConfig(config);
       displayGenres(genres, genreGrid);
     })
@@ -113,21 +113,21 @@ function initHomePage() {
 }
 
 /**
- * Load all genres from the configuration
+ * Load all collections from the configuration
  */
 function loadAllGenres() {
-  console.log('Loading all genres');
+  console.log('Loading all collections');
   
   const genreContainer = document.getElementById('genre-container');
   if (!genreContainer) {
-    console.error('Genre container not found');
+    console.error('Collection container not found');
     return;
   }
   
-  // Get the grid to add genres to
+  // Get the grid to add collections to
   const genreGrid = document.getElementById('genre-grid');
   if (!genreGrid) {
-    console.error('Genre grid not found');
+    console.error('Collection grid not found');
     return;
   }
   
@@ -135,16 +135,16 @@ function loadAllGenres() {
   fetch('./js/gallery-config.json')
     .then(response => response.json())
     .then(config => {
-      // Process galleries to get unique genres
+      // Process galleries to get unique collections
       const genres = getGenresFromConfig(config);
-      console.log(`Found ${genres.length} genres`);
+      console.log(`Found ${genres.length} collections`);
       
       if (genres.length === 0) {
-        genreGrid.innerHTML = '<p>No photo genres found. Add photos to the "pics" directory.</p>';
+        genreGrid.innerHTML = '<p>No photo collections found. Add photos to the "pics" directory.</p>';
         return;
       }
       
-      // Add each genre to the grid
+      // Add each collection to the grid
       genres.forEach(genre => {
         // Skip the test gallery
         if (genre.id === 'test-gallery') {
@@ -179,12 +179,12 @@ function loadAllGenres() {
     })
     .catch(error => {
       console.error('Error loading gallery config:', error);
-      genreGrid.innerHTML = '<p>Error loading genres. Please try again later.</p>';
+      genreGrid.innerHTML = '<p>Error loading collections. Please try again later.</p>';
     });
 }
 
 /**
- * Extract unique genres from the configuration
+ * Extract unique collections from the configuration
  */
 function getGenresFromConfig(config) {
   if (!config.galleries) return [];
@@ -200,7 +200,7 @@ function getGenresFromConfig(config) {
       return;
     }
     
-    // Extract genre from the path (second segment after 'pics')
+    // Extract collection from the path (second segment after 'pics')
     const genreId = pathParts[1];
     
     // Skip the test gallery
@@ -208,9 +208,9 @@ function getGenresFromConfig(config) {
       return;
     }
     
-    // Add genre if not already added
+    // Add collection if not already added
     if (!genres.has(genreId)) {
-      // Find a cover image from the first gallery of this genre
+      // Find a cover image from the first gallery of this collection
       const gallery = config.galleries[galleryPath];
       const coverImage = gallery.images && gallery.images.length > 0 ?
                          `./${gallery.images[0].thumbnail}` : 
@@ -223,176 +223,144 @@ function getGenresFromConfig(config) {
         cover: coverImage
       });
       
-      console.log(`Added genre: ${genreId}`);
+      console.log(`Added collection: ${genreId}`);
     }
   });
   
+  // Convert map to array and return
   return Array.from(genres.values());
 }
 
 /**
- * Display the genre cards on the home page
+ * Display collections in a grid
  */
 function displayGenres(genres, container) {
-  if (genres.length === 0) {
-    container.innerHTML = '<p>No photo genres found. Add photos to the "pics" directory.</p>';
+  if (!genres || genres.length === 0) {
+    container.innerHTML = '<p>No photo collections found. Add photos to the "pics" directory.</p>';
     return;
   }
   
-  // Clear the container
+  // Clear existing content
   container.innerHTML = '';
   
-  // Add each genre card
+  // Create cards for each collection
   genres.forEach(genre => {
-    // Count events for this genre (default to 0 if missing)
-    const eventsCount = genre.count || 0;
-    
-    const card = document.createElement('a');
-    card.href = `?genre=${genre.id}`;
+    const card = document.createElement('div');
     card.className = 'genre-card';
     
-    // Create card HTML
-    card.innerHTML = `
-      <img src="${genre.cover}" alt="${genre.title}">
-      <div class="genre-info">
-        <h2 class="genre-title">${genre.title}</h2>
-        <p class="genre-count">${eventsCount} ${eventsCount === 1 ? 'event' : 'events'}</p>
-      </div>
-    `;
+    const link = document.createElement('a');
+    link.href = `?genre=${genre.id}`;
     
+    const img = document.createElement('img');
+    img.className = 'lazy';
+    img.dataset.src = genre.cover;
+    img.alt = genre.title;
+    
+    const info = document.createElement('div');
+    info.className = 'genre-info';
+    info.innerHTML = `<h3 class="genre-title">${genre.title}</h3>`;
+    
+    link.appendChild(img);
+    link.appendChild(info);
+    card.appendChild(link);
     container.appendChild(card);
+  });
+  
+  // Initialize lazy loading
+  new LazyLoad({
+    elements_selector: '.lazy',
+    use_native: true
   });
 }
 
 /**
- * Find a cover image for a genre
+ * Find a cover image for a collection
  */
 function findCoverImage(config, genre) {
-  // Try to find a good cover image from the galleries
-  for (const galleryId in config.galleries) {
-    if (galleryId.includes(`/pics/${genre}/`)) {
-      const gallery = config.galleries[galleryId];
+  // Look through galleries for this collection
+  for (const galleryPath in config.galleries) {
+    if (galleryPath.includes(`/pics/${genre}/`)) {
+      const gallery = config.galleries[galleryPath];
       if (gallery.images && gallery.images.length > 0) {
-        // Use the first image from the first gallery as the cover
-        return `./${gallery.images[0].thumbnail}`;
+        return gallery.images[0].thumbnail;
       }
     }
   }
   
-  // Fallback to a placeholder
-  return `./thumbnails/pics/${genre}/placeholder.jpg`;
+  return './thumbnails/placeholder.jpg';
 }
 
 /**
- * Initialize the genre page - show events for a genre
+ * Initialize the collection page - show events
  */
 function initGenrePage(genreId) {
-  console.log(`Initializing genre page for genre=${genreId}`);
+  console.log(`Initializing collection page: ${genreId}`);
   
   // Hide other containers and show event container
   hideAllContainers();
   showContainer('event-container');
   
   // Update page title
-  document.title = `${toTitleCase(genreId)} Events`;
+  document.title = `${toTitleCase(genreId)} - Huugs Media`;
   
-  // Update genre title
+  // Update collection title
   const genreTitle = document.getElementById('genre-title');
   if (genreTitle) {
     genreTitle.textContent = toTitleCase(genreId);
   }
   
-  // Add back button to home page
+  // Set up back button
   const backButton = document.getElementById('back-button');
   if (backButton) {
     backButton.style.display = 'block';
     backButton.onclick = () => {
       window.location.href = '/';
     };
-    backButton.querySelector('span').textContent = 'Back to Genres';
   }
   
-  // Load events for this genre
+  // Load events for this collection
   loadGenreEvents(genreId);
 }
 
 /**
- * Load events for a specific genre
+ * Load events for a collection
  */
 function loadGenreEvents(genreId) {
-  console.log(`Loading events for genre: ${genreId}`);
+  console.log(`Loading events for collection: ${genreId}`);
   
-  // Clear previous event content
-  const eventContainer = document.querySelector('#event-container');
-  if (!eventContainer) {
-    console.error('Event container not found');
+  const eventList = document.getElementById('event-list');
+  if (!eventList) {
+    console.error('Event list container not found');
     return;
   }
   
-  // Create event list container if it doesn't exist
-  let eventList = document.getElementById('event-list');
-  if (!eventList) {
-    eventList = document.createElement('div');
-    eventList.id = 'event-list';
-    eventList.className = 'event-grid';
-    eventContainer.appendChild(eventList);
-  } else {
-    eventList.innerHTML = '';
-  }
+  // Clear previous content
+  eventList.innerHTML = '';
   
-  // Get events for this genre from config
+  // Get gallery configuration
   fetch('./js/gallery-config.json')
     .then(response => response.json())
     .then(config => {
+      // Get events for this collection
       const events = getEventsFromConfig(config, genreId);
-      console.log(`Retrieved ${events.length} events for genre ${genreId}`);
+      console.log(`Found ${events.length} events for collection ${genreId}`);
       
       if (events.length === 0) {
-        eventList.innerHTML = `<p>No events found for ${toTitleCase(genreId)}. Add photos to the 'pics/${genreId}' directory.</p>`;
+        eventList.innerHTML = `<p>No events found for ${toTitleCase(genreId)}. Add photos to the "pics/${genreId}" directory.</p>`;
         return;
       }
       
-      // Add events to grid
-      events.forEach(event => {
-        const eventDiv = document.createElement('div');
-        eventDiv.className = 'event-item';
-        
-        const link = document.createElement('a');
-        link.href = `?genre=${genreId}&event=${event.id}`;
-        
-        const img = document.createElement('img');
-        img.className = 'lazy event-thumbnail';
-        img.dataset.src = event.cover;
-        img.alt = event.title;
-        
-        const title = document.createElement('h3');
-        title.textContent = event.title;
-        
-        const count = document.createElement('span');
-        count.className = 'photo-count';
-        count.textContent = `${event.count} photos`;
-        
-        link.appendChild(img);
-        link.appendChild(title);
-        link.appendChild(count);
-        eventDiv.appendChild(link);
-        eventList.appendChild(eventDiv);
-      });
-      
-      // Initialize lazy loading for images
-      new LazyLoad({
-        elements_selector: '.lazy',
-        use_native: true
-      });
+      // Display events
+      displayEvents(events, eventList, genreId);
     })
     .catch(error => {
       console.error('Error loading gallery config:', error);
-      eventList.innerHTML = `<p>Error loading events: ${error.message}</p>`;
+      eventList.innerHTML = '<p>Error loading events. Please try again later.</p>';
     });
 }
 
 /**
- * Extract events for a genre from the config
+ * Extract events for a collection from the config
  */
 function getEventsFromConfig(config, genreId) {
   if (!config.galleries) return [];
@@ -400,7 +368,7 @@ function getEventsFromConfig(config, genreId) {
   const events = new Map();
   const genrePath = `pics/${genreId}`;
   
-  console.log(`Looking for events in genre: ${genreId}`);
+  console.log(`Looking for events in collection: ${genreId}`);
   const galleryKeys = Object.keys(config.galleries);
   console.log(`Available galleries:`, galleryKeys);
   
@@ -431,7 +399,7 @@ function getEventsFromConfig(config, genreId) {
   for (const galleryId of galleryKeys) {
     console.log(`Checking gallery: ${galleryId}`);
     
-    // Check if this is a direct match to the genre or subdirectory
+    // Check if this is a direct match to the collection or subdirectory
     if (galleryId === genrePath || galleryId.startsWith(genrePath + '/')) {
       console.log(`Found match: ${galleryId}`);
       foundEvents = true;
@@ -443,7 +411,7 @@ function getEventsFromConfig(config, genreId) {
       if (pathParts.length >= 3) {
         eventId = pathParts[2]; // e.g., "best" from "pics/track/best"
       } else {
-        eventId = "general"; // Default event name if it's directly in the genre folder
+        eventId = "general"; // Default event name if it's directly in the collection folder
       }
       
       console.log(`Extracted event ID: ${eventId}`);
@@ -474,9 +442,9 @@ function getEventsFromConfig(config, genreId) {
   if (!foundEvents) {
     console.log("No events found with standard approach, trying fallback...");
     
-    // Manual fallback for track genre
+    // Manual fallback for track collection
     if (genreId === 'track') {
-      console.log("Using hardcoded fallback for track genre");
+      console.log("Using hardcoded fallback for track collection");
       
       // Find any gallery path that contains track/best
       const bestGallery = galleryKeys.find(path => path.includes('track/best'));
@@ -503,11 +471,11 @@ function getEventsFromConfig(config, genreId) {
 }
 
 /**
- * Display event cards for a genre
+ * Display events in a grid with links
  */
 function displayEvents(events, container, genreId) {
   if (!events || events.length === 0) {
-    container.innerHTML = `<p>No events found for ${genreId ? toTitleCase(genreId) : 'this genre'}. Add photos to the ${genreId ? `"pics/${genreId}"` : ''} directory.</p>`;
+    container.innerHTML = `<p>No events found for ${genreId ? toTitleCase(genreId) : 'this collection'}. Add photos to the ${genreId ? `"pics/${genreId}"` : ''} directory.</p>`;
     return;
   }
   
@@ -542,7 +510,7 @@ function displayEvents(events, container, genreId) {
  * Initialize the event page - show photos for an event
  */
 function initEventPage(genreId, eventId) {
-  console.log(`Initializing event page for genre=${genreId}, event=${eventId}`);
+  console.log(`Initializing event page for collection=${genreId}, event=${eventId}`);
   
   // Hide other containers and show event container
   hideAllContainers();
@@ -557,7 +525,7 @@ function initEventPage(genreId, eventId) {
     eventTitle.textContent = toTitleCase(eventId);
   }
   
-  // Add back button to genre page
+  // Add back button to collection page
   const backButton = document.getElementById('back-button');
   if (backButton) {
     backButton.style.display = 'block';
@@ -589,9 +557,6 @@ function loadEventPhotos(genre, event) {
   
   const galleryPath = `pics/${genrePath}/${eventPath}`;
   console.log(`Constructed gallery path: ${galleryPath}`);
-  
-  // Track viewing this specific event
-  trackEvent('Navigation', 'View Event', `${genrePath}/${eventPath}`);
   
   // Clear previous event content
   const eventContainer = document.querySelector('#event-container');
@@ -650,12 +615,6 @@ function loadEventPhotos(genre, event) {
         img.dataset.src = photo.thumbnail;
         img.alt = photo.title || `Photo ${index + 1}`;
         
-        // Track thumbnail view when it becomes visible
-        img.addEventListener('load', function() {
-          const photoName = photo.medium.split('/').pop();
-          trackEvent('Photo', 'View Thumbnail', photoName);
-        });
-        
         link.appendChild(img);
         photoDiv.appendChild(link);
         photoGrid.appendChild(photoDiv);
@@ -692,19 +651,6 @@ function loadEventPhotos(genre, event) {
             },
             Images: {
               initialSize: 'fit',
-            },
-            on: {
-              done: (fancybox, slide) => {
-                const photoUrl = slide.src || '';
-                const photoName = photoUrl.split('/').pop();
-                trackEvent('Photo', 'View Enlarged', photoName);
-              },
-              change: (fancybox, slide) => {
-                // Track when user navigates to a different photo
-                const photoUrl = slide.src || '';
-                const photoName = photoUrl.split('/').pop();
-                trackEvent('Photo', 'View Enlarged', photoName);
-              }
             }
           });
           console.log('Fancybox successfully initialized for gallery');
@@ -808,12 +754,6 @@ function displayPhotos(photos, container) {
     img.dataset.src = photo.thumbnail;
     img.alt = photo.title || 'Photo';
     
-    // Track thumbnail view when it becomes visible
-    img.addEventListener('load', function() {
-      const photoName = photo.medium.split('/').pop();
-      trackEvent('Photo', 'View Thumbnail', photoName);
-    });
-    
     link.appendChild(img);
     photoDiv.appendChild(link);
     gallery.appendChild(photoDiv);
@@ -832,19 +772,6 @@ function displayPhotos(photos, container) {
     },
     Images: {
       initialSize: 'fit',
-    },
-    on: {
-      done: (fancybox, slide) => {
-        const photoUrl = slide.src || '';
-        const photoName = photoUrl.split('/').pop();
-        trackEvent('Photo', 'View Enlarged', photoName);
-      },
-      change: (fancybox, slide) => {
-        // Track when user navigates to a different photo
-        const photoUrl = slide.src || '';
-        const photoName = photoUrl.split('/').pop();
-        trackEvent('Photo', 'View Enlarged', photoName);
-      }
     }
   });
 }
