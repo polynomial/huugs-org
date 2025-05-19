@@ -11,6 +11,21 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /**
+ * Helper function to track events in Google Analytics
+ */
+function trackEvent(eventCategory, eventAction, eventLabel) {
+  if (typeof gtag === 'function') {
+    console.log(`Tracking event: ${eventCategory} - ${eventAction} - ${eventLabel}`);
+    gtag('event', eventAction, {
+      'event_category': eventCategory,
+      'event_label': eventLabel
+    });
+  } else {
+    console.warn('Google Analytics not available for tracking');
+  }
+}
+
+/**
  * Initialize the app based on the current URL
  */
 function initApp() {
@@ -25,15 +40,18 @@ function initApp() {
     const genre = urlParams.get('genre');
     const event = urlParams.get('event');
     console.log(`Initializing event page: genre=${genre}, event=${event}`);
+    trackEvent('Navigation', 'View Event', `${genre}/${event}`);
     initEventPage(genre, event);
   } else if (urlParams.has('genre')) {
     // Genre page - show events
     const genre = urlParams.get('genre');
     console.log(`Initializing genre page: genre=${genre}`);
+    trackEvent('Navigation', 'View Genre', genre);
     initGenrePage(genre);
   } else {
     // Home page - show genres
     console.log("Initializing home page");
+    trackEvent('Navigation', 'View Home', 'All Genres');
     initHomePage();
   }
   
@@ -49,6 +67,14 @@ function initApp() {
         trapFocus: true,
         autoFocus: true,
         placeFocusBack: true,
+        // Track when Fancybox opens a photo
+        on: {
+          done: (fancybox, slide) => {
+            const photoUrl = slide.src || '';
+            const photoName = photoUrl.split('/').pop();
+            trackEvent('Photo', 'View Enlarged', photoName);
+          }
+        }
       });
       console.log("Fancybox initialized");
     } else {
@@ -503,6 +529,11 @@ function displayEvents(events, container, genreId) {
       </div>
     `;
     
+    // Track click on event card
+    card.addEventListener('click', function(e) {
+      trackEvent('Navigation', 'Click Event', `${genreId}/${event.id}`);
+    });
+    
     container.appendChild(card);
   });
 }
@@ -558,6 +589,9 @@ function loadEventPhotos(genre, event) {
   
   const galleryPath = `pics/${genrePath}/${eventPath}`;
   console.log(`Constructed gallery path: ${galleryPath}`);
+  
+  // Track viewing this specific event
+  trackEvent('Navigation', 'View Event', `${genrePath}/${eventPath}`);
   
   // Clear previous event content
   const eventContainer = document.querySelector('#event-container');
@@ -616,6 +650,12 @@ function loadEventPhotos(genre, event) {
         img.dataset.src = photo.thumbnail;
         img.alt = photo.title || `Photo ${index + 1}`;
         
+        // Track thumbnail view when it becomes visible
+        img.addEventListener('load', function() {
+          const photoName = photo.medium.split('/').pop();
+          trackEvent('Photo', 'View Thumbnail', photoName);
+        });
+        
         link.appendChild(img);
         photoDiv.appendChild(link);
         photoGrid.appendChild(photoDiv);
@@ -652,6 +692,19 @@ function loadEventPhotos(genre, event) {
             },
             Images: {
               initialSize: 'fit',
+            },
+            on: {
+              done: (fancybox, slide) => {
+                const photoUrl = slide.src || '';
+                const photoName = photoUrl.split('/').pop();
+                trackEvent('Photo', 'View Enlarged', photoName);
+              },
+              change: (fancybox, slide) => {
+                // Track when user navigates to a different photo
+                const photoUrl = slide.src || '';
+                const photoName = photoUrl.split('/').pop();
+                trackEvent('Photo', 'View Enlarged', photoName);
+              }
             }
           });
           console.log('Fancybox successfully initialized for gallery');
@@ -755,6 +808,12 @@ function displayPhotos(photos, container) {
     img.dataset.src = photo.thumbnail;
     img.alt = photo.title || 'Photo';
     
+    // Track thumbnail view when it becomes visible
+    img.addEventListener('load', function() {
+      const photoName = photo.medium.split('/').pop();
+      trackEvent('Photo', 'View Thumbnail', photoName);
+    });
+    
     link.appendChild(img);
     photoDiv.appendChild(link);
     gallery.appendChild(photoDiv);
@@ -773,6 +832,19 @@ function displayPhotos(photos, container) {
     },
     Images: {
       initialSize: 'fit',
+    },
+    on: {
+      done: (fancybox, slide) => {
+        const photoUrl = slide.src || '';
+        const photoName = photoUrl.split('/').pop();
+        trackEvent('Photo', 'View Enlarged', photoName);
+      },
+      change: (fancybox, slide) => {
+        // Track when user navigates to a different photo
+        const photoUrl = slide.src || '';
+        const photoName = photoUrl.split('/').pop();
+        trackEvent('Photo', 'View Enlarged', photoName);
+      }
     }
   });
 }
