@@ -622,10 +622,29 @@ function loadEventPhotos(genre, event) {
         img.dataset.src = photo.thumbnail;
         img.alt = photo.title || `Photo ${index + 1}`;
         
-        // Track thumbnail view when it becomes visible
+        // Add a placeholder image in case the thumbnail is missing
+        const placeholderImg = document.createElement('div');
+        placeholderImg.className = 'placeholder-img';
+        placeholderImg.innerHTML = `<span>${photo.title || 'Loading...'}</span>`;
+        link.appendChild(placeholderImg);
+        
+        // Handle image loading and errors
         img.addEventListener('load', function() {
+          // Successfully loaded image
+          placeholderImg.style.display = 'none';
           const photoName = photo.medium.split('/').pop();
           trackEvent('Photo', 'View Thumbnail', photoName);
+        });
+        
+        img.addEventListener('error', function() {
+          // Failed to load the image
+          console.warn(`Failed to load thumbnail: ${photo.thumbnail}`);
+          img.style.display = 'none';
+          placeholderImg.innerHTML = `<span>${photo.title || 'Image'}</span>`;
+          placeholderImg.style.display = 'flex';
+          // Try to preload medium image for Fancybox
+          const preloadImg = new Image();
+          preloadImg.src = photo.medium;
         });
         
         link.appendChild(img);
@@ -676,6 +695,11 @@ function loadEventPhotos(genre, event) {
                 const photoUrl = slide.src || '';
                 const photoName = photoUrl.split('/').pop();
                 trackEvent('Photo', 'View Enlarged', photoName);
+              },
+              error: (fancybox, slide, error) => {
+                console.error(`Fancybox error loading image: ${error}`);
+                // Show a message instead of the image
+                slide.html = `<div class="fancybox-error"><p>Image could not be loaded</p><p>${slide.caption || ''}</p></div>`;
               }
             }
           });
@@ -691,6 +715,37 @@ function loadEventPhotos(genre, event) {
       console.error('Error loading gallery config:', error);
       eventContainer.innerHTML = `<p>Error loading photos: ${error.message}</p>`;
     });
+}
+
+/**
+ * Check if an image file exists, return the URL or a fallback if it doesn't
+ * @param {string} imageUrl - The URL of the image to check
+ * @param {string} fallbackUrl - The fallback URL to use if the image doesn't exist
+ * @returns {Promise<string>} - A promise that resolves to the URL of the image or the fallback
+ */
+function checkImageExists(imageUrl, fallbackUrl = 'thumbnails/placeholder.jpg') {
+  return new Promise((resolve) => {
+    const img = new Image();
+    
+    img.onload = function() {
+      resolve(imageUrl);
+    };
+    
+    img.onerror = function() {
+      console.warn(`Image not found: ${imageUrl}, using fallback`);
+      resolve(fallbackUrl);
+    };
+    
+    img.src = imageUrl;
+    
+    // Set a timeout in case the image takes too long to load
+    setTimeout(() => {
+      if (!img.complete) {
+        console.warn(`Image load timeout: ${imageUrl}, using fallback`);
+        resolve(fallbackUrl);
+      }
+    }, 3000);
+  });
 }
 
 /**
@@ -784,10 +839,29 @@ function displayPhotos(photos, container) {
     img.dataset.src = photo.thumbnail;
     img.alt = photo.title || 'Photo';
     
-    // Track thumbnail view when it becomes visible
+    // Add a placeholder image in case the thumbnail is missing
+    const placeholderImg = document.createElement('div');
+    placeholderImg.className = 'placeholder-img';
+    placeholderImg.innerHTML = `<span>${photo.title || 'Loading...'}</span>`;
+    link.appendChild(placeholderImg);
+    
+    // Handle image loading and errors
     img.addEventListener('load', function() {
+      // Successfully loaded image
+      placeholderImg.style.display = 'none';
       const photoName = photo.medium.split('/').pop();
       trackEvent('Photo', 'View Thumbnail', photoName);
+    });
+    
+    img.addEventListener('error', function() {
+      // Failed to load the image
+      console.warn(`Failed to load thumbnail: ${photo.thumbnail}`);
+      img.style.display = 'none';
+      placeholderImg.innerHTML = `<span>${photo.title || 'Image'}</span>`;
+      placeholderImg.style.display = 'flex';
+      // Try to preload medium image for Fancybox
+      const preloadImg = new Image();
+      preloadImg.src = photo.medium;
     });
     
     link.appendChild(img);
@@ -801,7 +875,7 @@ function displayPhotos(photos, container) {
     use_native: true
   });
   
-  // Initialize Fancybox for lightbox functionality
+  // Initialize Fancybox for lightbox functionality with error handling
   Fancybox.bind('[data-fancybox="gallery"]', {
     caption: function (fancybox, slide) {
       return slide.caption || '';
@@ -820,6 +894,11 @@ function displayPhotos(photos, container) {
         const photoUrl = slide.src || '';
         const photoName = photoUrl.split('/').pop();
         trackEvent('Photo', 'View Enlarged', photoName);
+      },
+      error: (fancybox, slide, error) => {
+        console.error(`Fancybox error loading image: ${error}`);
+        // Show a message instead of the image
+        slide.html = `<div class="fancybox-error"><p>Image could not be loaded</p><p>${slide.caption || ''}</p></div>`;
       }
     }
   });
