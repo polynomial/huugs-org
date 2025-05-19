@@ -1,9 +1,12 @@
 /* Base styles */
 :root {
-  --primary-color: #333;
-  --secondary-color: #666;
-  --accent-color: #4a90e2;
-  --light-bg: #f9f9f9;
+  --primary-color: #2a2a2a;
+  --secondary-color: #555;
+  --accent-color: #e74c3c;
+  --accent-hover: #c0392b;
+  --light-bg: #f8f8f8;
+  --header-bg: #222;
+  --text-light: #fff;
   --border-radius: 4px;
   --spacing-sm: 8px;
   --spacing-md: 16px;
@@ -17,11 +20,11 @@
 }
 
 body {
-  font-family: 'Poiret One', Arial, sans-serif;
+  font-family: 'Montserrat', Arial, sans-serif;
   line-height: 1.6;
   color: var(--primary-color);
   background-color: var(--light-bg);
-  padding: 20px;
+  padding: 0;
 }
 
 h1, h2, h3 {
@@ -38,15 +41,28 @@ a {
 header {
   text-align: center;
   margin-bottom: var(--spacing-lg);
+  background-color: var(--header-bg);
+  color: var(--text-light);
+  padding: var(--spacing-lg) 0;
+}
+
+.logo-container {
+  margin-bottom: var(--spacing-md);
+}
+
+.logo {
+  max-width: 220px;
+  height: auto;
 }
 
 header h1 {
   font-size: 2.5rem;
   margin-bottom: var(--spacing-sm);
+  font-weight: 700;
 }
 
 header p {
-  color: var(--secondary-color);
+  color: rgba(255, 255, 255, 0.8);
   font-size: 1.1rem;
 }
 
@@ -54,6 +70,7 @@ header p {
 main {
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0 var(--spacing-md);
 }
 
 /* Genre and Event grid styles */
@@ -73,7 +90,7 @@ main {
   overflow: hidden;
   border-radius: var(--border-radius);
   transition: transform 0.3s ease;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 }
 
 .genre-card:hover {
@@ -100,6 +117,10 @@ main {
 .genre-title {
   font-size: 1.2rem;
   margin-bottom: 4px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--primary-color);
+  margin-top: var(--spacing-sm);
 }
 
 .genre-count {
@@ -113,12 +134,13 @@ main {
   position: relative;
   overflow: hidden;
   border-radius: var(--border-radius);
-  transition: transform 0.3s ease;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 }
 
 .event-card:hover {
   transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
 }
 
 .event-card img {
@@ -141,6 +163,7 @@ main {
 .event-title {
   font-size: 1.2rem;
   margin-bottom: 4px;
+  font-weight: 600;
 }
 
 .event-count {
@@ -158,6 +181,13 @@ main {
   align-items: center;
   justify-content: center;
   background-color: #f0f0f0;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.photo-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
 }
 
 .photo-item a {
@@ -192,19 +222,41 @@ main {
   border-radius: var(--border-radius);
   cursor: pointer;
   transition: background-color 0.3s ease;
+  font-weight: 600;
 }
 
 .back-button:hover {
-  background-color: #3a7bc8;
+  background-color: var(--accent-hover);
+}
+
+/* Section titles */
+h2 {
+  position: relative;
+  padding-bottom: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+  text-align: center;
+  color: var(--primary-color);
+  font-weight: 700;
+}
+
+h2:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 3px;
+  background-color: var(--accent-color);
 }
 
 /* Footer styles */
 footer {
   text-align: center;
   margin-top: var(--spacing-lg);
-  padding-top: var(--spacing-md);
-  color: var(--secondary-color);
-  border-top: 1px solid #eee;
+  padding: var(--spacing-lg) 0;
+  color: var(--text-light);
+  background-color: var(--header-bg);
 }
 
 /* Responsive styles */
@@ -219,18 +271,32 @@ footer {
     font-size: 2rem;
   }
   
-  body {
-    padding: 10px;
+  .logo {
+    max-width: 180px;
+  }
+}
+
+@media (max-width: 480px) {
+  header h1 {
+    font-size: 1.8rem;
+  }
+  
+  .logo {
+    max-width: 150px;
+  }
+  
+  main {
+    padding: 0 var(--spacing-sm);
   }
 }
 
 /* Fancybox customization */
 .fancybox__backdrop {
-  background: rgba(24, 24, 27, 0.9);
+  background: rgba(0, 0, 0, 0.9);
 }
 
 .fancybox__toolbar {
-  background: rgba(24, 24, 27, 0.5);
+  background: rgba(0, 0, 0, 0.6);
 }
 
 .fancybox__content {
