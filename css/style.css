@@ -217,46 +217,36 @@ main {
   opacity: 0.9;
 }
 
-/* Photo grid styles */
+/* Photo item styles */
 .photo-item {
-  position: relative;
-  overflow: hidden;
-  border-radius: var(--border-radius);
-  aspect-ratio: 4/3;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #f0f0f0;
-  box-shadow: var(--shadow-medium);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  margin-bottom: var(--spacing-sm);
+    position: relative;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    background-color: #333;
+    height: 200px;
+    transition: transform 0.2s ease;
+    margin-bottom: 0;
 }
 
 .photo-item:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-dark);
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
 .photo-item a {
-  display: flex;
-  width: 100%;
-  height: 100%;
-  position: relative;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
+    display: block;
+    width: 100%;
+    height: 100%;
+    position: relative;
 }
 
-.photo-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-  transform-origin: center center;
-}
-
-.photo-item:hover img {
-  transform: scale(1.05);
+.photo-item img.lazy {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
 }
 
 /* Back button styles */
@@ -583,84 +573,65 @@ footer {
 /* Photo gallery layout */
 .photo-gallery {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
     width: 100%;
     max-width: 100%;
-    padding: 0;
-    margin: 0 auto;
-}
-
-/* Make sure the photo container is full width */
-#photo-container {
-    width: 100%;
-    max-width: 100%;
+    padding: 20px 0;
     margin: 0;
-    padding: 0;
 }
 
-/* Reset conflicting photo-item styles */
-.photo-item {
-    position: relative;
-    border-radius: 4px;
-    overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    background-color: #333;
-    height: 200px;
-    margin-bottom: 16px;
-    transition: transform 0.2s ease;
-}
-
-.photo-item:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-}
-
-.photo-item a {
-    display: block;
-    width: 100%;
-    height: 100%;
-    position: relative;
-}
-
-.photo-item img.lazy {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-    display: block;
-}
-
-/* Make the photo gallery responsive */
-@media (min-width: 768px) {
+/* Add more specific responsive breakpoints for wider screens */
+@media (min-width: 1600px) {
     .photo-gallery {
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        grid-template-columns: repeat(4, 1fr);
     }
 }
 
-@media (min-width: 992px) {
+@media (min-width: 2000px) {
     .photo-gallery {
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        grid-template-columns: repeat(5, 1fr);
     }
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 2400px) {
+    .photo-gallery {
+        grid-template-columns: repeat(6, 1fr);
+    }
+}
+
+/* Keep existing responsive styles for smaller screens */
+@media (min-width: 992px) and (max-width: 1599px) {
     .photo-gallery {
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     }
 }
 
+@media (max-width: 768px) {
+    .photo-gallery {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+}
+
 @media (max-width: 576px) {
     .photo-gallery {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
         gap: 12px;
+    }
+    
+    .photo-item {
+        height: 160px;
     }
 }
 
 @media (max-width: 480px) {
     .photo-gallery {
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    
+    .photo-item {
+        height: 150px;
     }
 }
 
