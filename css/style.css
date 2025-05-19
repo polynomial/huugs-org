@@ -6,8 +6,8 @@
   --accent-hover: #e60000;
   --light-bg: #f5f5f5;
   --card-bg: #ffffff;
-  --header-bg: #000000;
-  --footer-bg: #000000;
+  --header-bg: #0e0e0e;
+  --footer-bg: #0e0e0e;
   --text-light: #ffffff;
   --text-dark: #212121;
   --text-muted: #757575;
@@ -73,7 +73,7 @@ header {
 
 .logo-container {
   margin-bottom: var(--spacing-md);
-  background-color: var(--header-bg);
+  background-color: transparent;
   padding: var(--spacing-sm);
   display: inline-block;
   border-radius: var(--border-radius);
@@ -341,7 +341,7 @@ footer {
 
 .footer-logo {
   margin-bottom: var(--spacing-md);
-  background-color: var(--footer-bg);
+  background-color: transparent;
   padding: var(--spacing-sm);
   display: inline-block;
   border-radius: var(--border-radius);
