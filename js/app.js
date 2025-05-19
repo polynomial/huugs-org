@@ -558,6 +558,9 @@ function loadEventPhotos(genre, event) {
   const galleryPath = `pics/${genrePath}/${eventPath}`;
   console.log(`Constructed gallery path: ${galleryPath}`);
   
+  // Track viewing this specific event
+  trackEvent('Navigation', 'View Event', `${genrePath}/${eventPath}`);
+  
   // Clear previous event content
   const eventContainer = document.querySelector('#event-container');
   if (!eventContainer) {
@@ -594,10 +597,14 @@ function loadEventPhotos(genre, event) {
         return;
       }
       
-      // Create photo grid
+      // Create photo grid with explicit styling to ensure grid layout
       const photoGrid = document.createElement('div');
       photoGrid.className = 'photo-grid';
-      photoGrid.id = 'photos-grid'; // Add ID for potential reference
+      photoGrid.id = 'photos-grid';
+      photoGrid.style.display = 'grid';
+      photoGrid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(200px, 1fr))';
+      photoGrid.style.gap = '16px';
+      photoGrid.style.width = '100%';
       eventContainer.appendChild(photoGrid);
       
       // Add photos to grid
@@ -614,6 +621,12 @@ function loadEventPhotos(genre, event) {
         img.className = 'lazy';
         img.dataset.src = photo.thumbnail;
         img.alt = photo.title || `Photo ${index + 1}`;
+        
+        // Track thumbnail view when it becomes visible
+        img.addEventListener('load', function() {
+          const photoName = photo.medium.split('/').pop();
+          trackEvent('Photo', 'View Thumbnail', photoName);
+        });
         
         link.appendChild(img);
         photoDiv.appendChild(link);
@@ -651,6 +664,19 @@ function loadEventPhotos(genre, event) {
             },
             Images: {
               initialSize: 'fit',
+            },
+            on: {
+              done: (fancybox, slide) => {
+                const photoUrl = slide.src || '';
+                const photoName = photoUrl.split('/').pop();
+                trackEvent('Photo', 'View Enlarged', photoName);
+              },
+              change: (fancybox, slide) => {
+                // Track when user navigates to a different photo
+                const photoUrl = slide.src || '';
+                const photoName = photoUrl.split('/').pop();
+                trackEvent('Photo', 'View Enlarged', photoName);
+              }
             }
           });
           console.log('Fancybox successfully initialized for gallery');
@@ -737,6 +763,10 @@ function displayPhotos(photos, container) {
   // Create a gallery element for photos
   const gallery = document.createElement('div');
   gallery.className = 'photo-grid';
+  gallery.style.display = 'grid';
+  gallery.style.gridTemplateColumns = 'repeat(auto-fill, minmax(200px, 1fr))';
+  gallery.style.gap = '16px';
+  gallery.style.width = '100%';
   container.appendChild(gallery);
   
   // Add photos to the gallery
@@ -753,6 +783,12 @@ function displayPhotos(photos, container) {
     img.className = 'lazy';
     img.dataset.src = photo.thumbnail;
     img.alt = photo.title || 'Photo';
+    
+    // Track thumbnail view when it becomes visible
+    img.addEventListener('load', function() {
+      const photoName = photo.medium.split('/').pop();
+      trackEvent('Photo', 'View Thumbnail', photoName);
+    });
     
     link.appendChild(img);
     photoDiv.appendChild(link);
@@ -772,6 +808,19 @@ function displayPhotos(photos, container) {
     },
     Images: {
       initialSize: 'fit',
+    },
+    on: {
+      done: (fancybox, slide) => {
+        const photoUrl = slide.src || '';
+        const photoName = photoUrl.split('/').pop();
+        trackEvent('Photo', 'View Enlarged', photoName);
+      },
+      change: (fancybox, slide) => {
+        // Track when user navigates to a different photo
+        const photoUrl = slide.src || '';
+        const photoName = photoUrl.split('/').pop();
+        trackEvent('Photo', 'View Enlarged', photoName);
+      }
     }
   });
 }

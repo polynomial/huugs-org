@@ -107,12 +107,20 @@ main {
 
 /* Genre and Event grid styles */
 .genre-grid,
-.event-grid,
-.photo-grid {
+.event-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: var(--spacing-lg);
   margin-top: var(--spacing-lg);
+}
+
+/* Photo grid styles - separate from genre/event grid */
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-lg);
+  width: 100%;
 }
 
 /* Genre card styles */
@@ -221,6 +229,7 @@ main {
   background-color: #f0f0f0;
   box-shadow: var(--shadow-medium);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  margin-bottom: var(--spacing-sm);
 }
 
 .photo-item:hover {
@@ -339,10 +348,14 @@ footer {
 /* Responsive styles */
 @media (max-width: 768px) {
   .genre-grid,
-  .event-grid,
-  .photo-grid {
+  .event-grid {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: var(--spacing-md);
+  }
+  
+  .photo-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: var(--spacing-sm);
   }
   
   header h1 {
@@ -372,10 +385,14 @@ footer {
   }
   
   .genre-grid,
-  .event-grid,
-  .photo-grid {
+  .event-grid {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: var(--spacing-sm);
+  }
+  
+  .photo-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: var(--spacing-xs);
   }
   
   .footer-content {
