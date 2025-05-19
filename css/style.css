@@ -583,10 +583,52 @@ footer {
 /* Photo gallery layout */
 .photo-gallery {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 16px;
     width: 100%;
+    max-width: 100%;
+    padding: 0;
     margin: 0 auto;
+}
+
+/* Make sure the photo container is full width */
+#photo-container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* Reset conflicting photo-item styles */
+.photo-item {
+    position: relative;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    background-color: #333;
+    height: 200px;
+    margin-bottom: 16px;
+    transition: transform 0.2s ease;
+}
+
+.photo-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.photo-item a {
+    display: block;
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.photo-item img.lazy {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
 }
 
 /* Make the photo gallery responsive */
@@ -622,22 +664,6 @@ footer {
     }
 }
 
-/* Adjust photo item sizing */
-.photo-item {
-    position: relative;
-    margin-bottom: 16px;
-    border-radius: 4px;
-    overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    aspect-ratio: 3/2;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.photo-item:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-
 .no-photos {
     text-align: center;
     padding: 40px;
@@ -651,4 +677,74 @@ footer {
     height: auto;
     display: block;
     border-radius: 4px;
+}
+
+/* Event page layout */
+#event-container {
+    width: 100%;
+    max-width: 100%;
+    padding: 0 var(--spacing-md);
+}
+
+/* Photo gallery layout */
+.photo-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+    width: 100%;
+    padding: var(--spacing-md) 0;
+}
+
+/* Make sure the photo container is full width */
+#photo-container {
+    width: 100%;
+    max-width: 100%;
+    margin-top: 20px;
+}
+
+/* Placeholder and loading styles */
+.loading-placeholder, 
+.placeholder-item, 
+.error-placeholder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 180px;
+    background-color: #333333;
+    border-radius: 4px;
+    color: #b0b0b0;
+    text-align: center;
+    font-size: 14px;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+/* Photo items */
+.photo-item {
+    position: relative;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    background-color: #333;
+    height: 160px;
+    transition: transform 0.2s ease;
+}
+
+.photo-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.photo-item a {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.photo-item img.lazy {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 } 

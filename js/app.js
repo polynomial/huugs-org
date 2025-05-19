@@ -517,28 +517,14 @@ function displayEvents(events, container, genreId) {
 function initEventPage(genreId, eventId) {
   console.log(`Initializing event page for collection=${genreId}, event=${eventId}`);
   
-  // Hide other containers and show event container
+  // Hide other containers
   hideAllContainers();
+  
+  // Show event container
   showContainer('event-container');
   
   // Update page title
-  document.title = toTitleCase(eventId);
-  
-  // Update event title
-  const eventTitle = document.getElementById('event-title');
-  if (eventTitle) {
-    eventTitle.textContent = toTitleCase(eventId);
-  }
-  
-  // Add back button to collection page
-  const backButton = document.getElementById('back-button');
-  if (backButton) {
-    backButton.style.display = 'block';
-    backButton.onclick = () => {
-      window.location.href = `?genre=${genreId}`;
-    };
-    backButton.querySelector('span').textContent = `Back to ${toTitleCase(genreId)} Events`;
-  }
+  document.title = `${toTitleCase(genreId)} - ${toTitleCase(eventId)}`;
   
   // Load photos for this event
   loadEventPhotos(genreId, eventId);
@@ -566,29 +552,28 @@ function loadEventPhotos(genre, event) {
   // Track viewing this specific event
   trackEvent('Navigation', 'View Event', `${genrePath}/${eventPath}`);
   
-  // Clear previous event content
-  const eventContainer = document.querySelector('#event-container');
+  // Get the event container
+  const eventContainer = document.getElementById('event-container');
   if (!eventContainer) {
     console.error('Event container not found');
     return;
   }
-  eventContainer.innerHTML = '';
   
   // Update event title
-  const eventTitle = document.querySelector('#event-title');
-  if (eventTitle) {
-    eventTitle.textContent = `${eventPath.charAt(0).toUpperCase() + eventPath.slice(1)}`;
+  const genreTitle = document.getElementById('genre-title');
+  if (genreTitle) {
+    genreTitle.textContent = `${toTitleCase(genrePath)}: ${toTitleCase(eventPath)}`;
   }
   
-  // Add back button
-  const backButton = document.createElement('div');
-  backButton.id = 'back-button';
-  backButton.className = 'back-button';
-  backButton.innerHTML = `<span>Back to ${toTitleCase(genrePath)} Events</span>`;
-  backButton.onclick = () => {
-    window.location.href = `?genre=${genrePath}`;
-  };
-  eventContainer.appendChild(backButton);
+  // Ensure back button exists and is properly configured
+  const backButton = document.getElementById('back-button');
+  if (backButton) {
+    backButton.style.display = 'inline-flex';
+    backButton.onclick = () => {
+      window.location.href = `?genre=${genrePath}`;
+    };
+    backButton.querySelector('span').textContent = `Back to ${toTitleCase(genrePath)}`;
+  }
   
   // Get photos for this event from config
   fetch('./js/gallery-config.json')
@@ -597,128 +582,39 @@ function loadEventPhotos(genre, event) {
       const photos = getPhotosFromConfig(config, galleryPath);
       console.log(`Retrieved ${photos.length} photos for gallery path ${galleryPath}`);
       
-      if (photos.length === 0) {
-        eventContainer.innerHTML = `<p>No photos found for ${eventPath}. Add photos to the '${galleryPath}' directory.</p>`;
-        return;
+      // Create a fresh photo container
+      const photoContainer = document.createElement('div');
+      photoContainer.id = 'photo-container';
+      photoContainer.style.display = 'block';
+      photoContainer.style.width = '100%';
+      
+      // Replace any existing photo container or append new one
+      const existingPhotoContainer = document.getElementById('photo-container');
+      if (existingPhotoContainer) {
+        eventContainer.replaceChild(photoContainer, existingPhotoContainer);
+      } else {
+        eventContainer.appendChild(photoContainer);
       }
       
-      // Create photo grid with explicit styling to ensure grid layout
-      const photoGrid = document.createElement('div');
-      photoGrid.className = 'photo-grid';
-      photoGrid.id = 'photos-grid';
-      photoGrid.style.display = 'grid';
-      photoGrid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(200px, 1fr))';
-      photoGrid.style.gap = '16px';
-      photoGrid.style.width = '100%';
-      eventContainer.appendChild(photoGrid);
-      
-      // Add photos to grid
-      photos.forEach((photo, index) => {
-        const photoDiv = document.createElement('div');
-        photoDiv.className = 'photo-item';
-        
-        const link = document.createElement('a');
-        link.href = photo.medium;
-        link.setAttribute('data-fancybox', 'gallery');
-        link.setAttribute('data-caption', photo.title || `Photo ${index + 1}`);
-        
-        const img = document.createElement('img');
-        img.className = 'lazy';
-        img.dataset.src = photo.thumbnail;
-        img.alt = photo.title || `Photo ${index + 1}`;
-        
-        // Add a placeholder image in case the thumbnail is missing
-        const placeholderImg = document.createElement('div');
-        placeholderImg.className = 'placeholder-img';
-        placeholderImg.innerHTML = `<span>${photo.title || 'Loading...'}</span>`;
-        link.appendChild(placeholderImg);
-        
-        // Handle image loading and errors
-        img.addEventListener('load', function() {
-          // Successfully loaded image
-          placeholderImg.style.display = 'none';
-          const photoName = photo.medium.split('/').pop();
-          trackEvent('Photo', 'View Thumbnail', photoName);
-        });
-        
-        img.addEventListener('error', function() {
-          // Failed to load the image
-          console.warn(`Failed to load thumbnail: ${photo.thumbnail}`);
-          img.style.display = 'none';
-          placeholderImg.innerHTML = `<span>${photo.title || 'Image'}</span>`;
-          placeholderImg.style.display = 'flex';
-          // Try to preload medium image for Fancybox
-          const preloadImg = new Image();
-          preloadImg.src = photo.medium;
-        });
-        
-        link.appendChild(img);
-        photoDiv.appendChild(link);
-        photoGrid.appendChild(photoDiv);
-      });
-      
-      // Initialize lazy loading for images
-      new LazyLoad({
-        elements_selector: '.lazy',
-        use_native: true
-      });
-      
-      // Initialize Fancybox for the gallery
-      console.log('Initializing Fancybox for gallery...');
-      try {
-        if (typeof Fancybox !== 'undefined') {
-          // Destroy any existing Fancybox instances first
-          try {
-            Fancybox.destroy();
-          } catch (e) {
-            console.log('No previous Fancybox instance to destroy');
-          }
-          
-          // Initialize a new Fancybox instance
-          Fancybox.bind('[data-fancybox="gallery"]', {
-            loop: true,
-            buttons: ["zoom", "slideShow", "fullScreen", "download", "thumbs", "close"],
-            animationEffect: "fade",
-            transitionEffect: "fade",
-            preventCaptionOverlap: true,
-            hideScrollbar: true,
-            clickContent: 'next',
-            caption: function (fancybox, slide) {
-              return slide.caption || '';
-            },
-            Images: {
-              initialSize: 'fit',
-            },
-            on: {
-              done: (fancybox, slide) => {
-                const photoUrl = slide.src || '';
-                const photoName = photoUrl.split('/').pop();
-                trackEvent('Photo', 'View Enlarged', photoName);
-              },
-              change: (fancybox, slide) => {
-                // Track when user navigates to a different photo
-                const photoUrl = slide.src || '';
-                const photoName = photoUrl.split('/').pop();
-                trackEvent('Photo', 'View Enlarged', photoName);
-              },
-              error: (fancybox, slide, error) => {
-                console.error(`Fancybox error loading image: ${error}`);
-                // Show a message instead of the image
-                slide.html = `<div class="fancybox-error"><p>Image could not be loaded</p><p>${slide.caption || ''}</p></div>`;
-              }
-            }
-          });
-          console.log('Fancybox successfully initialized for gallery');
-        } else {
-          console.error('Fancybox is not defined - check if it is properly loaded');
-        }
-      } catch (e) {
-        console.error('Error initializing Fancybox:', e);
-      }
+      // Display photos using our enhanced function
+      displayPhotos(photos, photoContainer);
     })
     .catch(error => {
       console.error('Error loading gallery config:', error);
-      eventContainer.innerHTML = `<p>Error loading photos: ${error.message}</p>`;
+      
+      // Create an error message
+      const photoContainer = document.createElement('div');
+      photoContainer.id = 'photo-container';
+      photoContainer.style.display = 'block';
+      photoContainer.innerHTML = `<p class="error-message">Error loading photos. Please try again later.</p>`;
+      
+      // Replace any existing photo container or append new one
+      const existingPhotoContainer = document.getElementById('photo-container');
+      if (existingPhotoContainer) {
+        eventContainer.replaceChild(photoContainer, existingPhotoContainer);
+      } else {
+        eventContainer.appendChild(photoContainer);
+      }
     });
 }
 
@@ -834,88 +730,57 @@ function displayPhotos(photos, container) {
   const galleryWrapper = document.createElement('div');
   galleryWrapper.className = 'photo-gallery';
   
-  // Track which photos to include in Fancybox
-  const validPhotos = [];
-  
-  // Create photo placeholders first
-  photos.forEach((photo, index) => {
-    const photoItem = document.createElement('div');
-    photoItem.className = 'photo-item loading';
-    photoItem.setAttribute('data-index', index);
-    photoItem.innerHTML = `<div class="loading-placeholder"><span>${photo.title || 'Loading...'}</span></div>`;
-    galleryWrapper.appendChild(photoItem);
-  });
-  
   // Add gallery to the container
   container.appendChild(galleryWrapper);
   
-  // Now load each image with verification
+  // Now load each image
   photos.forEach((photo, index) => {
     const thumbnailSrc = photo.thumbnail || '';
     const mediumSrc = photo.medium || photo.original || '';
     const title = photo.title || `Photo ${index + 1}`;
     
-    // Find the photo item placeholder
-    const photoItem = galleryWrapper.querySelector(`.photo-item[data-index="${index}"]`);
-    if (!photoItem) return;
+    // Create photo item container
+    const photoItem = document.createElement('div');
+    photoItem.className = 'photo-item';
+    photoItem.setAttribute('data-index', index);
     
-    // First check if the medium/full size image exists
-    checkImageExists(mediumSrc, 'thumbnails/placeholder.jpg')
-      .then(validMediumSrc => {
-        // Only include in lightbox if we have a valid medium image
-        const includeInLightbox = validMediumSrc !== 'thumbnails/placeholder.jpg';
-        
-        // Then check if thumbnail exists
-        return checkImageExists(thumbnailSrc, 'thumbnails/placeholder.jpg')
-          .then(validThumbnailSrc => {
-            // Update the photo item with the actual image or placeholder
-            photoItem.className = 'photo-item';
-            
-            // Basic orientation (will be enhanced if needed)
-            if (photo.orientation && photo.orientation > 1) {
-              photoItem.classList.add(`orientation-${photo.orientation}`);
-            }
-            
-            // Create image elements and handle missing images gracefully
-            if (includeInLightbox) {
-              // Add to valid photos for Fancybox
-              validPhotos.push({
-                src: validMediumSrc,
-                thumb: validThumbnailSrc,
-                caption: title
-              });
-              
-              // Create a link with fancybox data to open the lightbox
-              const link = document.createElement('a');
-              link.href = validMediumSrc;
-              link.setAttribute('data-fancybox', 'gallery');
-              link.setAttribute('data-caption', title);
-              link.setAttribute('data-thumb', validThumbnailSrc);
-              
-              // Create the actual image element
-              const img = document.createElement('img');
-              img.className = 'lazy';
-              img.dataset.src = validThumbnailSrc;
-              img.alt = title;
-              
-              // Handle image load error
-              img.onerror = function() {
-                link.style.backgroundImage = 'none';
-                link.innerHTML = `<div class="placeholder-text">${title}</div>`;
-              };
-              
-              link.appendChild(img);
-              photoItem.appendChild(link);
-            } else {
-              // Not a valid image for lightbox, just show placeholder
-              photoItem.innerHTML = `<div class="placeholder-item"><span>${title}</span></div>`;
-            }
-          });
-      })
-      .catch(error => {
-        console.error(`Error checking image ${thumbnailSrc}:`, error);
-        photoItem.innerHTML = `<div class="error-placeholder"><span>${title}</span></div>`;
-      });
+    // Create a link with fancybox data to open the lightbox
+    const link = document.createElement('a');
+    link.href = mediumSrc;
+    link.setAttribute('data-fancybox', 'gallery');
+    link.setAttribute('data-caption', title);
+    
+    // Create the image element with a placeholder before it loads
+    const loadingPlaceholder = document.createElement('div');
+    loadingPlaceholder.className = 'loading-placeholder';
+    loadingPlaceholder.innerHTML = `<span>${title}</span>`;
+    link.appendChild(loadingPlaceholder);
+    
+    // Create actual image that will replace the placeholder when loaded
+    const img = document.createElement('img');
+    img.className = 'lazy';
+    img.dataset.src = thumbnailSrc;
+    img.alt = title;
+    
+    // Handle successful image load
+    img.addEventListener('load', function() {
+      // Remove the placeholder when image loads
+      if (loadingPlaceholder && loadingPlaceholder.parentNode) {
+        loadingPlaceholder.parentNode.removeChild(loadingPlaceholder);
+      }
+    });
+    
+    // Handle image load error
+    img.addEventListener('error', function() {
+      // Keep the placeholder but update its style
+      loadingPlaceholder.className = 'error-placeholder';
+      loadingPlaceholder.innerHTML = `<span>${title}</span>`;
+      img.style.display = 'none';
+    });
+    
+    link.appendChild(img);
+    photoItem.appendChild(link);
+    galleryWrapper.appendChild(photoItem);
   });
   
   // Initialize lazy loading
@@ -924,21 +789,18 @@ function displayPhotos(photos, container) {
     use_native: true
   });
   
-  // Manually bind Fancybox to ensure it uses our valid photos
+  // Initialize Fancybox
   try {
-    if (window.Fancybox && validPhotos.length > 0) {
-      // Re-bind fancybox with our filtered photos
-      Fancybox.bind("[data-fancybox='gallery']", {
-        animated: true,
-        on: {
-          error: (fancybox, slide, error) => {
-            console.log("Fancybox error loading slide:", slide, error);
-            // Replace the src with a placeholder if there's an error
-            slide.src = 'thumbnails/placeholder.jpg';
-          }
+    Fancybox.bind("[data-fancybox='gallery']", {
+      animated: true,
+      on: {
+        error: (fancybox, slide, error) => {
+          console.log("Fancybox error loading slide:", slide, error);
+          // Replace the src with a placeholder if there's an error
+          slide.src = 'thumbnails/placeholder.jpg';
         }
-      });
-    }
+      }
+    });
   } catch (error) {
     console.error("Error binding Fancybox to gallery:", error);
   }
