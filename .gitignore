@@ -13,4 +13,7 @@ node_modules/
 
 # Keep thumbnails and medium-sized images in the repository
 !thumbnails/
-!medium/
+
+# Generated build/development files
+public/
+screenshot.png
