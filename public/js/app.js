@@ -582,19 +582,23 @@ function loadEventPhotos(genre, event) {
       const photos = getPhotosFromConfig(config, galleryPath);
       console.log(`Retrieved ${photos.length} photos for gallery path ${galleryPath}`);
       
-      // Create a fresh photo container
+      // First, clear any existing photo container
+      const existingPhotoContainer = document.getElementById('photo-container');
+      if (existingPhotoContainer) {
+        existingPhotoContainer.remove();
+      }
+      
+      // Create a fresh photo container with proper styles
       const photoContainer = document.createElement('div');
       photoContainer.id = 'photo-container';
       photoContainer.style.display = 'block';
       photoContainer.style.width = '100%';
+      photoContainer.style.maxWidth = '100%';
+      photoContainer.style.margin = '0';
+      photoContainer.style.padding = '0';
       
-      // Replace any existing photo container or append new one
-      const existingPhotoContainer = document.getElementById('photo-container');
-      if (existingPhotoContainer) {
-        eventContainer.replaceChild(photoContainer, existingPhotoContainer);
-      } else {
-        eventContainer.appendChild(photoContainer);
-      }
+      // Append to event container
+      eventContainer.appendChild(photoContainer);
       
       // Display photos using our enhanced function
       displayPhotos(photos, photoContainer);
@@ -729,6 +733,7 @@ function displayPhotos(photos, container) {
   // Create gallery wrapper
   const galleryWrapper = document.createElement('div');
   galleryWrapper.className = 'photo-gallery';
+  galleryWrapper.id = 'photo-gallery';
   
   // Add gallery to the container
   container.appendChild(galleryWrapper);
@@ -738,6 +743,10 @@ function displayPhotos(photos, container) {
     const thumbnailSrc = photo.thumbnail || '';
     const mediumSrc = photo.medium || photo.original || '';
     const title = photo.title || `Photo ${index + 1}`;
+    
+    // Create column wrapper for consistent sizing
+    const photoWrapper = document.createElement('div');
+    photoWrapper.className = 'photo-item-wrapper';
     
     // Create photo item container
     const photoItem = document.createElement('div');
@@ -780,7 +789,8 @@ function displayPhotos(photos, container) {
     
     link.appendChild(img);
     photoItem.appendChild(link);
-    galleryWrapper.appendChild(photoItem);
+    photoWrapper.appendChild(photoItem);
+    galleryWrapper.appendChild(photoWrapper);
   });
   
   // Initialize lazy loading
@@ -803,6 +813,23 @@ function displayPhotos(photos, container) {
     });
   } catch (error) {
     console.error("Error binding Fancybox to gallery:", error);
+  }
+  
+  // Initialize Masonry layout after images are loaded
+  try {
+    const gallery = document.getElementById('photo-gallery');
+    if (gallery) {
+      // Wait for all images to load
+      imagesLoaded(gallery, function() {
+        const masonry = new Masonry(gallery, {
+          itemSelector: '.photo-item-wrapper',
+          percentPosition: true
+        });
+        console.log('Masonry layout initialized');
+      });
+    }
+  } catch (error) {
+    console.error('Error initializing Masonry layout:', error);
   }
 }
 
