@@ -882,4 +882,41 @@ function scanDirectories() {
     <p>Could not load gallery configuration. Please ensure the thumbnail generation 
     script has been run to create js/gallery-config.json.</p>
   `;
+}
+
+// Initialize Fancybox
+function initFancybox() {
+  Fancybox.bind('[data-fancybox="gallery"]', {
+    // Use HD versions for lightbox
+    Image: {
+      src: (fancybox, slide) => {
+        const img = slide.el;
+        const hdSrc = img.getAttribute('data-hd-src');
+        return hdSrc || img.src;
+      }
+    },
+    // ... existing Fancybox options ...
+  });
+}
+
+// Display photos in the gallery
+function displayPhotos(photos) {
+  const galleryContainer = document.getElementById('gallery-container');
+  galleryContainer.innerHTML = '';
+  
+  photos.forEach(photo => {
+    const photoItem = document.createElement('div');
+    photoItem.className = 'photo-item';
+    
+    const img = document.createElement('img');
+    img.src = photo.thumbnail;
+    img.alt = photo.title;
+    img.loading = 'lazy';
+    img.setAttribute('data-fancybox', 'gallery');
+    img.setAttribute('data-hd-src', photo.hd); // Use HD version for lightbox
+    img.setAttribute('data-caption', photo.title);
+    
+    photoItem.appendChild(img);
+    galleryContainer.appendChild(photoItem);
+  });
 } 

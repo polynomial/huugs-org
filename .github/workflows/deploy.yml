@@ -96,6 +96,16 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
       
+      # Prepare deployment by removing original high-res images
+      - name: Prepare deployment
+        run: |
+          # Remove original high-res images from pics directory
+          find pics -type f -name "*.JPG" -o -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" | while read file; do
+            rm "$file"
+          done
+          # Keep only thumbnails and HD versions
+          echo "Removed original high-resolution images from deployment"
+      
       # Upload artifact for GitHub Pages
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v3
