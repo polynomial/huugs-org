@@ -65,7 +65,7 @@ async function testMasonryLayout() {
         for (const viewport of viewports) {
             console.log(`Testing ${viewport.name} layout...`);
             await page.setViewport(viewport);
-            await page.waitForTimeout(1000); // Wait for layout to adjust
+            await new Promise(r => setTimeout(r, 1000));
             
             // Take screenshot for this viewport
             await page.screenshot({
