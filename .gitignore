@@ -20,3 +20,8 @@ screenshot.png
 
 # Ignore build results
 build/results/
+
+# Ignore public directory except favicon
+public/*
+!public/favicon.ico
+!public/index.html
