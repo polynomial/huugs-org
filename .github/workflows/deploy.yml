@@ -21,13 +21,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Needed for detecting changes
           lfs: true  # Support Git LFS if used
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
@@ -55,7 +55,7 @@ jobs:
           steps.check-images.outputs.image_changes == 'true'
 
       - name: Upload processed images
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: processed-images
           path: |
@@ -68,10 +68,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
@@ -80,7 +80,7 @@ jobs:
         run: npm ci
 
       - name: Download processed images
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: processed-images
           path: public/images
@@ -99,7 +99,7 @@ jobs:
 
       - name: Upload test artifacts
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-screenshots
           path: |
@@ -119,10 +119,10 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
@@ -131,7 +131,7 @@ jobs:
         run: npm ci
 
       - name: Download processed images
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: processed-images
           path: public/images
@@ -140,13 +140,13 @@ jobs:
         run: npm run build
 
       - name: Setup Pages
-        uses: actions/configure-pages@v3
+        uses: actions/configure-pages@v4
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2 
+        uses: actions/deploy-pages@v4 
