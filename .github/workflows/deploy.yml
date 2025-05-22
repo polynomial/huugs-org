@@ -19,6 +19,8 @@ permissions:
 jobs:
   process-images:
     runs-on: ubuntu-latest
+    outputs:
+      processed: ${{ steps.check-images.outputs.image_changes == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -47,14 +49,11 @@ jobs:
           fi
 
       - name: Process images
+        if: steps.check-images.outputs.image_changes == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: npm run process-images
-        # Always process on manual or scheduled runs, or when images change
-        if: |
-          github.event_name == 'workflow_dispatch' || 
-          github.event_name == 'schedule' || 
-          steps.check-images.outputs.image_changes == 'true'
 
       - name: Upload processed images
+        if: steps.check-images.outputs.image_changes == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         uses: actions/upload-artifact@v4
         with:
           name: processed-images
@@ -80,6 +79,7 @@ jobs:
         run: npm ci
 
       - name: Download processed images
+        if: needs.process-images.outputs.processed == 'true'
         uses: actions/download-artifact@v4
         with:
           name: processed-images
@@ -131,6 +131,7 @@ jobs:
         run: npm ci
 
       - name: Download processed images
+        if: needs.process-images.outputs.processed == 'true'
         uses: actions/download-artifact@v4
         with:
           name: processed-images
