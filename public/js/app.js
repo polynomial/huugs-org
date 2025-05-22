@@ -476,7 +476,7 @@ function initEventPage(genreId, eventId) {
   // Hide other containers
   hideAllContainers();
   
-  // Show event container
+  // Show event container and photo container
   showContainer('event-container');
   showContainer('photo-container');
   
@@ -585,45 +585,87 @@ function getPhotosFromConfig(config, genreId, eventId) {
  * Display photos in a grid
  */
 function displayPhotos(photos, container) {
-  if (!photos || photos.length === 0) {
-    container.innerHTML = '<p>No photos found.</p>';
-    return;
-  }
-  
-  // Clear existing content
-  container.innerHTML = '';
-  
-  // Create grid for photos
-  const grid = document.createElement('div');
-  grid.className = 'photo-grid';
-  
-  // Add each photo to the grid
-  photos.forEach(photo => {
-    const card = document.createElement('div');
-    card.className = 'photo-card';
+    if (!photos || photos.length === 0) {
+        container.innerHTML = '<p>No photos found.</p>';
+        return;
+    }
     
-    const link = document.createElement('a');
-    link.href = photo.medium;
-    link.setAttribute('data-fancybox', 'gallery');
-    link.setAttribute('data-caption', photo.title);
+    // Clear existing content
+    container.innerHTML = '';
     
-    const img = document.createElement('img');
-    img.className = 'lazy';
-    img.dataset.src = photo.thumbnail;
-    img.alt = photo.title;
+    // Create grid for photos
+    const grid = document.createElement('div');
+    grid.className = 'photo-grid';
     
-    link.appendChild(img);
-    card.appendChild(link);
-    grid.appendChild(card);
-  });
-  
-  container.appendChild(grid);
-  
-  // Initialize lazy loading
-  new LazyLoad({
-    elements_selector: '.lazy',
-    use_native: true
-  });
+    // Add each photo to the grid
+    photos.forEach(photo => {
+        const photoElement = document.createElement('div');
+        photoElement.className = 'photo-item';
+        
+        const img = document.createElement('img');
+        img.className = 'lazy';
+        img.dataset.src = photo.thumbnail;
+        img.alt = photo.title || photo.original.split('/').pop();
+        img.loading = 'lazy';
+        
+        // Add click handler for Fancybox
+        img.addEventListener('click', () => {
+            Fancybox.show([{
+                src: photo.medium,
+                type: 'image'
+            }]);
+        });
+
+        // Add load event listener
+        img.addEventListener('load', () => {
+            photoElement.classList.add('loaded');
+        });
+
+        photoElement.appendChild(img);
+        grid.appendChild(photoElement);
+    });
+    
+    container.appendChild(grid);
+    
+    // Initialize lazy loading
+    new LazyLoad({
+        elements_selector: '.lazy',
+        use_native: true,
+        callback_loaded: (el) => {
+            el.parentElement.classList.add('loaded');
+        }
+    });
+
+    // Initialize Masonry
+    initMasonry(grid);
+}
+
+function initMasonry(container) {
+    // Initialize Masonry first
+    const masonry = new Masonry(container, {
+        itemSelector: '.photo-item',
+        columnWidth: '.photo-item',
+        percentPosition: true,
+        transitionDuration: '0.2s',
+        gutter: 10,
+        initLayout: true
+    });
+
+    // Then initialize imagesLoaded
+    imagesLoaded(container, function() {
+        // Re-layout Masonry after all images are loaded
+        masonry.layout();
+        
+        // Add load event listeners to individual images
+        const images = container.getElementsByTagName('img');
+        Array.from(images).forEach(img => {
+            if (!img.complete) {
+                img.addEventListener('load', () => {
+                    masonry.layout();
+                });
+            }
+        });
+    });
 }
 
 /**
