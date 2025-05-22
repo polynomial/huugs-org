@@ -6,13 +6,16 @@
   "scripts": {
     "start": "node server.js",
     "start:clean": "pkill -f 'node server.js' || true && sleep 1 && node server.js",
+    "process-images": "node scripts/process-images.js",
     "test": "node scripts/test-gallery.js",
-    "process-images": "node scripts/process-images.js"
+    "test:masonry": "node scripts/test-masonry.js"
   },
   "dependencies": {
-    "sharp": "^0.32.1"
+    "sharp": "^0.33.2",
+    "glob": "^10.3.10",
+    "mkdirp": "^3.0.1"
   },
   "devDependencies": {
-    "puppeteer": "^21.5.0"
+    "puppeteer": "^22.0.0"
   }
 }

@@ -581,67 +581,58 @@ function getPhotosFromConfig(config, genreId, eventId) {
   }));
 }
 
-/**
- * Display photos in a grid
- */
-function displayPhotos(photos, container) {
-    if (!photos || photos.length === 0) {
-        container.innerHTML = '<p>No photos found.</p>';
-        return;
+async function displayPhotos(photos) {
+    const photoGrid = document.getElementById('photo-grid');
+    photoGrid.innerHTML = '';
+
+    try {
+        // Load layout configuration
+        const response = await fetch('/images/metadata/layout-config.json');
+        const layoutConfig = await response.json();
+        
+        // Create a map of image paths to their layout info
+        // Use the original relative path as the key
+        const layoutMap = new Map(layoutConfig.images.map(img => [img.relativePath.replace(/\\/g, '/'), img]));
+
+        // Create and append photo elements
+        photos.forEach(photo => {
+            // Try to find layout info by matching the end of the original path
+            const layoutInfo = Array.from(layoutMap.values()).find(img => {
+                return photo.original.endsWith(img.relativePath.replace(/\\/g, '/'));
+            });
+            if (!layoutInfo) {
+                console.warn(`No layout info found for ${photo.original}`);
+                return;
+            }
+
+            const photoItem = document.createElement('div');
+            photoItem.className = 'photo-item';
+            photoItem.style.width = '300px';
+            photoItem.style.height = 'auto';
+
+            const link = document.createElement('a');
+            link.href = `/images/mediums/${layoutInfo.hash}.jpg`;
+            link.setAttribute('data-fancybox', 'gallery');
+
+            const img = document.createElement('img');
+            img.src = `/images/thumbnails/${layoutInfo.hash}.jpg`;
+            img.alt = photo.title || '';
+            img.loading = 'lazy';
+
+            link.appendChild(img);
+            photoItem.appendChild(link);
+            photoGrid.appendChild(photoItem);
+        });
+
+        // Initialize Masonry with pre-calculated layout
+        initMasonry(photoGrid);
+    } catch (error) {
+        console.error('Error displaying photos:', error);
+        photoGrid.innerHTML = '<div class="error-message">Error loading photos</div>';
     }
-    
-    // Clear existing content
-    container.innerHTML = '';
-    
-    // Create grid for photos
-    const grid = document.createElement('div');
-    grid.className = 'photo-grid';
-    
-    // Add each photo to the grid
-    photos.forEach(photo => {
-        const photoElement = document.createElement('div');
-        photoElement.className = 'photo-item';
-        
-        const img = document.createElement('img');
-        img.className = 'lazy';
-        img.dataset.src = photo.thumbnail;
-        img.alt = photo.title || photo.original.split('/').pop();
-        img.loading = 'lazy';
-        
-        // Add click handler for Fancybox
-        img.addEventListener('click', () => {
-            Fancybox.show([{
-                src: photo.medium,
-                type: 'image'
-            }]);
-        });
-
-        // Add load event listener
-        img.addEventListener('load', () => {
-            photoElement.classList.add('loaded');
-        });
-
-        photoElement.appendChild(img);
-        grid.appendChild(photoElement);
-    });
-    
-    container.appendChild(grid);
-    
-    // Initialize lazy loading
-    new LazyLoad({
-        elements_selector: '.lazy',
-        use_native: true,
-        callback_loaded: (el) => {
-            el.parentElement.classList.add('loaded');
-        }
-    });
-
-    // Initialize Masonry
-    initMasonry(grid);
 }
 
 function initMasonry(container) {
-    // Initialize Masonry first
     const masonry = new Masonry(container, {
         itemSelector: '.photo-item',
         columnWidth: '.photo-item',
@@ -651,20 +642,9 @@ function initMasonry(container) {
         initLayout: true
     });
 
-    // Then initialize imagesLoaded
-    imagesLoaded(container, function() {
-        // Re-layout Masonry after all images are loaded
+    // Re-layout when images load
+    imagesLoaded(container).on('progress', () => {
         masonry.layout();
-        
-        // Add load event listeners to individual images
-        const images = container.getElementsByTagName('img');
-        Array.from(images).forEach(img => {
-            if (!img.complete) {
-                img.addEventListener('load', () => {
-                    masonry.layout();
-                });
-            }
-        });
     });
 }
 
