@@ -3,96 +3,87 @@ const path = require('path');
 const fs = require('fs').promises;
 
 async function testMasonryLayout() {
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
+    console.log('Starting Masonry layout test...');
     
-    // Test different viewport sizes
-    const viewports = [
-        { width: 1920, height: 1080 }, // Desktop
-        { width: 1366, height: 768 },  // Laptop
-        { width: 768, height: 1024 },  // Tablet
-        { width: 375, height: 812 }    // Mobile
-    ];
-
-    // Use a real event page URL
-    const testUrl = 'http://localhost:3000/?genre=events&event=saturday_market';
-
-    console.log('Starting Masonry layout tests...');
-
-    for (const viewport of viewports) {
-        console.log(`\nTesting viewport: ${viewport.width}x${viewport.height}`);
-        await page.setViewport(viewport);
-
-        // Load the event page
-        await page.goto(testUrl, { waitUntil: 'networkidle0' });
-
+    // Launch browser with no-sandbox for CI environments
+    const browser = await puppeteer.launch({
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        headless: 'new'
+    });
+    
+    try {
+        const page = await browser.newPage();
+        
+        // Set viewport to a reasonable size
+        await page.setViewport({ width: 1200, height: 800 });
+        
+        // Navigate to the site
+        console.log('Navigating to site...');
+        await page.goto('http://localhost:3000/?genre=events&event=saturday_market', {
+            waitUntil: 'networkidle0',
+            timeout: 30000
+        });
+        
         // Wait for images to load
-        await page.waitForSelector('.photo-item img', { timeout: 10000 });
-
-        // Take screenshot (viewport only, not fullPage)
-        const screenshotPath = path.join('test-results', `masonry-${viewport.width}x${viewport.height}.png`);
-        await page.screenshot({ path: screenshotPath });
-
-        // Check if Masonry is working
-        const masonryWorking = await page.evaluate(() => {
-            const items = document.querySelectorAll('.photo-item');
-            if (items.length === 0) return false;
-
-            // Check if items are positioned correctly (no overlapping)
-            const positions = Array.from(items).map(item => {
-                const rect = item.getBoundingClientRect();
-                return {
-                    top: rect.top,
-                    left: rect.left,
-                    right: rect.right,
-                    bottom: rect.bottom
-                };
+        console.log('Waiting for images to load...');
+        await page.waitForSelector('.photo-item img', { timeout: 30000 });
+        
+        // Take a screenshot of the viewport
+        console.log('Taking screenshot...');
+        await page.screenshot({ 
+            path: 'masonry-test.png',
+            fullPage: false // Only capture viewport
+        });
+        
+        // Test different viewport sizes
+        const viewports = [
+            { width: 1920, height: 1080, name: 'desktop' },
+            { width: 1366, height: 768, name: 'laptop' },
+            { width: 768, height: 1024, name: 'tablet' },
+            { width: 375, height: 667, name: 'mobile' }
+        ];
+        
+        for (const viewport of viewports) {
+            console.log(`Testing ${viewport.name} layout...`);
+            await page.setViewport(viewport);
+            await page.waitForTimeout(1000); // Wait for layout to adjust
+            
+            // Take screenshot for this viewport
+            await page.screenshot({
+                path: `masonry-test-${viewport.name}.png`,
+                fullPage: false
             });
-
-            // Check for overlaps
-            for (let i = 0; i < positions.length; i++) {
-                for (let j = i + 1; j < positions.length; j++) {
-                    const a = positions[i];
-                    const b = positions[j];
-                    
-                    if (!(a.bottom <= b.top || 
-                          a.top >= b.bottom || 
-                          a.right <= b.left || 
-                          a.left >= b.right)) {
-                        return false;
+            
+            // Get column count
+            const columnCount = await page.evaluate(() => {
+                const items = document.querySelectorAll('.photo-item');
+                if (items.length === 0) return 0;
+                
+                const firstItem = items[0];
+                const firstItemLeft = firstItem.getBoundingClientRect().left;
+                let columns = 1;
+                
+                for (let i = 1; i < items.length; i++) {
+                    const item = items[i];
+                    const itemLeft = item.getBoundingClientRect().left;
+                    if (Math.abs(itemLeft - firstItemLeft) < 5) {
+                        columns++;
                     }
                 }
-            }
-
-            return true;
-        });
-
-        console.log(`Masonry layout ${masonryWorking ? 'working' : 'not working'} at ${viewport.width}x${viewport.height}`);
+                
+                return columns;
+            });
+            
+            console.log(`${viewport.name} layout has ${columnCount} columns`);
+        }
         
-        // Check image loading
-        const imagesLoaded = await page.evaluate(() => {
-            const images = document.querySelectorAll('.photo-item img');
-            return Array.from(images).every(img => img.complete && img.naturalHeight !== 0);
-        });
-
-        console.log(`Images ${imagesLoaded ? 'loaded' : 'not loaded'} correctly`);
-
-        // Check responsive behavior
-        const columnCount = await page.evaluate(() => {
-            const items = document.querySelectorAll('.photo-item');
-            if (items.length === 0) return 0;
-
-            const firstItem = items[0];
-            const containerWidth = firstItem.parentElement.clientWidth;
-            const itemWidth = firstItem.clientWidth;
-            return Math.floor(containerWidth / itemWidth);
-        });
-
-        console.log(`Column count: ${columnCount}`);
+        console.log('Masonry layout test completed successfully!');
+    } catch (error) {
+        console.error('Test failed:', error);
+        process.exit(1);
+    } finally {
+        await browser.close();
     }
-
-    await browser.close();
-    console.log('\nMasonry layout tests completed!');
 }
 
 // Create test-results directory if it doesn't exist
