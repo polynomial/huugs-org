@@ -1,14 +1,32 @@
 /**
- * Photography Collection App
+ * Huugs Media Photography Collection App
  * 
- * Handles loading genres, events, and photos
+ * Handles loading collections, events, and photos
  * with Fancybox integration for the lightbox view
  */
 
+console.log('App.js loaded');
+
 document.addEventListener('DOMContentLoaded', function() {
-  // Initialize app based on current page
+  console.log('DOM Content Loaded');
+  // Initialize app based on current URL
   initApp();
 });
+
+/**
+ * Helper function to track events in Google Analytics
+ */
+function trackEvent(eventCategory, eventAction, eventLabel) {
+  if (typeof gtag === 'function') {
+    console.log(`Tracking event: ${eventCategory} - ${eventAction} - ${eventLabel}`);
+    gtag('event', eventAction, {
+      'event_category': eventCategory,
+      'event_label': eventLabel
+    });
+  } else {
+    console.warn('Google Analytics not available for tracking');
+  }
+}
 
 /**
  * Initialize the app based on the current URL
@@ -24,16 +42,19 @@ function initApp() {
     // Event page - show photos
     const genre = urlParams.get('genre');
     const event = urlParams.get('event');
-    console.log(`Initializing event page: genre=${genre}, event=${event}`);
+    console.log(`Initializing event page: collection=${genre}, event=${event}`);
+    trackEvent('Navigation', 'View Event', `${genre}/${event}`);
     initEventPage(genre, event);
   } else if (urlParams.has('genre')) {
-    // Genre page - show events
+    // Collection page - show events
     const genre = urlParams.get('genre');
-    console.log(`Initializing genre page: genre=${genre}`);
+    console.log(`Initializing collection page: collection=${genre}`);
+    trackEvent('Navigation', 'View Collection', genre);
     initGenrePage(genre);
   } else {
-    // Home page - show genres
+    // Home page - show collections
     console.log("Initializing home page");
+    trackEvent('Navigation', 'View Home', 'All Collections');
     initHomePage();
   }
   
@@ -49,6 +70,19 @@ function initApp() {
         trapFocus: true,
         autoFocus: true,
         placeFocusBack: true,
+        // Track when Fancybox opens a photo
+        on: {
+          done: (fancybox, slide) => {
+            const photoUrl = slide.src || '';
+            const photoName = photoUrl.split('/').pop();
+            trackEvent('Photo', 'View Enlarged', photoName);
+          },
+          error: (fancybox, slide, error) => {
+            console.log("Fancybox error loading slide:", slide, error);
+            // Replace the src with a placeholder if there's an error
+            slide.src = 'thumbnails/placeholder.jpg';
+          }
+        }
       });
       console.log("Fancybox initialized");
     } else {
@@ -60,48 +94,57 @@ function initApp() {
 }
 
 /**
- * Initialize the home page with all photo genres
+ * Initialize the home page with all photo collections
  */
 function initHomePage() {
+  console.log('Initializing home page...');
   const genreGrid = document.getElementById('genre-grid');
-  if (!genreGrid) return;
+  if (!genreGrid) {
+    console.error('Genre grid element not found');
+    return;
+  }
   
+  console.log('Loading gallery configuration...');
   // Load the gallery configuration
   fetch('./js/gallery-config.json')
     .then(response => {
+      console.log('Gallery config response:', response.status, response.statusText);
       if (!response.ok) {
-        throw new Error('Gallery config not found');
+        throw new Error(`Gallery config not found: ${response.status} ${response.statusText}`);
       }
       return response.json();
     })
     .then(config => {
-      // Get unique genres from the config
+      console.log('Gallery config loaded:', config);
+      // Get unique collections from the config
       const genres = getGenresFromConfig(config);
+      console.log('Found genres:', genres);
       displayGenres(genres, genreGrid);
     })
     .catch(error => {
       console.error('Error loading gallery config:', error);
+      genreGrid.innerHTML = `<p>Error loading collections: ${error.message}</p>`;
       // Scan directories directly as a fallback
       scanDirectories();
     });
 }
 
 /**
- * Load all genres from the configuration
+ * Load all collections from the configuration
  */
 function loadAllGenres() {
-  console.log('Loading all genres');
+  console.log('Loading all collections');
   
   const genreContainer = document.getElementById('genre-container');
   if (!genreContainer) {
-    console.error('Genre container not found');
+    console.error('Collection container not found');
     return;
   }
   
-  // Get the grid to add genres to
+  // Get the grid to add collections to
   const genreGrid = document.getElementById('genre-grid');
   if (!genreGrid) {
-    console.error('Genre grid not found');
+    console.error('Collection grid not found');
     return;
   }
   
@@ -109,16 +152,16 @@ function loadAllGenres() {
   fetch('./js/gallery-config.json')
     .then(response => response.json())
     .then(config => {
-      // Process galleries to get unique genres
+      // Process galleries to get unique collections
       const genres = getGenresFromConfig(config);
-      console.log(`Found ${genres.length} genres`);
+      console.log(`Found ${genres.length} collections`);
       
       if (genres.length === 0) {
-        genreGrid.innerHTML = '<p>No photo genres found. Add photos to the "pics" directory.</p>';
+        genreGrid.innerHTML = '<p>No photo collections found. Add photos to the "pics" directory.</p>';
         return;
       }
       
-      // Add each genre to the grid
+      // Add each collection to the grid
       genres.forEach(genre => {
         // Skip the test gallery
         if (genre.id === 'test-gallery') {
@@ -153,354 +196,274 @@ function loadAllGenres() {
     })
     .catch(error => {
       console.error('Error loading gallery config:', error);
-      genreGrid.innerHTML = '<p>Error loading genres. Please try again later.</p>';
+      genreGrid.innerHTML = '<p>Error loading collections. Please try again later.</p>';
     });
 }
 
 /**
- * Extract unique genres from the configuration
+ * Extract unique collections from the configuration
  */
 function getGenresFromConfig(config) {
-  if (!config.galleries) return [];
+  console.log('Getting genres from config:', config);
+  if (!config.galleries) {
+    console.error('No galleries found in config');
+    return [];
+  }
   
   const genres = new Map();
   
   // Process each gallery
-  Object.keys(config.galleries).forEach(galleryPath => {
-    const pathParts = galleryPath.split('/');
+  Object.keys(config.galleries).forEach(galleryId => {
+    const gallery = config.galleries[galleryId];
+    console.log(`Processing gallery: ${galleryId}`, gallery);
     
-    // Skip if the path doesn't have the expected format
-    if (pathParts.length < 2 || pathParts[0] !== 'pics') {
+    // Skip if not a valid gallery
+    if (!gallery || !gallery.events) {
+      console.warn(`Invalid gallery: ${galleryId}`);
       return;
     }
     
-    // Extract genre from the path (second segment after 'pics')
-    const genreId = pathParts[1];
-    
-    // Skip the test gallery
-    if (genreId === 'test-gallery') {
-      return;
-    }
-    
-    // Add genre if not already added
-    if (!genres.has(genreId)) {
-      // Find a cover image from the first gallery of this genre
-      const gallery = config.galleries[galleryPath];
-      const coverImage = gallery.images && gallery.images.length > 0 ?
-                         `./${gallery.images[0].thumbnail}` : 
-                         './thumbnails/placeholder.jpg';
+    // Add collection if not already added
+    if (!genres.has(galleryId)) {
+      // Find a cover image from the first event's first photo
+      let coverImage = './thumbnails/placeholder.jpg';
+      const firstEvent = Object.values(gallery.events)[0];
+      if (firstEvent && firstEvent.photos && firstEvent.photos.length > 0) {
+        coverImage = firstEvent.photos[0].thumbnail;
+      }
       
-      genres.set(genreId, {
-        id: genreId,
-        title: toTitleCase(genreId.replace(/-/g, ' ')),
-        path: galleryPath,
+      genres.set(galleryId, {
+        id: galleryId,
+        title: gallery.title || toTitleCase(galleryId.replace(/_/g, ' ')),
+        path: galleryId,
         cover: coverImage
       });
       
-      console.log(`Added genre: ${genreId}`);
+      console.log(`Added collection: ${galleryId}`, genres.get(galleryId));
     }
   });
   
-  return Array.from(genres.values());
+  // Convert map to array and return
+  const result = Array.from(genres.values());
+  console.log('Final genres array:', result);
+  return result;
 }
 
 /**
- * Display the genre cards on the home page
+ * Display collections in a grid
  */
 function displayGenres(genres, container) {
-  if (genres.length === 0) {
-    container.innerHTML = '<p>No photo genres found. Add photos to the "pics" directory.</p>';
+  console.log('Displaying genres:', genres);
+  if (!genres || genres.length === 0) {
+    console.warn('No genres to display');
+    container.innerHTML = '<p>No photo collections found. Add photos to the "pics" directory.</p>';
     return;
   }
   
-  // Clear the container
+  // Clear existing content
   container.innerHTML = '';
   
-  // Add each genre card
+  // Create grid for collections
+  const grid = document.createElement('div');
+  grid.className = 'genre-grid';
+  
+  // Add each collection to the grid
   genres.forEach(genre => {
-    const card = document.createElement('a');
-    card.href = `?genre=${genre.id}`;
+    console.log('Creating card for genre:', genre);
+    const card = document.createElement('div');
     card.className = 'genre-card';
     
-    // Create card HTML
-    card.innerHTML = `
-      <img src="${genre.cover}" alt="${genre.title}">
-      <div class="genre-info">
-        <h2 class="genre-title">${genre.title}</h2>
-        <p class="genre-count">${genre.count} ${genre.count === 1 ? 'event' : 'events'}</p>
-      </div>
-    `;
+    const link = document.createElement('a');
+    link.href = `?genre=${genre.id}`;
     
-    container.appendChild(card);
+    const img = document.createElement('img');
+    img.className = 'lazy';
+    img.dataset.src = genre.cover || './thumbnails/placeholder.jpg';
+    img.alt = genre.title;
+    
+    const title = document.createElement('h3');
+    title.textContent = genre.title;
+    
+    link.appendChild(img);
+    link.appendChild(title);
+    card.appendChild(link);
+    grid.appendChild(card);
   });
+  
+  container.appendChild(grid);
+  
+  // Initialize lazy loading for images
+  try {
+    new LazyLoad({
+      elements_selector: '.lazy',
+      use_native: true
+    });
+    console.log('Lazy loading initialized');
+  } catch (error) {
+    console.error('Error initializing lazy loading:', error);
+  }
 }
 
 /**
- * Find a cover image for a genre
+ * Find a cover image for a collection
  */
 function findCoverImage(config, genre) {
-  // Try to find a good cover image from the galleries
-  for (const galleryId in config.galleries) {
-    if (galleryId.includes(`/pics/${genre}/`)) {
-      const gallery = config.galleries[galleryId];
+  // Look through galleries for this collection
+  for (const galleryPath in config.galleries) {
+    if (galleryPath.includes(`/pics/${genre}/`)) {
+      const gallery = config.galleries[galleryPath];
       if (gallery.images && gallery.images.length > 0) {
-        // Use the first image from the first gallery as the cover
-        return `./${gallery.images[0].thumbnail}`;
+        return gallery.images[0].thumbnail;
       }
     }
   }
   
-  // Fallback to a placeholder
-  return `./thumbnails/pics/${genre}/placeholder.jpg`;
+  return './thumbnails/placeholder.jpg';
 }
 
 /**
- * Initialize the genre page - show events for a genre
+ * Initialize the collection page - show events
  */
 function initGenrePage(genreId) {
-  console.log(`Initializing genre page for genre=${genreId}`);
+  console.log(`Initializing collection page: ${genreId}`);
   
   // Hide other containers and show event container
   hideAllContainers();
   showContainer('event-container');
   
   // Update page title
-  document.title = `${toTitleCase(genreId)} Events`;
+  document.title = `${toTitleCase(genreId)} - Huugs Media`;
   
-  // Update genre title
+  // Update collection title
   const genreTitle = document.getElementById('genre-title');
   if (genreTitle) {
     genreTitle.textContent = toTitleCase(genreId);
   }
   
-  // Add back button to home page
+  // Set up back button
   const backButton = document.getElementById('back-button');
   if (backButton) {
     backButton.style.display = 'block';
     backButton.onclick = () => {
       window.location.href = '/';
     };
-    backButton.querySelector('span').textContent = 'Back to Genres';
   }
   
-  // Load events for this genre
+  // Load events for this collection
   loadGenreEvents(genreId);
 }
 
 /**
- * Load events for a specific genre
+ * Load events for a collection
  */
 function loadGenreEvents(genreId) {
-  console.log(`Loading events for genre: ${genreId}`);
+  console.log(`Loading events for collection: ${genreId}`);
   
-  // Clear previous event content
-  const eventContainer = document.querySelector('#event-container');
-  if (!eventContainer) {
-    console.error('Event container not found');
+  const eventList = document.getElementById('event-list');
+  if (!eventList) {
+    console.error('Event list container not found');
     return;
   }
   
-  // Create event list container if it doesn't exist
-  let eventList = document.getElementById('event-list');
-  if (!eventList) {
-    eventList = document.createElement('div');
-    eventList.id = 'event-list';
-    eventList.className = 'event-grid';
-    eventContainer.appendChild(eventList);
-  } else {
-    eventList.innerHTML = '';
-  }
+  // Clear previous content
+  eventList.innerHTML = '';
   
-  // Get events for this genre from config
+  // Get gallery configuration
   fetch('./js/gallery-config.json')
     .then(response => response.json())
     .then(config => {
+      // Get events for this collection
       const events = getEventsFromConfig(config, genreId);
-      console.log(`Retrieved ${events.length} events for genre ${genreId}`);
+      console.log(`Found ${events.length} events for collection ${genreId}`);
       
       if (events.length === 0) {
-        eventList.innerHTML = `<p>No events found for ${toTitleCase(genreId)}. Add photos to the 'pics/${genreId}' directory.</p>`;
+        eventList.innerHTML = `<p>No events found for ${toTitleCase(genreId)}. Add photos to the "pics/${genreId}" directory.</p>`;
         return;
       }
       
-      // Add events to grid
-      events.forEach(event => {
-        const eventDiv = document.createElement('div');
-        eventDiv.className = 'event-item';
-        
-        const link = document.createElement('a');
-        link.href = `?genre=${genreId}&event=${event.id}`;
-        
-        const img = document.createElement('img');
-        img.className = 'lazy event-thumbnail';
-        img.dataset.src = event.cover;
-        img.alt = event.title;
-        
-        const title = document.createElement('h3');
-        title.textContent = event.title;
-        
-        const count = document.createElement('span');
-        count.className = 'photo-count';
-        count.textContent = `${event.count} photos`;
-        
-        link.appendChild(img);
-        link.appendChild(title);
-        link.appendChild(count);
-        eventDiv.appendChild(link);
-        eventList.appendChild(eventDiv);
-      });
-      
-      // Initialize lazy loading for images
-      new LazyLoad({
-        elements_selector: '.lazy',
-        use_native: true
-      });
+      // Display events
+      displayEvents(events, eventList, genreId);
     })
     .catch(error => {
       console.error('Error loading gallery config:', error);
-      eventList.innerHTML = `<p>Error loading events: ${error.message}</p>`;
+      eventList.innerHTML = '<p>Error loading events. Please try again later.</p>';
     });
 }
 
 /**
- * Extract events for a genre from the config
+ * Extract events for a collection from the config
  */
 function getEventsFromConfig(config, genreId) {
-  if (!config.galleries) return [];
+  if (!config.galleries || !config.galleries[genreId]) return [];
   
   const events = new Map();
-  const genrePath = `pics/${genreId}`;
+  const gallery = config.galleries[genreId];
   
-  console.log(`Looking for events in genre: ${genreId}`);
-  const galleryKeys = Object.keys(config.galleries);
-  console.log(`Available galleries:`, galleryKeys);
+  console.log(`Looking for events in collection: ${genreId}`);
   
-  // Simple fix - directly extract 'best' event if we know it exists
-  if (genreId === 'track' && galleryKeys.includes('pics/track/best')) {
-    console.log('Found track/best directly from config');
-    const galleryId = 'pics/track/best';
-    const gallery = config.galleries[galleryId];
-    
-    if (gallery && gallery.images && gallery.images.length > 0) {
-      events.set('best', {
-        id: 'best',
-        title: 'Best',
-        path: galleryId,
-        cover: `./${gallery.images[0].thumbnail}`,
-        count: gallery.images.length
+  // Process each event in the gallery
+  Object.entries(gallery.events).forEach(([eventId, event]) => {
+    if (event && event.photos && event.photos.length > 0) {
+      events.set(eventId, {
+        id: eventId,
+        title: event.title || toTitleCase(eventId.replace(/_/g, ' ')),
+        path: `${genreId}/${eventId}`,
+        cover: event.photos[0].thumbnail,
+        count: event.photos.length
       });
       
-      console.log(`Added event: Best with ${gallery.images.length} images`);
+      console.log(`Added event: ${eventId} with ${event.photos.length} photos`);
     }
-    
-    return Array.from(events.values());
-  }
-  
-  // First, directly check if there are any galleries that match our pattern
-  let foundEvents = false;
-  
-  for (const galleryId of galleryKeys) {
-    console.log(`Checking gallery: ${galleryId}`);
-    
-    // Check if this is a direct match to the genre or subdirectory
-    if (galleryId === genrePath || galleryId.startsWith(genrePath + '/')) {
-      console.log(`Found match: ${galleryId}`);
-      foundEvents = true;
-      
-      // Extract event name from path
-      const pathParts = galleryId.split('/');
-      let eventId;
-      
-      if (pathParts.length >= 3) {
-        eventId = pathParts[2]; // e.g., "best" from "pics/track/best"
-      } else {
-        eventId = "general"; // Default event name if it's directly in the genre folder
-      }
-      
-      console.log(`Extracted event ID: ${eventId}`);
-      
-      if (!events.has(eventId)) {
-        // Find a cover image
-        const coverImage = config.galleries[galleryId].images && 
-                          config.galleries[galleryId].images.length > 0 ?
-                          `./${config.galleries[galleryId].images[0].thumbnail}` :
-                          './thumbnails/placeholder.jpg';
-        
-        const eventTitle = eventId === "general" ? "General" : toTitleCase(eventId.replace(/-/g, ' '));
-        
-        events.set(eventId, {
-          id: eventId,
-          title: eventTitle,
-          path: galleryId,
-          cover: coverImage,
-          count: config.galleries[galleryId].images ? config.galleries[galleryId].images.length : 0
-        });
-        
-        console.log(`Added event: ${eventTitle} with ${events.get(eventId).count} images`);
-      }
-    }
-  }
-  
-  // If no events were found using the normal method, try a fallback approach
-  if (!foundEvents) {
-    console.log("No events found with standard approach, trying fallback...");
-    
-    // Manual fallback for track genre
-    if (genreId === 'track') {
-      console.log("Using hardcoded fallback for track genre");
-      
-      // Find any gallery path that contains track/best
-      const bestGallery = galleryKeys.find(path => path.includes('track/best'));
-      
-      if (bestGallery) {
-        const gallery = config.galleries[bestGallery];
-        
-        events.set('best', {
-          id: 'best',
-          title: 'Best',
-          path: bestGallery,
-          cover: gallery.images && gallery.images.length > 0 
-                 ? `./${gallery.images[0].thumbnail}` 
-                 : './thumbnails/placeholder.jpg',
-          count: gallery.images ? gallery.images.length : 0
-        });
-        
-        console.log(`Added event (manual fallback): Best with ${gallery.images.length} images`);
-      }
-    }
-  }
+  });
   
   return Array.from(events.values());
 }
 
 /**
- * Display event cards for a genre
+ * Display events in a grid
  */
 function displayEvents(events, container, genreId) {
   if (!events || events.length === 0) {
-    container.innerHTML = `<p>No events found for ${genreId ? toTitleCase(genreId) : 'this genre'}. Add photos to the ${genreId ? `"pics/${genreId}"` : ''} directory.</p>`;
+    container.innerHTML = '<p>No events found.</p>';
     return;
   }
   
-  // Clear the container
+  // Clear existing content
   container.innerHTML = '';
   
-  // Add each event card
+  // Create grid for events
+  const grid = document.createElement('div');
+  grid.className = 'event-grid';
+  
+  // Add each event to the grid
   events.forEach(event => {
-    const card = document.createElement('a');
-    card.href = `?genre=${genreId}&event=${event.id}`;
+    const card = document.createElement('div');
     card.className = 'event-card';
     
-    // Create card HTML
-    card.innerHTML = `
-      <img src="${event.cover}" alt="${event.title}">
-      <div class="event-info">
-        <h3 class="event-title">${event.title}</h3>
-        <p class="event-count">${event.count} ${event.count === 1 ? 'photo' : 'photos'}</p>
-      </div>
-    `;
+    const link = document.createElement('a');
+    link.href = `?genre=${genreId}&event=${event.id}`;
     
-    container.appendChild(card);
+    const img = document.createElement('img');
+    img.className = 'lazy';
+    img.dataset.src = event.cover;
+    img.alt = event.title;
+    
+    const info = document.createElement('div');
+    info.className = 'event-info';
+    info.innerHTML = `<h3 class="event-title">${event.title}</h3>`;
+    
+    link.appendChild(img);
+    link.appendChild(info);
+    card.appendChild(link);
+    grid.appendChild(card);
+  });
+  
+  container.appendChild(grid);
+  
+  // Initialize lazy loading
+  new LazyLoad({
+    elements_selector: '.lazy',
+    use_native: true
   });
 }
 
@@ -508,480 +471,181 @@ function displayEvents(events, container, genreId) {
  * Initialize the event page - show photos for an event
  */
 function initEventPage(genreId, eventId) {
-  console.log(`Initializing event page for genre=${genreId}, event=${eventId}`);
+  console.log(`Initializing event page for collection=${genreId}, event=${eventId}`);
   
-  // Hide other containers and show event container
+  // Hide other containers
   hideAllContainers();
+  
+  // Show event container and photo container
   showContainer('event-container');
+  showContainer('photo-container');
   
   // Update page title
-  document.title = toTitleCase(eventId);
-  
-  // Update event title
-  const eventTitle = document.getElementById('event-title');
-  if (eventTitle) {
-    eventTitle.textContent = toTitleCase(eventId);
-  }
-  
-  // Add back button to genre page
-  const backButton = document.getElementById('back-button');
-  if (backButton) {
-    backButton.style.display = 'block';
-    backButton.onclick = () => {
-      window.location.href = `?genre=${genreId}`;
-    };
-    backButton.querySelector('span').textContent = `Back to ${toTitleCase(genreId)} Events`;
-  }
+  document.title = `${toTitleCase(genreId)} - ${toTitleCase(eventId)}`;
   
   // Load photos for this event
   loadEventPhotos(genreId, eventId);
 }
 
 /**
- * Load photos for a specific event
+ * Load photos for an event
  */
-function loadEventPhotos(genre, event) {
-  console.log(`Loading photos for event: ${genre}/${event}`);
-  const urlParams = new URLSearchParams(window.location.search);
+function loadEventPhotos(genreId, eventId) {
+  console.log(`Loading photos for event: ${genreId}/${eventId}`);
   
-  // Check for manually passed genre/event vs URL params
-  const genrePath = genre || urlParams.get('genre');
-  const eventPath = event || urlParams.get('event');
-  
-  if (!genrePath || !eventPath) {
-    console.error('Genre or event path is missing');
+  const photoGrid = document.getElementById('photo-grid');
+  if (!photoGrid) {
+    console.error('Photo grid container not found');
     return;
   }
   
-  const galleryPath = `pics/${genrePath}/${eventPath}`;
-  console.log(`Constructed gallery path: ${galleryPath}`);
+  // Clear previous content
+  photoGrid.innerHTML = '';
   
-  // Clear previous event content
-  const eventContainer = document.querySelector('#event-container');
-  if (!eventContainer) {
-    console.error('Event container not found');
-    return;
-  }
-  eventContainer.innerHTML = '';
-  
-  // Update event title
-  const eventTitle = document.querySelector('#event-title');
-  if (eventTitle) {
-    eventTitle.textContent = `${eventPath.charAt(0).toUpperCase() + eventPath.slice(1)}`;
-  }
-  
-  // Get photos for this event from config
+  // Get gallery configuration
   fetch('./js/gallery-config.json')
     .then(response => response.json())
     .then(config => {
-      const photos = getPhotosFromConfig(config, galleryPath);
-      console.log(`Retrieved ${photos.length} photos for gallery path ${galleryPath}`);
+      const photos = getPhotosFromConfig(config, genreId, eventId);
+      console.log(`Found ${photos.length} photos for event ${eventId}`);
       
       if (photos.length === 0) {
-        eventContainer.innerHTML = `<p>No photos found for ${eventPath}. Add photos to the '${galleryPath}' directory.</p>`;
+        photoGrid.innerHTML = `<p>No photos found for ${toTitleCase(eventId)}. Add photos to the "pics/${genreId}/${eventId}" directory.</p>`;
         return;
       }
       
-      // Create photo grid
-      const photoGrid = document.createElement('div');
-      photoGrid.className = 'photo-grid';
-      photoGrid.id = 'photos-grid'; // Add ID for potential reference
-      eventContainer.appendChild(photoGrid);
-      
-      // Add photos to grid
-      photos.forEach((photo, index) => {
-        const photoDiv = document.createElement('div');
-        photoDiv.className = 'photo-item';
-        
-        const link = document.createElement('a');
-        link.href = photo.medium;
-        link.setAttribute('data-fancybox', 'gallery');
-        link.setAttribute('data-caption', photo.title || `Photo ${index + 1}`);
-        
-        // Add EXIF orientation as a data attribute for Fancybox if available
-        if (photo.orientation) {
-          link.setAttribute('data-orientation', photo.orientation);
-        }
-        
-        const img = document.createElement('img');
-        img.className = 'lazy';
-        img.dataset.src = photo.thumbnail;
-        img.alt = photo.title || `Photo ${index + 1}`;
-        
-        // Apply CSS transform based on EXIF orientation if needed
-        if (photo.orientation && photo.orientation > 1) {
-          applyOrientationStyle(img, parseInt(photo.orientation));
-        }
-        
-        link.appendChild(img);
-        photoDiv.appendChild(link);
-        photoGrid.appendChild(photoDiv);
-      });
-      
-      // Initialize lazy loading for images
-      new LazyLoad({
-        elements_selector: '.lazy',
-        use_native: true
-      });
-      
-      // Initialize Fancybox for the gallery - MAKE SURE THIS RUNS AFTER ADDING PHOTOS
-      console.log('Attempting to initialize Fancybox for gallery...');
-      try {
-        if (typeof Fancybox !== 'undefined') {
-          // Destroy any existing Fancybox instances first
-          try {
-            Fancybox.destroy();
-          } catch (e) {
-            console.log('No previous Fancybox instance to destroy');
-          }
-          
-          // Initialize a new Fancybox instance
-          Fancybox.bind('[data-fancybox="gallery"]', {
-            loop: true,
-            buttons: ["zoom", "slideShow", "fullScreen", "download", "thumbs", "close"],
-            animationEffect: "fade",
-            transitionEffect: "fade",
-            preventCaptionOverlap: true,
-            hideScrollbar: true,
-            clickContent: 'next',
-            caption: function (fancybox, slide) {
-              return slide.caption || '';
-            },
-            Images: {
-              initialSize: 'fit',
-            },
-            on: {
-              ready: (fancybox) => {
-                // FIX 2: Added safety checks for carousel and slides
-                console.log('Fancybox ready event fired, applying orientation');
-                if (!fancybox || !fancybox.carousel) {
-                  console.warn('Fancybox ready event fired but carousel not available');
-                  return;
-                }
-                
-                // Apply orientation corrections to Fancybox images
-                const slides = fancybox.carousel.slides;
-                if (!slides || !slides.length) {
-                  console.warn('No slides found in Fancybox carousel');
-                  return;
-                }
-                
-                for (let i = 0; i < slides.length; i++) {
-                  const slide = slides[i];
-                  if (!slide || !slide.$trigger) continue;
-                  
-                  const orientation = slide.$trigger.dataset.orientation;
-                  if (orientation && orientation > 1) {
-                    if (!slide.$el) continue;
-                    
-                    const content = slide.$el.querySelector('.fancybox__content');
-                    if (content) {
-                      content.classList.add('contains-rotated-image');
-                      const img = content.querySelector('img');
-                      if (img) {
-                        applyOrientationStyle(img, parseInt(orientation));
-                      }
-                    }
-                  }
-                }
-              },
-              // Also ensure orientation is applied on slide change
-              "Carousel.change": function(fancybox, carousel, slideIndex) {
-                // FIX 2: Add safety checks for carousel and slides
-                if (!carousel || !carousel.slides) {
-                  console.warn('Carousel or slides not available during slide change');
-                  return;
-                }
-                
-                const slides = carousel.slides;
-                if (slideIndex < 0 || slideIndex >= slides.length) {
-                  console.warn('Invalid slide index during slide change');
-                  return;
-                }
-                
-                const slide = slides[slideIndex];
-                if (!slide || !slide.$trigger || !slide.$el) {
-                  console.warn('Slide or trigger not available during slide change');
-                  return;
-                }
-                
-                const orientation = slide.$trigger.dataset.orientation;
-                if (orientation && orientation > 1) {
-                  const content = slide.$el.querySelector('.fancybox__content');
-                  if (content) {
-                    content.classList.add('contains-rotated-image');
-                    const img = content.querySelector('img');
-                    if (img) {
-                      // Apply orientation after a small delay to ensure the DOM is ready
-                      setTimeout(() => {
-                        applyOrientationStyle(img, parseInt(orientation));
-                      }, 50);
-                    }
-                  }
-                }
-              }
-            }
-          });
-          console.log('Fancybox successfully initialized for gallery');
-        } else {
-          console.error('Fancybox is not defined - check if it is properly loaded');
-        }
-      } catch (e) {
-        console.error('Error initializing Fancybox:', e);
-      }
+      // Display photos
+      displayPhotos(photos, photoGrid);
     })
     .catch(error => {
       console.error('Error loading gallery config:', error);
-      eventContainer.innerHTML = `<p>Error loading photos: ${error.message}</p>`;
+      photoGrid.innerHTML = '<p>Error loading photos. Please try again later.</p>';
     });
+}
+
+/**
+ * Check if an image exists and return a promise with either the original URL or fallback
+ */
+function checkImageExists(imageUrl, fallbackUrl = 'thumbnails/placeholder.jpg') {
+  console.log("Checking if image exists:", imageUrl);
+  
+  return new Promise((resolve) => {
+    // Always resolve with original URL if it's already a placeholder
+    if (imageUrl.includes('placeholder.jpg')) {
+      resolve(imageUrl);
+      return;
+    }
+    
+    const img = new Image();
+    
+    // Set a timeout to prevent hanging on slow connections
+    const timeout = setTimeout(() => {
+      console.log(`Image load timeout for ${imageUrl}, using fallback`);
+      resolve(fallbackUrl);
+    }, 3000);
+    
+    img.onload = function() {
+      clearTimeout(timeout);
+      console.log(`Image exists: ${imageUrl}`);
+      resolve(imageUrl);
+    };
+    
+    img.onerror = function() {
+      clearTimeout(timeout);
+      console.log(`Image not found: ${imageUrl}, using fallback`);
+      resolve(fallbackUrl);
+    };
+    
+    // Start loading the image
+    img.src = imageUrl;
+  });
 }
 
 /**
  * Extract photos for an event from the config
  */
-function getPhotosFromConfig(config, galleryPath) {
-  console.log(`Looking for photos in gallery path: ${galleryPath}`);
-  console.log(`Available galleries:`, Object.keys(config.galleries));
-  
-  // Direct match
-  if (config.galleries && config.galleries[galleryPath]) {
-    console.log(`Found exact match for gallery: ${galleryPath}`);
-    const gallery = config.galleries[galleryPath];
-    if (!gallery.images) {
-      console.log(`Gallery exists but has no images`);
-      return [];
-    }
-    
-    console.log(`Found ${gallery.images.length} images in gallery`);
-    return gallery.images.map(image => ({
-      thumbnail: `./${image.thumbnail}`,
-      medium: `./${image.medium}`,
-      original: `./${image.original || image.medium}`,
-      title: image.title || '',
-      orientation: image.orientation || null
-    }));
+function getPhotosFromConfig(config, genreId, eventId) {
+  if (!config.galleries || !config.galleries[genreId] || !config.galleries[genreId].events[eventId]) {
+    return [];
   }
   
-  // Special handling for track/best
-  if (galleryPath === 'pics/track/best') {
-    console.log('Using special handling for track/best');
-    // Find a gallery that contains track/best
-    const galleryKeys = Object.keys(config.galleries);
-    const bestGallery = galleryKeys.find(path => path.includes('track/best'));
-    
-    if (bestGallery) {
-      console.log(`Found alternative gallery path: ${bestGallery}`);
-      const gallery = config.galleries[bestGallery];
-      if (!gallery.images) {
-        console.log(`Gallery exists but has no images`);
-        return [];
-      }
-      
-      console.log(`Found ${gallery.images.length} images in gallery`);
-      return gallery.images.map(image => ({
-        thumbnail: `./${image.thumbnail}`,
-        medium: `./${image.medium}`,
-        original: `./${image.original || image.medium}`,
-        title: image.title || '',
-        orientation: image.orientation || null
-      }));
-    }
-  }
+  const event = config.galleries[genreId].events[eventId];
+  if (!event.photos) return [];
   
-  console.log(`No matching gallery found for ${galleryPath}`);
-  return [];
+  return event.photos.map(photo => ({
+    id: photo.original.split('/').pop(),
+    title: photo.title,
+    original: photo.original,
+    thumbnail: photo.thumbnail,
+    medium: photo.medium
+  }));
 }
 
-/**
- * Display photos in the gallery grid, handling orientation correctly
- */
-function displayPhotos(photos, container) {
-  container.innerHTML = '';
-  
-  if (!photos || photos.length === 0) {
-    container.innerHTML = '<p>No photos found for this event.</p>';
-    return;
-  }
-  
-  // Create a gallery element for photos
-  const gallery = document.createElement('div');
-  gallery.className = 'photo-grid';
-  container.appendChild(gallery);
-  
-  // Add photos to the gallery
-  photos.forEach(photo => {
-    const photoDiv = document.createElement('div');
-    photoDiv.className = 'photo-item';
-    
-    const link = document.createElement('a');
-    link.href = photo.medium;
-    link.setAttribute('data-fancybox', 'gallery');
-    link.setAttribute('data-caption', photo.title || '');
-    
-    // Add EXIF orientation as a data attribute for Fancybox if available
-    if (photo.orientation) {
-      link.setAttribute('data-orientation', photo.orientation);
-    }
-    
-    const img = document.createElement('img');
-    img.className = 'lazy';
-    img.dataset.src = photo.thumbnail;
-    img.alt = photo.title || 'Photo';
-    
-    // Apply CSS transform based on EXIF orientation if needed
-    if (photo.orientation && photo.orientation > 1) {
-      applyOrientationStyle(img, parseInt(photo.orientation));
-    }
-    
-    link.appendChild(img);
-    photoDiv.appendChild(link);
-    gallery.appendChild(photoDiv);
-  });
-  
-  // Initialize LazyLoad for images
-  new LazyLoad({
-    elements_selector: '.lazy',
-    use_native: true
-  });
-  
-  // Initialize Fancybox for lightbox functionality
-  Fancybox.bind('[data-fancybox="gallery"]', {
-    caption: function (fancybox, slide) {
-      return slide.caption || '';
-    },
-    Images: {
-      initialSize: 'fit',
-    },
-    on: {
-      ready: function(fancybox) {
-        // Safety check - make sure carousel and slides exist
-        if (!fancybox || !fancybox.carousel || !fancybox.carousel.slides) {
-          console.warn('Fancybox ready event fired but carousel not available yet');
-          return;
-        }
+async function displayPhotos(photos) {
+    const photoGrid = document.getElementById('photo-grid');
+    photoGrid.innerHTML = '';
+
+    try {
+        // Load layout configuration
+        const response = await fetch('/images/metadata/layout-config.json');
+        const layoutConfig = await response.json();
         
-        console.log('Fancybox ready, processing slides for orientation');
-        try {
-          const slides = fancybox.carousel.slides;
-          for (let i = 0; i < slides.length; i++) {
-            const slide = slides[i];
-            // Make sure slide and trigger exist
-            if (slide && slide.$trigger) {
-              const orientation = slide.$trigger.dataset.orientation;
-              if (orientation && orientation > 1) {
-                // Wait for the content to be loaded
-                setTimeout(() => {
-                  if (slide.$el) {
-                    const content = slide.$el.querySelector('.fancybox__content');
-                    if (content) {
-                      const img = content.querySelector('img');
-                      if (img) {
-                        console.log(`Applying orientation ${orientation} to slide ${i}`);
-                        applyOrientationStyle(img, parseInt(orientation));
-                      }
-                    }
-                  }
-                }, 100); // Short delay to ensure DOM elements are available
-              }
+        // Create a map of image paths to their layout info
+        // Use the original relative path as the key
+        const layoutMap = new Map(layoutConfig.images.map(img => [img.relativePath.replace(/\\/g, '/'), img]));
+
+        // Create and append photo elements
+        photos.forEach(photo => {
+            // Try to find layout info by matching the end of the original path
+            const layoutInfo = Array.from(layoutMap.values()).find(img => {
+                return photo.original.endsWith(img.relativePath.replace(/\\/g, '/'));
+            });
+            if (!layoutInfo) {
+                console.warn(`No layout info found for ${photo.original}`);
+                return;
             }
-          }
-        } catch (error) {
-          console.error('Error applying orientation to Fancybox slides:', error);
-        }
-      },
-      // Also handle slide change events to ensure orientation is applied
-      "Carousel.change": function(fancybox, carousel, slideIndex) {
-        setTimeout(() => {
-          try {
-            const slide = carousel.slides[slideIndex];
-            if (slide && slide.$trigger) {
-              const orientation = slide.$trigger.dataset.orientation;
-              if (orientation && orientation > 1) {
-                const content = slide.$el.querySelector('.fancybox__content');
-                if (content) {
-                  const img = content.querySelector('img');
-                  if (img) {
-                    console.log(`Slide changed: applying orientation ${orientation} to slide ${slideIndex}`);
-                    applyOrientationStyle(img, parseInt(orientation));
-                  }
-                }
-              }
-            }
-          } catch (error) {
-            console.error('Error applying orientation on slide change:', error);
-          }
-        }, 100);
-      }
+
+            const photoItem = document.createElement('div');
+            photoItem.className = 'photo-item';
+            photoItem.style.width = '300px';
+            photoItem.style.height = 'auto';
+
+            const link = document.createElement('a');
+            link.href = `/images/mediums/${layoutInfo.hash}.jpg`;
+            link.setAttribute('data-fancybox', 'gallery');
+
+            const img = document.createElement('img');
+            img.src = `/images/thumbnails/${layoutInfo.hash}.jpg`;
+            img.alt = photo.title || '';
+            img.loading = 'lazy';
+
+            link.appendChild(img);
+            photoItem.appendChild(link);
+            photoGrid.appendChild(photoItem);
+        });
+
+        // Initialize Masonry with pre-calculated layout
+        initMasonry(photoGrid);
+    } catch (error) {
+        console.error('Error displaying photos:', error);
+        photoGrid.innerHTML = '<div class="error-message">Error loading photos</div>';
     }
-  });
 }
 
-/**
- * Apply the correct CSS transform for the EXIF orientation value
- * @param {HTMLElement} img - The image element to apply the transform to
- * @param {number} orientation - The EXIF orientation value (1-8)
- */
-function applyOrientationStyle(img, orientation) {
-  // FIX 3: Improve handling of EXIF orientation values
-  if (!orientation || orientation < 1 || orientation > 8) {
-    // Default to normal orientation if invalid
-    orientation = 1;
-  }
+function initMasonry(container) {
+    const masonry = new Masonry(container, {
+        itemSelector: '.photo-item',
+        columnWidth: '.photo-item',
+        percentPosition: true,
+        transitionDuration: '0.2s',
+        gutter: 10,
+        initLayout: true
+    });
 
-  // EXIF orientation values and their corresponding CSS transforms
-  // See: https://www.impulseadventure.com/photo/exif-orientation.html
-  const transforms = {
-    1: 'none',                 // Normal
-    2: 'scaleX(-1)',           // Flip horizontal
-    3: 'rotate(180deg)',       // Rotate 180°
-    4: 'scaleY(-1)',           // Flip vertical
-    5: 'scaleX(-1) rotate(90deg)',  // Flip horizontal and rotate 90° CW
-    6: 'rotate(90deg)',        // Rotate 90° CW
-    7: 'scaleX(-1) rotate(-90deg)', // Flip horizontal and rotate 90° CCW
-    8: 'rotate(-90deg)'        // Rotate 90° CCW
-  };
-  
-  if (transforms[orientation]) {
-    img.style.transform = transforms[orientation];
-    
-    // Add a data attribute to indicate this image has orientation applied
-    img.dataset.orientationApplied = orientation;
-    
-    // Special handling for portrait orientations (5-8)
-    if (orientation >= 5 && orientation <= 8) {
-      img.classList.add('rotated-image');
-      
-      // Check if we're in a Fancybox context
-      const isFancybox = img.closest('.fancybox__content') !== null;
-      if (isFancybox) {
-        img.classList.add('fancybox-rotated');
-        
-        // Get the parent content container and add a class for CSS targeting
-        const contentEl = img.closest('.fancybox__content');
-        if (contentEl) {
-          contentEl.classList.add('contains-rotated-image');
-        }
-      }
-    }
-  }
-}
-
-/**
- * Scan the pics directory as a fallback if config is not available
- */
-function scanDirectories() {
-  // This would be implemented if direct directory scanning is needed
-  // Not fully implemented as it's better to rely on the gallery-config.json
-  console.log('Directory scanning not implemented. Using placeholder data.');
-  
-  const genreGrid = document.getElementById('genre-grid');
-  if (!genreGrid) return;
-  
-  // Display placeholder message
-  genreGrid.innerHTML = `
-    <p>Could not load gallery configuration. Please ensure the thumbnail generation 
-    script has been run to create js/gallery-config.json.</p>
-  `;
+    // Re-layout when images load
+    imagesLoaded(container).on('progress', () => {
+        masonry.layout();
+    });
 }
 
 /**
@@ -1002,6 +666,12 @@ function showContainer(containerId) {
   const container = document.getElementById(containerId);
   if (container) {
     container.style.display = 'block';
+    if (containerId === 'event-container') {
+      const photoContainer = document.getElementById('photo-container');
+      if (photoContainer) {
+        photoContainer.style.display = 'block';
+      }
+    }
   } else {
     console.error(`Container with ID "${containerId}" not found`);
   }
@@ -1015,4 +685,22 @@ function toTitleCase(str) {
     .split('-')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
+}
+
+/**
+ * Scan the pics directory as a fallback if config is not available
+ */
+function scanDirectories() {
+  // This would be implemented if direct directory scanning is needed
+  // Not fully implemented as it's better to rely on the gallery-config.json
+  console.log('Directory scanning not implemented. Using placeholder data.');
+  
+  const genreGrid = document.getElementById('genre-grid');
+  if (!genreGrid) return;
+  
+  // Display placeholder message
+  genreGrid.innerHTML = `
+    <p>Could not load gallery configuration. Please ensure the thumbnail generation 
+    script has been run to create js/gallery-config.json.</p>
+  `;
 } 
