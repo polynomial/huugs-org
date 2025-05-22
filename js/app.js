@@ -716,9 +716,7 @@ function getPhotosFromConfig(config, galleryPath) {
   return [];
 }
 
-/**
- * Display photos in a gallery grid
- */
+// Display photos in the gallery
 function displayPhotos(photos, container) {
   if (!container) return;
   
@@ -730,107 +728,72 @@ function displayPhotos(photos, container) {
     return;
   }
   
-  // Create gallery wrapper
-  const galleryWrapper = document.createElement('div');
-  galleryWrapper.className = 'photo-gallery';
-  galleryWrapper.id = 'photo-gallery';
+  // Create a new Masonry instance
+  const masonry = new Masonry(container, {
+    itemSelector: '.photo-item',
+    columnWidth: '.photo-item',
+    percentPosition: true,
+    transitionDuration: '0.2s',
+    initLayout: false // Don't initialize layout until images are loaded
+  });
   
-  // Add gallery to the container
-  container.appendChild(galleryWrapper);
-  
-  // Now load each image
-  photos.forEach((photo, index) => {
-    const thumbnailSrc = photo.thumbnail || '';
-    const mediumSrc = photo.medium || photo.original || '';
-    const title = photo.title || `Photo ${index + 1}`;
-    
-    // Create column wrapper for consistent sizing
-    const photoWrapper = document.createElement('div');
-    photoWrapper.className = 'photo-item-wrapper';
-    
-    // Create photo item container
+  // Create and append photo items
+  photos.forEach(photo => {
     const photoItem = document.createElement('div');
     photoItem.className = 'photo-item';
-    photoItem.setAttribute('data-index', index);
     
-    // Create a link with fancybox data to open the lightbox
-    const link = document.createElement('a');
-    link.href = mediumSrc;
-    link.setAttribute('data-fancybox', 'gallery');
-    link.setAttribute('data-caption', title);
+    // Create loading placeholder
+    const placeholder = document.createElement('div');
+    placeholder.className = 'photo-placeholder';
+    photoItem.appendChild(placeholder);
     
-    // Create the image element with a placeholder before it loads
-    const loadingPlaceholder = document.createElement('div');
-    loadingPlaceholder.className = 'loading-placeholder';
-    loadingPlaceholder.innerHTML = `<span>${title}</span>`;
-    link.appendChild(loadingPlaceholder);
+    // Create image wrapper
+    const imgWrapper = document.createElement('div');
+    imgWrapper.className = 'photo-wrapper';
     
-    // Create actual image that will replace the placeholder when loaded
     const img = document.createElement('img');
     img.className = 'lazy';
-    img.dataset.src = thumbnailSrc;
-    img.alt = title;
+    img.alt = photo.title;
+    img.setAttribute('data-fancybox', 'gallery');
+    img.setAttribute('data-hd-src', photo.medium);
+    img.setAttribute('data-caption', photo.title);
     
-    // Handle successful image load
-    img.addEventListener('load', function() {
-      // Remove the placeholder when image loads
-      if (loadingPlaceholder && loadingPlaceholder.parentNode) {
-        loadingPlaceholder.parentNode.removeChild(loadingPlaceholder);
-      }
-    });
+    // Set low quality placeholder first
+    const thumbnailUrl = photo.thumbnail || '';
+    img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"%3E%3C/svg%3E';
+    img.setAttribute('data-src', thumbnailUrl);
     
-    // Handle image load error
-    img.addEventListener('error', function() {
-      // Keep the placeholder but update its style
-      loadingPlaceholder.className = 'error-placeholder';
-      loadingPlaceholder.innerHTML = `<span>${title}</span>`;
-      img.style.display = 'none';
-    });
+    // Calculate grid row span based on image aspect ratio
+    img.onload = function() {
+      const aspectRatio = this.naturalHeight / this.naturalWidth;
+      const rowSpan = Math.ceil(aspectRatio * 10);
+      photoItem.style.gridRowEnd = `span ${rowSpan}`;
+      
+      // Remove placeholder and show image
+      placeholder.remove();
+      imgWrapper.classList.add('loaded');
+      masonry.layout();
+    };
     
-    link.appendChild(img);
-    photoItem.appendChild(link);
-    photoWrapper.appendChild(photoItem);
-    galleryWrapper.appendChild(photoWrapper);
+    imgWrapper.appendChild(img);
+    photoItem.appendChild(imgWrapper);
+    container.appendChild(photoItem);
   });
   
   // Initialize lazy loading
-  new LazyLoad({
+  const lazyLoadInstance = new LazyLoad({
     elements_selector: '.lazy',
+    callback_loaded: function(el) {
+      el.classList.add('loaded');
+      masonry.layout();
+    },
     use_native: true
   });
   
-  // Initialize Fancybox
-  try {
-    Fancybox.bind("[data-fancybox='gallery']", {
-      animated: true,
-      on: {
-        error: (fancybox, slide, error) => {
-          console.log("Fancybox error loading slide:", slide, error);
-          // Replace the src with a placeholder if there's an error
-          slide.src = 'thumbnails/placeholder.jpg';
-        }
-      }
-    });
-  } catch (error) {
-    console.error("Error binding Fancybox to gallery:", error);
-  }
-  
-  // Initialize Masonry layout after images are loaded
-  try {
-    const gallery = document.getElementById('photo-gallery');
-    if (gallery) {
-      // Wait for all images to load
-      imagesLoaded(gallery, function() {
-        const masonry = new Masonry(gallery, {
-          itemSelector: '.photo-item-wrapper',
-          percentPosition: true
-        });
-        console.log('Masonry layout initialized');
-      });
-    }
-  } catch (error) {
-    console.error('Error initializing Masonry layout:', error);
-  }
+  // Initialize imagesLoaded to handle layout after all images are loaded
+  imagesLoaded(container).on('progress', function() {
+    masonry.layout();
+  });
 }
 
 /**
@@ -896,27 +859,5 @@ function initFancybox() {
       }
     },
     // ... existing Fancybox options ...
-  });
-}
-
-// Display photos in the gallery
-function displayPhotos(photos) {
-  const galleryContainer = document.getElementById('gallery-container');
-  galleryContainer.innerHTML = '';
-  
-  photos.forEach(photo => {
-    const photoItem = document.createElement('div');
-    photoItem.className = 'photo-item';
-    
-    const img = document.createElement('img');
-    img.src = photo.thumbnail;
-    img.alt = photo.title;
-    img.loading = 'lazy';
-    img.setAttribute('data-fancybox', 'gallery');
-    img.setAttribute('data-hd-src', photo.hd); // Use HD version for lightbox
-    img.setAttribute('data-caption', photo.title);
-    
-    photoItem.appendChild(img);
-    galleryContainer.appendChild(photoItem);
   });
 } 

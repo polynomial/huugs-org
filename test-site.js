@@ -9,8 +9,8 @@ const path = require('path');
 const { execSync } = require('child_process');
 
 // Configuration
-const PORT = 8989;
-const ROOT_DIR = process.cwd();
+const PORT = 3000;
+const ROOT_DIR = path.join(process.cwd(), 'public');
 
 // Pages to test
 const PAGES_TO_TEST = [
@@ -63,6 +63,10 @@ const REQUIRED_FUNCTIONS = [
 function startServer() {
   return new Promise((resolve, reject) => {
     try {
+      console.log(`Starting server with ROOT_DIR: ${ROOT_DIR}`);
+      console.log(`Checking if ROOT_DIR exists: ${fs.existsSync(ROOT_DIR)}`);
+      console.log(`ROOT_DIR contents: ${fs.readdirSync(ROOT_DIR).join(', ')}`);
+      
       const server = http.createServer((req, res) => {
         try {
           // Parse URL to get pathname
@@ -79,6 +83,7 @@ function startServer() {
           // Construct file path
           const filePath = path.join(ROOT_DIR, pathname.substring(1));
           console.log(`Looking for file: ${filePath}`);
+          console.log(`File exists: ${fs.existsSync(filePath)}`);
           
           // Check if file exists
           fs.access(filePath, fs.constants.F_OK, (err) => {
@@ -318,36 +323,53 @@ function validateGalleryConfig() {
     
     console.log(`✓ Found ${Object.keys(config.galleries).length} galleries in config`);
     
-    // Check for track/best gallery specifically
-    let trackBestGallery = null;
+    // Check for events/saturday_market gallery specifically
+    let eventsGallery = null;
     for (const galleryPath of Object.keys(config.galleries)) {
-      if (galleryPath.includes('track/best')) {
-        trackBestGallery = galleryPath;
+      if (galleryPath.includes('events')) {
+        eventsGallery = galleryPath;
         break;
       }
     }
     
-    if (!trackBestGallery) {
-      console.error('✗ Could not find track/best gallery in config');
+    if (!eventsGallery) {
+      console.error('✗ Could not find events gallery in config');
       return false;
     }
     
-    console.log(`✓ Found track/best gallery: ${trackBestGallery}`);
+    console.log(`✓ Found events gallery: ${eventsGallery}`);
     
-    // Check if gallery has images
-    const gallery = config.galleries[trackBestGallery];
-    if (!gallery.images || gallery.images.length === 0) {
-      console.error('✗ No images found in track/best gallery');
+    // Check if gallery has events
+    const gallery = config.galleries[eventsGallery];
+    if (!gallery.events || Object.keys(gallery.events).length === 0) {
+      console.error('✗ No events found in events gallery');
       return false;
     }
     
-    console.log(`✓ Found ${gallery.images.length} images in track/best gallery`);
+    console.log(`✓ Found ${Object.keys(gallery.events).length} events in events gallery`);
     
-    // Print the first few image paths from the gallery for debugging
-    console.log('Sample image paths from gallery:');
-    for (let i = 0; i < Math.min(3, gallery.images.length); i++) {
-      console.log(`  - Thumbnail: ${gallery.images[i].thumbnail}`);
-      console.log(`    Medium: ${gallery.images[i].medium}`);
+    // Check if saturday_market event exists
+    if (!gallery.events.saturday_market) {
+      console.error('✗ Could not find saturday_market event');
+      return false;
+    }
+    
+    console.log('✓ Found saturday_market event');
+    
+    // Check if event has photos
+    const event = gallery.events.saturday_market;
+    if (!event.photos || event.photos.length === 0) {
+      console.error('✗ No photos found in saturday_market event');
+      return false;
+    }
+    
+    console.log(`✓ Found ${event.photos.length} photos in saturday_market event`);
+    
+    // Print the first few image paths from the event for debugging
+    console.log('Sample image paths from event:');
+    for (let i = 0; i < Math.min(3, event.photos.length); i++) {
+      console.log(`  - Thumbnail: ${event.photos[i].thumbnail}`);
+      console.log(`    Medium: ${event.photos[i].medium}`);
     }
     
     return true;

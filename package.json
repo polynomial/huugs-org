@@ -1,22 +1,17 @@
 {
-  "name": "photos",
+  "name": "photo-gallery",
   "version": "1.0.0",
-  "description": "Photo gallery website with automatic image processing",
-  "main": "index.js",
+  "description": "Photo gallery website",
   "scripts": {
-    "start": "http-server -p 3000",
     "process-images": "node scripts/process-images.js",
-    "build": "npm run process-images"
+    "start": "npx http-server public -p 3000",
+    "test": "node scripts/test-gallery.js"
   },
   "dependencies": {
-    "glob": "^8.1.0",
-    "mkdirp": "^1.0.4",
-    "sharp": "^0.32.0"
+    "sharp": "^0.32.1"
   },
   "devDependencies": {
-    "http-server": "^14.1.1"
-  },
-  "engines": {
-    "node": ">=14.0.0"
+    "http-server": "^14.1.1",
+    "puppeteer": "^21.11.0"
   }
 }

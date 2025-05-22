@@ -89,7 +89,13 @@ async function processImage(imagePath, relativeImagePath) {
       .toFile(hdPath);
     
     // Add to gallery config
-    const galleryPath = path.dirname(relativeImagePath);
+    let galleryPath = path.dirname(relativeImagePath);
+    // Make galleryPath relative to 'pics/'
+    if (galleryPath.startsWith('pics/')) {
+      galleryPath = galleryPath.slice(5);
+    } else if (galleryPath === 'pics') {
+      galleryPath = '';
+    }
     if (!config.galleryConfig.galleries[galleryPath]) {
       config.galleryConfig.galleries[galleryPath] = {
         title: getNameFromPath(galleryPath),
