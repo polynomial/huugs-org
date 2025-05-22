@@ -9,12 +9,14 @@
     "process-images": "node scripts/process-images.js",
     "test": "node scripts/test-gallery.js",
     "test:masonry": "node scripts/test-masonry.js",
-    "build": "cp -r public dist"
+    "build": "cp -r public dist",
+    "monitor": "node scripts/monitor-workflow.js"
   },
   "dependencies": {
     "sharp": "^0.33.2",
     "glob": "^10.3.10",
-    "mkdirp": "^3.0.1"
+    "mkdirp": "^3.0.1",
+    "@octokit/rest": "^20.0.2"
   },
   "devDependencies": {
     "puppeteer": "^22.0.0"

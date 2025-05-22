@@ -85,11 +85,20 @@ jobs:
           name: processed-images
           path: public/images
 
-      - name: Start server
+      - name: Start server and wait for it
         run: |
           npm start &
-          sleep 5  # Give the server time to start
-          echo "Server started"
+          # Wait for server to be ready
+          for i in {1..30}; do
+            if curl -s http://localhost:3000 > /dev/null; then
+              echo "Server is ready!"
+              exit 0
+            fi
+            echo "Waiting for server to start... ($i/30)"
+            sleep 2
+          done
+          echo "Server failed to start within 60 seconds"
+          exit 1
 
       - name: Run gallery tests
         run: npm run test

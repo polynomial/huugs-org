@@ -2,8 +2,27 @@ const puppeteer = require('puppeteer');
 const path = require('path');
 const fs = require('fs').promises;
 
+async function waitForServer(url, maxAttempts = 30) {
+    for (let i = 0; i < maxAttempts; i++) {
+        try {
+            const response = await fetch(url);
+            if (response.ok) {
+                console.log('Server is ready!');
+                return true;
+            }
+        } catch (error) {
+            console.log(`Waiting for server... (${i + 1}/${maxAttempts})`);
+            await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+    }
+    throw new Error('Server failed to start within timeout period');
+}
+
 async function testMasonryLayout() {
     console.log('Starting Masonry layout test...');
+    
+    // Wait for server to be ready
+    await waitForServer('http://localhost:3000');
     
     // Launch browser with no-sandbox for CI environments
     const browser = await puppeteer.launch({
