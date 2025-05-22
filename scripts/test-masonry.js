@@ -50,7 +50,7 @@ async function testMasonryLayout() {
         // Take a screenshot of the viewport
         console.log('Taking screenshot...');
         await page.screenshot({ 
-            path: 'masonry-test.png',
+            path: 'build/results/masonry-test.png',
             fullPage: false // Only capture viewport
         });
         
@@ -69,7 +69,7 @@ async function testMasonryLayout() {
             
             // Take screenshot for this viewport
             await page.screenshot({
-                path: `masonry-test-${viewport.name}.png`,
+                path: `build/results/masonry-test-${viewport.name}.png`,
                 fullPage: false
             });
             

@@ -13,12 +13,12 @@
     "monitor": "node scripts/monitor-workflow.js"
   },
   "dependencies": {
-    "sharp": "^0.33.2",
+    "@octokit/rest": "^20.0.2",
     "glob": "^10.3.10",
     "mkdirp": "^3.0.1",
-    "@octokit/rest": "^20.0.2"
+    "sharp": "^0.33.2"
   },
   "devDependencies": {
-    "puppeteer": "^22.0.0"
+    "puppeteer": "^24.9.0"
   }
 }

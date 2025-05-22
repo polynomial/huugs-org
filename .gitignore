@@ -17,3 +17,6 @@ node_modules/
 # Generated build/development files
 public/
 screenshot.png
+
+# Ignore build results
+build/results/
