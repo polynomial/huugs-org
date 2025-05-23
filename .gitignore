@@ -103,6 +103,7 @@ jspm_packages/
 !public/images/
 !public/gallery-config.json
 !public/navigation.json
+!public/CNAME
 
 # Keep thumbnails and medium-sized images in the repository
 !thumbnails/
@@ -118,3 +119,4 @@ build/results/
 public/*
 !public/favicon.ico
 !public/index.html
+!public/CNAME
