@@ -1,24 +1,25 @@
 {
-  "name": "huugs-media",
+  "name": "huugs-media-photography",
   "version": "1.0.0",
-  "description": "Huugs Media Photography Collection",
+  "description": "Automated photography gallery website with masonry layout and Fancybox",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "start:clean": "pkill -f 'node server.js' || true && sleep 1 && node server.js",
     "process-images": "node scripts/process-images.js",
     "test": "node scripts/test-gallery.js",
-    "test:masonry": "node scripts/test-masonry.js",
-    "build": "cp -r public dist",
-    "monitor": "node scripts/monitor-workflow.js"
+    "test-deployment": "node scripts/test-deployment.js",
+    "build": "npm run process-images"
   },
   "dependencies": {
-    "@octokit/rest": "^20.0.2",
+    "express": "^5.1.0",
     "glob": "^10.3.10",
-    "mkdirp": "^3.0.1",
     "sharp": "^0.33.2"
   },
   "devDependencies": {
     "puppeteer": "^24.9.0"
-  }
-}
+  },
+  "keywords": ["photography", "gallery", "masonry", "responsive"],
+  "author": "Huugs Media",
+  "license": "MIT"
+} 

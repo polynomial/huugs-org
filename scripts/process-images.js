@@ -1,353 +1,260 @@
-/**
- * Image Processing Script
- * 
- * This script processes images in the pics/ directory:
- * 1. Reads EXIF orientation data
- * 2. Applies correct rotation
- * 3. Creates properly sized versions:
- *    - Thumbnails: 300px max dimension, stored in thumbnails/
- *    - Medium: 1200px max dimension, stored in medium/
- * 4. Generates gallery-config.json with metadata
- */
-
 const fs = require('fs').promises;
 const path = require('path');
 const sharp = require('sharp');
-const glob = require('glob');
-const { promisify } = require('util');
-const exec = promisify(require('child_process').exec);
-const crypto = require('crypto');
+const { glob } = require('glob');
 
 // Configuration
-const SOURCE_DIR = 'pics';
-const PUBLIC_DIR = 'public';
-const IMAGES_DIR = path.join(PUBLIC_DIR, 'images');
-const THUMBNAIL_DIR = path.join(IMAGES_DIR, 'thumbnails');
-const MEDIUM_DIR = path.join(IMAGES_DIR, 'medium');
-const ORIGINAL_DIR = path.join(IMAGES_DIR, 'original');
-const CONFIG_FILE = path.join(PUBLIC_DIR, 'js', 'gallery-config.json');
-const THUMBNAIL_SIZE = 300;
-const MEDIUM_SIZE = 1200;
-const QUALITY = 80;
-const SUPPORTED_FORMATS = ['.jpg', '.jpeg', '.png', '.JPG', '.JPEG', '.PNG'];
+const PICS_DIR = 'pics';
+const OUTPUT_DIR = 'public/images';
+const THUMBNAIL_SIZE = 400;
+const WEB_SIZE = 1080;
+const SUPPORTED_FORMATS = ['jpg', 'jpeg', 'png', 'webp', 'tiff', 'gif'];
 
-const config = {
-    thumbnailSize: { width: 300, height: 300 },
-    mediumSize: { width: 1200, height: 1200 },
-    quality: 80,
-    formats: ['jpg', 'jpeg', 'png'],
-    sourceDir: 'pics',
-    outputDirs: {
-        thumbnails: 'public/images/thumbnails',
-        mediums: 'public/images/mediums',
-        metadata: 'public/images/metadata'
+console.log('🖼️  Starting photo gallery processing...');
+
+// Create output directories
+async function createDirectories() {
+    const dirs = [
+        `${OUTPUT_DIR}/thumbnails`,
+        `${OUTPUT_DIR}/web`,
+        `${OUTPUT_DIR}/original`
+    ];
+    
+    for (const dir of dirs) {
+        await fs.mkdir(dir, { recursive: true });
     }
-};
-
-// Initialize stats for reporting
-const stats = {
-  processedImages: 0,
-  failedImages: 0,
-  totalSizeMB: 0,
-  thumbnailSizeMB: 0,
-  mediumSizeMB: 0
-};
-
-// Gallery config structure
-const galleryConfig = {
-  version: '1.0',
-  lastGenerated: new Date().toISOString(),
-  stats: {},
-  galleries: {}
-};
-
-/**
- * Find all images in the source directory
- */
-async function findImages(dir) {
-  const files = await fs.readdir(dir);
-  const imageFiles = [];
-
-  for (const file of files) {
-    const fullPath = path.join(dir, file);
-    const stat = await fs.stat(fullPath);
-
-    if (stat.isDirectory()) {
-      const subDirImages = await findImages(fullPath);
-      imageFiles.push(...subDirImages);
-    } else if (SUPPORTED_FORMATS.includes(path.extname(file).toLowerCase())) {
-      imageFiles.push(fullPath);
-    }
-  }
-
-  return imageFiles;
 }
 
-/**
- * Create output directories if they don't exist
- */
-async function createOutputDirs(imagePath) {
-  // Create thumbnail directory
-  const thumbnailPath = path.join(THUMBNAIL_DIR, imagePath);
-  const thumbnailDir = path.dirname(thumbnailPath);
-  await fs.mkdir(thumbnailDir, { recursive: true });
-  
-  // Create medium directory
-  const mediumPath = path.join(MEDIUM_DIR, imagePath);
-  const mediumDir = path.dirname(mediumPath);
-  await fs.mkdir(mediumDir, { recursive: true });
-
-  // Create original directory
-  const originalPath = path.join(ORIGINAL_DIR, imagePath);
-  const originalDir = path.dirname(originalPath);
-  await fs.mkdir(originalDir, { recursive: true });
-}
-
-/**
- * Process a single image
- * @param {string} inputPath
- * @param {string} relPath - relative path from SOURCE_DIR
- */
-async function processImage(inputPath, relPath) {
-  try {
-    const filename = path.basename(inputPath);
-    const thumbnailPath = path.join(THUMBNAIL_DIR, relPath);
-    const mediumPath = path.join(MEDIUM_DIR, relPath);
-    const originalPath = path.join(ORIGINAL_DIR, relPath);
-
-    // Ensure output directories exist
-    await createOutputDirs(relPath);
-
-    // Copy original image
-    await fs.copyFile(inputPath, originalPath);
-
-    // Read image metadata
-    const metadata = await sharp(inputPath).metadata();
-    console.log(`Processing ${relPath}: ${metadata.width}x${metadata.height}`);
-
-    // Create thumbnail
-    await sharp(inputPath)
-      .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE, {
-        fit: 'inside',
-        withoutEnlargement: true
-      })
-      .jpeg({ quality: QUALITY })
-      .toFile(thumbnailPath);
-
-    // Create medium-sized version
-    await sharp(inputPath)
-      .resize(MEDIUM_SIZE, MEDIUM_SIZE, {
-        fit: 'inside',
-        withoutEnlargement: true
-      })
-      .jpeg({ quality: QUALITY })
-      .toFile(mediumPath);
-
-    console.log(`✓ Created versions for ${relPath}`);
-    return true;
-  } catch (error) {
-    console.error(`Error processing ${inputPath}:`, error);
-    return false;
-  }
-}
-
-/**
- * Process all images and build gallery config
- */
-async function processAllImages() {
-  try {
-    console.log('Starting image processing...');
-    await ensureDirectories();
-
-    const images = await findImages(SOURCE_DIR);
-    console.log(`Found ${images.length} images to process`);
-
-    let successCount = 0;
-    let failCount = 0;
-    // Map: { [gallery]: { [event]: [photoObj, ...] } }
-    const galleries = {};
-
-    for (const image of images) {
-      // relPath: e.g. track/best/image.jpg
-      const relPath = path.relative(SOURCE_DIR, image);
-      const parts = relPath.split(path.sep);
-      if (parts.length < 2) continue; // skip images not in a subfolder
-      const gallery = parts[0];
-      const event = parts[1];
-      const eventKey = event;
-      const galleryKey = gallery;
-
-      // Process image
-      const success = await processImage(image, relPath);
-      if (success) {
-        successCount++;
-        // Add to config
-        if (!galleries[galleryKey]) {
-          galleries[galleryKey] = {
-            title: galleryKey.replace(/_/g, ' '),
-            events: {}
-          };
-        }
-        if (!galleries[galleryKey].events[eventKey]) {
-          galleries[galleryKey].events[eventKey] = {
-            title: eventKey.replace(/_/g, ' '),
-            photos: []
-          };
-        }
-        galleries[galleryKey].events[eventKey].photos.push({
-          original: `/images/original/${relPath}`,
-          thumbnail: `/images/thumbnails/${relPath}`,
-          medium: `/images/medium/${relPath}`,
-          title: path.basename(relPath, path.extname(relPath)).replace(/_/g, ' ')
-        });
-      } else {
-        failCount++;
-      }
-    }
-
-    // Update config
-    galleryConfig.galleries = galleries;
-    galleryConfig.stats = {
-      processedImages: successCount,
-      failedImages: failCount
-    };
-    galleryConfig.lastGenerated = new Date().toISOString();
-
-    // Write config file
-    const configDir = path.dirname(CONFIG_FILE);
-    await fs.mkdir(configDir, { recursive: true });
-    await fs.writeFile(
-      CONFIG_FILE,
-      JSON.stringify(galleryConfig, null, 2)
+// Get all image files from pics directory
+async function getImageFiles() {
+    const patterns = SUPPORTED_FORMATS.map(ext => 
+        `${PICS_DIR}/**/*.{${ext},${ext.toUpperCase()}}`
     );
-
-    console.log('\nProcessing complete!');
-    console.log(`Successfully processed: ${successCount} images`);
-    if (failCount > 0) {
-      console.log(`Failed to process: ${failCount} images`);
+    
+    let allFiles = [];
+    for (const pattern of patterns) {
+        const files = await glob(pattern);
+        allFiles = [...allFiles, ...files];
     }
-    console.log(`Gallery config written to ${CONFIG_FILE}`);
-  } catch (error) {
-    console.error('Error processing images:', error);
-  }
-}
-
-// Ensure directories exist
-async function ensureDirectories() {
-  for (const dir of Object.values(config.outputDirs)) {
-    await fs.mkdir(dir, { recursive: true });
-  }
-}
-
-// Run the script
-processAllImages().catch(console.error);
-
-// Generate a hash for the image to use as a cache key
-function generateImageHash(filePath) {
-    return crypto.createHash('md5').update(filePath).digest('hex');
+    
+    return allFiles.sort();
 }
 
 // Process a single image
-async function processImage(filePath, relativePath) {
+async function processImage(imagePath) {
+    const relativePath = path.relative(PICS_DIR, imagePath);
+    const pathParts = relativePath.split(path.sep);
+    const fileName = pathParts.pop();
+    const dirPath = pathParts.join('/');
+    
+    console.log(`🔄 Processing: ${relativePath}`);
+    
     try {
-        const image = sharp(filePath);
-        const metadata = await image.metadata();
-        const hash = generateImageHash(relativePath);
+        // Get image metadata
+        const metadata = await sharp(imagePath).metadata();
+        if (!metadata.width || !metadata.height) {
+            console.log(`⚠️  Skipping ${fileName}: Invalid image metadata`);
+            return null;
+        }
         
-        // Calculate aspect ratio and dimensions for layout
-        const aspectRatio = metadata.width / metadata.height;
-        const layoutInfo = {
-            originalWidth: metadata.width,
-            originalHeight: metadata.height,
-            aspectRatio,
-            hash,
-            relativePath
-        };
-
+        // Create output path structure
+        const outputBasePath = path.join(OUTPUT_DIR, dirPath);
+        await fs.mkdir(`${outputBasePath}/thumbnails`, { recursive: true });
+        await fs.mkdir(`${outputBasePath}/web`, { recursive: true });
+        await fs.mkdir(`${outputBasePath}/original`, { recursive: true });
+        
+        const baseName = path.parse(fileName).name;
+        const thumbnailPath = path.join(outputBasePath, 'thumbnails', `${baseName}.jpg`);
+        const webPath = path.join(outputBasePath, 'web', `${baseName}.jpg`);
+        const originalPath = path.join(outputBasePath, 'original', fileName);
+        
         // Generate thumbnail
-        const thumbnailPath = path.join(config.outputDirs.thumbnails, `${hash}.jpg`);
-        await image
-            .clone()
-            .resize(config.thumbnailSize.width, config.thumbnailSize.height, {
-                fit: 'cover',
-                position: 'center'
-            })
-            .jpeg({ quality: config.quality })
-            .toFile(thumbnailPath);
-
-        // Generate medium size
-        const mediumPath = path.join(config.outputDirs.mediums, `${hash}.jpg`);
-        await image
-            .clone()
-            .resize(config.mediumSize.width, config.mediumSize.height, {
+        await sharp(imagePath)
+            .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE, { 
                 fit: 'inside',
-                withoutEnlargement: true
+                withoutEnlargement: true 
             })
-            .jpeg({ quality: config.quality })
-            .toFile(mediumPath);
-
-        // Save metadata
-        const metadataPath = path.join(config.outputDirs.metadata, `${hash}.json`);
-        await fs.writeFile(metadataPath, JSON.stringify(layoutInfo, null, 2));
-
-        return layoutInfo;
+            .jpeg({ quality: 85 })
+            .toFile(thumbnailPath);
+        
+        // Generate web version
+        await sharp(imagePath)
+            .resize(WEB_SIZE, WEB_SIZE, { 
+                fit: 'inside',
+                withoutEnlargement: true 
+            })
+            .jpeg({ quality: 90 })
+            .toFile(webPath);
+        
+        // Copy original
+        await fs.copyFile(imagePath, originalPath);
+        
+        return {
+            name: baseName,
+            filename: fileName,
+            originalPath: `/images/${dirPath}/original/${fileName}`,
+            thumbnailPath: `/images/${dirPath}/thumbnails/${baseName}.jpg`,
+            webPath: `/images/${dirPath}/web/${baseName}.jpg`,
+            aspectRatio: metadata.width / metadata.height,
+            width: metadata.width,
+            height: metadata.height,
+            dirPath: dirPath
+        };
+        
     } catch (error) {
-        console.error(`Error processing ${filePath}:`, error);
+        console.error(`❌ Error processing ${fileName}:`, error.message);
         return null;
     }
 }
 
-// Process all images in a directory recursively
-async function processDirectory(dirPath, relativePath = '') {
-    const entries = await fs.readdir(dirPath, { withFileTypes: true });
-    const results = [];
+// Build gallery structure
+function buildGalleryStructure(processedImages) {
+    const galleries = {};
+    const navigation = [];
+    
+    // Group images by directory
+    processedImages.forEach(image => {
+        const dirPath = image.dirPath;
+        
+        if (!galleries[dirPath]) {
+            galleries[dirPath] = {
+                name: formatGalleryName(dirPath),
+                path: dirPath,
+                images: []
+            };
+        }
+        
+        galleries[dirPath].images.push({
+            name: image.name,
+            filename: image.filename,
+            originalPath: image.originalPath,
+            thumbnailPath: image.thumbnailPath,
+            webPath: image.webPath,
+            aspectRatio: image.aspectRatio,
+            width: image.width,
+            height: image.height
+        });
+    });
+    
+    // Create navigation structure
+    Object.keys(galleries).forEach(galleryPath => {
+        const gallery = galleries[galleryPath];
+        const parts = galleryPath.split('/');
+        
+        navigation.push({
+            name: gallery.name,
+            path: galleryPath,
+            slug: gallery.name.toLowerCase().replace(/\s+/g, '-'),
+            level: parts.length - 1,
+            hasImages: true,
+            imageCount: gallery.images.length,
+            category: parts[0] // First directory level as category
+        });
+    });
+    
+    // Sort navigation by category and then by name
+    navigation.sort((a, b) => {
+        if (a.category !== b.category) {
+            return a.category.localeCompare(b.category);
+        }
+        return a.name.localeCompare(b.name);
+    });
+    
+    return { galleries, navigation };
+}
 
-    for (const entry of entries) {
-        const fullPath = path.join(dirPath, entry.name);
-        const newRelativePath = path.join(relativePath, entry.name);
+// Format gallery name from directory path
+function formatGalleryName(dirPath) {
+    const parts = dirPath.split('/');
+    const lastPart = parts[parts.length - 1];
+    
+    // Replace underscores and capitalize
+    return lastPart
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, l => l.toUpperCase());
+}
 
-        if (entry.isDirectory()) {
-            const subResults = await processDirectory(fullPath, newRelativePath);
-            results.push(...subResults);
-        } else if (entry.isFile() && config.formats.includes(path.extname(entry.name).toLowerCase().slice(1))) {
-            const result = await processImage(fullPath, newRelativePath);
-            if (result) {
-                results.push(result);
+// Main processing function
+async function processImages() {
+    try {
+        // Create output directories
+        await createDirectories();
+        
+        // Get all image files
+        const imageFiles = await getImageFiles();
+        console.log(`📊 Found ${imageFiles.length} image files`);
+        
+        if (imageFiles.length === 0) {
+            console.log('⚠️  No images found in pics/ directory');
+            return;
+        }
+        
+        // Process all images
+        let processedCount = 0;
+        let skippedCount = 0;
+        const processedImages = [];
+        
+        for (const filePath of imageFiles) {
+            try {
+                const result = await processImage(filePath);
+                if (result) {
+                    processedImages.push(result);
+                    processedCount++;
+                } else {
+                    skippedCount++;
+                }
+            } catch (error) {
+                console.error(`❌ Error processing ${filePath}:`, error.message);
+                skippedCount++;
             }
         }
-    }
-
-    return results;
-}
-
-// Generate a layout configuration file
-async function generateLayoutConfig(images) {
-    const layoutConfig = {
-        images: images,
-        lastUpdated: new Date().toISOString()
-    };
-
-    const configPath = path.join(config.outputDirs.metadata, 'layout-config.json');
-    await fs.writeFile(configPath, JSON.stringify(layoutConfig, null, 2));
-}
-
-// Main function
-async function main() {
-    try {
-        console.log('Starting image processing pipeline...');
-        await ensureDirectories();
         
-        const images = await processDirectory(config.sourceDir);
-        console.log(`Processed ${images.length} images`);
+        // Build gallery structure
+        const { galleries, navigation } = buildGalleryStructure(processedImages);
         
-        await generateLayoutConfig(images);
-        console.log('Layout configuration generated');
+        // Save configuration files
+        const config = {
+            generated: new Date().toISOString(),
+            totalImages: processedCount,
+            galleries: galleries
+        };
         
-        console.log('Image processing complete!');
+        await fs.writeFile(
+            'public/gallery-config.json',
+            JSON.stringify(config, null, 2)
+        );
+        
+        await fs.writeFile(
+            'public/navigation.json',
+            JSON.stringify(navigation, null, 2)
+        );
+        
+        // Generate summary
+        console.log('\n✅ Photo gallery processing complete!');
+        console.log(`   📸 Processed: ${processedCount} images`);
+        console.log(`   ⚠️  Skipped: ${skippedCount} images`);
+        console.log(`   📁 Galleries: ${Object.keys(galleries).length}`);
+        console.log(`   📄 Configuration saved to: public/gallery-config.json`);
+        console.log(`   🗂️  Navigation saved to: public/navigation.json`);
+        
+        // Show gallery breakdown
+        console.log('\n📋 Gallery Summary:');
+        Object.entries(galleries).forEach(([path, gallery]) => {
+            console.log(`   • ${gallery.name}: ${gallery.images.length} photos`);
+        });
+        
+        console.log('\n🚀 Your photography website is ready!');
+        console.log('   Run "npm start" to start the local server');
+        
     } catch (error) {
-        console.error('Error in image processing pipeline:', error);
+        console.error('❌ Processing failed:', error);
         process.exit(1);
     }
 }
 
-main(); 
+// Run if called directly
+if (require.main === module) {
+    processImages();
+}
+
+module.exports = { processImages }; 

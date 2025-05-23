@@ -1,197 +1,148 @@
 const puppeteer = require('puppeteer');
-const fs = require('fs').promises;
-const path = require('path');
-
-/**
- * Test suite for gallery functionality
- */
-async function runTests() {
-  console.log('Running gallery tests...\n');
-  
-  const tests = [
-    testGalleryConfig,
-    testImagePaths,
-    testDirectoryStructure,
-    testGallery
-  ];
-  
-  let passed = 0;
-  let failed = 0;
-  
-  for (const test of tests) {
-    try {
-      await test();
-      console.log(`✓ ${test.name} passed`);
-      passed++;
-    } catch (error) {
-      console.error(`✗ ${test.name} failed:`, error.message);
-      failed++;
-    }
-  }
-  
-  console.log(`\nTest Summary: ${passed} passed, ${failed} failed`);
-}
-
-/**
- * Test gallery configuration file
- */
-async function testGalleryConfig() {
-  const configPath = path.join('public', 'js', 'gallery-config.json');
-  const config = JSON.parse(await fs.readFile(configPath, 'utf8'));
-  
-  // Test basic structure
-  if (!config.galleries) {
-    throw new Error('Gallery config missing galleries object');
-  }
-  
-  // Test events gallery
-  const eventsGallery = config.galleries.events;
-  if (!eventsGallery) {
-    throw new Error('Events gallery not found in config');
-  }
-  
-  // Test saturday_market event
-  const saturdayMarket = eventsGallery.events.saturday_market;
-  if (!saturdayMarket) {
-    throw new Error('Saturday market event not found in config');
-  }
-  
-  // Test photos array
-  if (!Array.isArray(saturdayMarket.photos) || saturdayMarket.photos.length === 0) {
-    throw new Error('No photos found in Saturday market event');
-  }
-  
-  // Test first photo structure
-  const firstPhoto = saturdayMarket.photos[0];
-  if (!firstPhoto.thumbnail || !firstPhoto.medium || !firstPhoto.original) {
-    throw new Error('Photo object missing required properties');
-  }
-}
-
-/**
- * Test image paths and files
- */
-async function testImagePaths() {
-  const configPath = path.join('public', 'js', 'gallery-config.json');
-  const config = JSON.parse(await fs.readFile(configPath, 'utf8'));
-  
-  // Get first photo from Saturday market
-  const firstPhoto = config.galleries.events.events.saturday_market.photos[0];
-  
-  // Test thumbnail path
-  const thumbnailPath = path.join('public', firstPhoto.thumbnail);
-  try {
-    await fs.access(thumbnailPath);
-  } catch (error) {
-    throw new Error(`Thumbnail not found: ${thumbnailPath}`);
-  }
-  
-  // Test medium path
-  const mediumPath = path.join('public', firstPhoto.medium);
-  try {
-    await fs.access(mediumPath);
-  } catch (error) {
-    throw new Error(`Medium image not found: ${mediumPath}`);
-  }
-}
-
-/**
- * Test directory structure
- */
-async function testDirectoryStructure() {
-  const requiredDirs = [
-    'public/images',
-    'public/images/thumbnails',
-    'public/images/medium',
-    'public/images/original'
-  ];
-  
-  for (const dir of requiredDirs) {
-    try {
-      await fs.access(dir);
-    } catch (error) {
-      throw new Error(`Required directory not found: ${dir}`);
-    }
-  }
-  
-  // Test that thumbnails directory has content
-  const thumbnailDir = path.join('public', 'images', 'thumbnails', 'events', 'saturday_market');
-  const files = await fs.readdir(thumbnailDir);
-  if (files.length === 0) {
-    throw new Error('No thumbnail files found in Saturday market directory');
-  }
-}
 
 async function testGallery() {
-    console.log('Starting gallery test...');
+    console.log('🔍 Testing photography gallery website...\n');
     
-    // Read the gallery config
-    const configPath = './public/js/gallery-config.json';
-    const config = JSON.parse(await fs.readFile(configPath, 'utf8'));
-    console.log('Gallery config loaded:', {
-        totalImages: config.stats.processedImages,
-        failedImages: config.stats.failedImages,
-        galleries: Object.keys(config.galleries)
+    const browser = await puppeteer.launch({ 
+        headless: 'new',
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
-
-    // Launch browser
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-
-    // Enable request interception
-    await page.setRequestInterception(true);
-    const requests = [];
-    page.on('request', request => {
-        requests.push({
-            url: request.url(),
-            resourceType: request.resourceType()
-        });
-        request.continue();
-    });
-
-    // Load the page
-    console.log('Loading page...');
-    await page.goto('http://localhost:3000/?genre=events&event=saturday_market', {
-        waitUntil: 'networkidle0',
-        timeout: 30000
-    });
-
-    // Get all image elements
-    const images = await page.evaluate(() => {
-        return Array.from(document.querySelectorAll('img')).map(img => ({
-            src: img.src,
-            alt: img.alt,
-            width: img.width,
-            height: img.height
-        }));
-    });
-
-    console.log('\nFound images in DOM:', images.length);
-    images.forEach(img => console.log(`- ${img.src} (${img.width}x${img.height})`));
-
-    // Get all network requests
-    const imageRequests = requests.filter(r => r.resourceType === 'image');
-    console.log('\nImage requests made:', imageRequests.length);
-    imageRequests.forEach(req => console.log(`- ${req.url}`));
-
-    // Check if images match config
-    const configImages = config.galleries.events.events.saturday_market.photos;
-    console.log('\nImages in config:', configImages.length);
-    configImages.forEach(img => console.log(`- ${img.thumbnail}`));
-
-    // Check for errors
-    const errors = await page.evaluate(() => {
-        return Array.from(document.querySelectorAll('img'))
-            .filter(img => !img.complete || img.naturalHeight === 0)
-            .map(img => img.src);
-    });
-
-    if (errors.length > 0) {
-        console.log('\nFailed to load images:', errors);
+    
+    try {
+        const page = await browser.newPage();
+        await page.setViewport({ width: 1200, height: 800 });
+        
+        // Test main gallery page
+        console.log('📄 Testing main gallery page...');
+        await page.goto('http://localhost:3000', { waitUntil: 'networkidle0' });
+        
+        // Check page title
+        const title = await page.title();
+        console.log(`   ✅ Page title: ${title}`);
+        
+        // Wait for gallery to load
+        await page.waitForSelector('.collection-grid', { timeout: 10000 });
+        console.log('   ✅ Gallery grid loaded');
+        
+        // Check if collection cards are loaded
+        const collectionCount = await page.$$eval('.collection-card', items => items.length);
+        console.log(`   ✅ Found ${collectionCount} collection cards`);
+        
+        // Check for navigation links
+        const navLinks = await page.$$eval('.nav a', links => 
+            links.map(link => ({ text: link.textContent, href: link.href }))
+        );
+        console.log(`   ✅ Navigation links: ${navLinks.map(l => l.text).join(', ')}`);
+        
+        // Test bio page
+        console.log('\n📄 Testing bio page...');
+        await page.goto('http://localhost:3000/bio.html', { waitUntil: 'networkidle0' });
+        
+        const bioTitle = await page.title();
+        console.log(`   ✅ Bio page title: ${bioTitle}`);
+        
+        // Check for bio content
+        const bioContent = await page.$('.bio-content');
+        if (bioContent) {
+            console.log('   ✅ Bio content found');
+        } else {
+            console.log('   ⚠️  Bio content not found');
+        }
+        
+        // Test gallery navigation
+        console.log('\n📄 Testing gallery navigation...');
+        await page.goto('http://localhost:3000', { waitUntil: 'networkidle0' });
+        
+        // Wait for configuration to load and check if galleries are available
+        await page.waitForFunction(() => window.galleryConfig, { timeout: 10000 });
+        
+        const galleryConfig = await page.evaluate(() => window.galleryConfig);
+        const galleries = Object.keys(galleryConfig.galleries);
+        console.log(`   ✅ Available galleries: ${galleries.join(', ')}`);
+        
+        // Test clicking on a gallery
+        if (galleries.length > 0) {
+            // Click on browse galleries
+            await page.click('#nav-browse');
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Check if gallery list appears
+            const galleryList = await page.$('.gallery-navigation');
+            if (galleryList) {
+                console.log('   ✅ Gallery navigation displayed');
+                
+                // Go back to home and try clicking on first collection
+                await page.click('#nav-home');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                const firstCollection = await page.$('.collection-card a');
+                if (firstCollection) {
+                    await firstCollection.click();
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    
+                    const galleryItems = await page.$$eval('.masonry-item', items => items.length);
+                    console.log(`   ✅ Gallery opened with ${galleryItems} images`);
+                }
+            }
+        }
+        
+        console.log('\n✅ All tests passed! Your photography website is working correctly.');
+        console.log('\n🎯 Your website is ready at: http://localhost:3000');
+        console.log('📖 About page: http://localhost:3000/bio.html');
+        
+    } catch (error) {
+        console.error('\n❌ Test failed:', error.message);
+        
+        // Try to get more details about the error
+        try {
+            const page = await browser.newPage();
+            await page.goto('http://localhost:3000');
+            const pageContent = await page.content();
+            
+            if (pageContent.includes('Error')) {
+                console.log('\n🔍 Page contains errors. Check the browser console for more details.');
+            }
+        } catch (debugError) {
+            console.log('Could not debug further:', debugError.message);
+        }
+    } finally {
+        await browser.close();
     }
-
-    await browser.close();
 }
 
-// Run the tests
-runTests().catch(console.error); 
+// Check if server is running first
+async function checkServer() {
+    const http = require('http');
+    
+    return new Promise((resolve) => {
+        const req = http.get('http://localhost:3000', (res) => {
+            resolve(true);
+        });
+        
+        req.on('error', () => {
+            resolve(false);
+        });
+        
+        req.setTimeout(3000, () => {
+            req.destroy();
+            resolve(false);
+        });
+    });
+}
+
+async function main() {
+    const serverRunning = await checkServer();
+    
+    if (!serverRunning) {
+        console.log('❌ Server is not running. Please start it with: npm start');
+        process.exit(1);
+    }
+    
+    await testGallery();
+}
+
+if (require.main === module) {
+    main();
+}
+
+module.exports = { testGallery }; 

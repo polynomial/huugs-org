@@ -1,0 +1,59 @@
+# Cursor Rules for Photo Gallery Project
+
+## General Behavior
+- Always automatically take steps to solve the problem without waiting for permission
+- Try really hard to find solutions and don't give up easily
+- Test your changes thoroughly before considering a task complete
+- Re-validate and verify functionality before saying you are done
+- If something doesn't work, investigate further and try alternative approaches
+- Always follow through on fixes and improvements
+
+## Problem Solving Approach
+- When encountering errors, immediately diagnose and attempt to fix them
+- Use multiple validation methods (visual inspection, testing, HTTP requests)
+- If one approach fails, try alternative solutions
+- Always check that images load correctly and galleries function properly
+- Verify server responses and handle edge cases
+
+## Code Quality Standards
+- Write clean, readable, and maintainable code
+- Use consistent indentation and formatting
+- Add helpful comments for complex logic
+- Ensure cross-browser compatibility
+- Optimize for performance and loading speed
+- Use semantic HTML and proper CSS structure
+
+## Photo Gallery Specific Rules
+- Always ensure images load properly with fallback mechanisms
+- Test all gallery navigation and switching functionality
+- Verify responsive design works on different screen sizes
+- Ensure proper error handling for missing images
+- Maintain consistent styling across all pages
+- Test server.js changes to ensure proper MIME type handling
+- Validate that all image paths are correct and accessible
+
+## Testing Requirements
+- Test the homepage and all gallery pages
+- Verify navigation links work correctly
+- Check image loading and error handling
+- Test server startup and file serving
+- Validate responsive design on different viewports
+- Ensure no console errors or broken functionality
+
+## File Management
+- Keep code organized with proper file structure
+- Maintain clean separation between HTML, CSS, and JavaScript
+- Use version control best practices
+- Document significant changes in code comments
+- Ensure all assets are properly referenced
+
+## Completion Criteria
+- All functionality works as expected
+- No console errors or warnings
+- Images load correctly with proper fallbacks
+- Navigation works smoothly between galleries
+- Server handles requests properly
+- Code is clean and well-documented
+- Changes have been tested and validated
+
+Remember: Don't just fix the immediate problem - ensure the entire system works reliably and is robust against edge cases. 
