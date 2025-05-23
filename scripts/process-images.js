@@ -16,8 +16,8 @@ console.log('🖼️  Starting photo gallery processing...');
 async function createDirectories() {
     const dirs = [
         `${OUTPUT_DIR}/thumbnails`,
-        `${OUTPUT_DIR}/web`,
-        `${OUTPUT_DIR}/original`
+        `${OUTPUT_DIR}/web`
+        // Removed original directory - we don't want to deploy raw images
     ];
     
     for (const dir of dirs) {
@@ -61,12 +61,11 @@ async function processImage(imagePath) {
         const outputBasePath = path.join(OUTPUT_DIR, dirPath);
         await fs.mkdir(`${outputBasePath}/thumbnails`, { recursive: true });
         await fs.mkdir(`${outputBasePath}/web`, { recursive: true });
-        await fs.mkdir(`${outputBasePath}/original`, { recursive: true });
+        // Removed original directory creation - we don't deploy raw images
         
         const baseName = path.parse(fileName).name;
         const thumbnailPath = path.join(outputBasePath, 'thumbnails', `${baseName}.jpg`);
         const webPath = path.join(outputBasePath, 'web', `${baseName}.jpg`);
-        const originalPath = path.join(outputBasePath, 'original', fileName);
         
         // Generate thumbnail
         await sharp(imagePath)
@@ -86,13 +85,9 @@ async function processImage(imagePath) {
             .jpeg({ quality: 90 })
             .toFile(webPath);
         
-        // Copy original
-        await fs.copyFile(imagePath, originalPath);
-        
         return {
             name: baseName,
             filename: fileName,
-            originalPath: `/images/${dirPath}/original/${fileName}`,
             thumbnailPath: `/images/${dirPath}/thumbnails/${baseName}.jpg`,
             webPath: `/images/${dirPath}/web/${baseName}.jpg`,
             aspectRatio: metadata.width / metadata.height,
@@ -127,7 +122,6 @@ function buildGalleryStructure(processedImages) {
         galleries[dirPath].images.push({
             name: image.name,
             filename: image.filename,
-            originalPath: image.originalPath,
             thumbnailPath: image.thumbnailPath,
             webPath: image.webPath,
             aspectRatio: image.aspectRatio,
