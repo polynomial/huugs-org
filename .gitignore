@@ -104,6 +104,7 @@ jspm_packages/
 !public/gallery-config.json
 !public/navigation.json
 !public/CNAME
+!public/assets/
 
 # Keep thumbnails and medium-sized images in the repository
 !thumbnails/
@@ -120,3 +121,4 @@ public/*
 !public/favicon.ico
 !public/index.html
 !public/CNAME
+!public/assets/
