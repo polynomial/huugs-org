@@ -62,6 +62,18 @@ jobs:
         echo "🌐 Web images: $(find public/images/ -name "web" -type d -exec find {} -name "*.jpg" \; | wc -l)"
         echo "📄 Configuration files:"
         ls -la public/*.json
+
+    - name: 🧹 Clean Deployment - Remove Raw Images
+      run: |
+        echo "🧹 Ensuring no raw/original images in deployment..."
+        # Remove any original directories that might exist
+        find public/images -name "original*" -type d -exec rm -rf {} + || true
+        find public/images -name "orig*" -type d -exec rm -rf {} + || true
+        echo "📊 Final deployment size:"
+        du -sh public/
+        echo "📂 Deployment contents:"
+        find public/images -type d | head -20
+        echo "🎯 Only thumbnails and web versions will be deployed"
     
     - name: 🔧 Setup GitHub Pages
       uses: actions/configure-pages@v4
