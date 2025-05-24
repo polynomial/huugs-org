@@ -101,8 +101,6 @@ jspm_packages/
 
 # Keep processed images for deployment
 !public/images/
-!public/gallery-config.json
-!public/navigation.json
 !public/CNAME
 !public/assets/
 
@@ -123,3 +121,5 @@ public/*
 !public/CNAME
 !public/assets/
 !public/bio.html
+!public/gallery-config.json
+!public/navigation.json

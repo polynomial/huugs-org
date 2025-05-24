@@ -1,0 +1,11 @@
+[
+  {
+    "name": "Saturday Market",
+    "path": "events/saturday_market",
+    "slug": "saturday-market",
+    "level": 1,
+    "hasImages": true,
+    "imageCount": 216,
+    "category": "events"
+  }
+]
