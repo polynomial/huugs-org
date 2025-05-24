@@ -237,3 +237,4 @@ MIT License - Feel free to customize for your photography business!
 **🚀 Your photography website is ready!**
 
 Visit http://localhost:3000 to see your galleries in action. # Force workflow trigger
+# Debugging deployment
