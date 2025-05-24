@@ -238,3 +238,4 @@ MIT License - Feel free to customize for your photography business!
 
 Visit http://localhost:3000 to see your galleries in action. # Force workflow trigger
 # Debugging deployment
+# Trigger optimized deployment after fixing GitHub Pages settings
