@@ -556,9 +556,8 @@
             const grid = document.getElementById('collections-grid');
             let html = '';
             
-            // Show all galleries as featured collections
-            const allGalleries = Object.keys(galleryConfig.galleries)
-                .slice(0, 12); // Show max 12 featured collections
+            // Show all galleries as collections - removed arbitrary 12 limit
+            const allGalleries = Object.keys(galleryConfig.galleries);
             
             allGalleries.forEach(galleryPath => {
                 const gallery = galleryConfig.galleries[galleryPath];
