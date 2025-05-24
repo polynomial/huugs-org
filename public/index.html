@@ -467,7 +467,9 @@
                         if (groupName && typeof index !== 'undefined') {
                             // Extract gallery path from group name (format: gallery-{path})
                             const galleryPath = groupName.replace('gallery-', '');
-                            const newHash = `#gallery-${galleryPath}-${index}`;
+                            // Convert 0-based index to 1-based for user-friendly URLs
+                            const userFriendlyIndex = index + 1;
+                            const newHash = `#gallery-${galleryPath}-${userFriendlyIndex}`;
                             history.replaceState(null, null, newHash);
                         }
                     },
@@ -482,11 +484,13 @@
         }
         
         // Function to open specific image in lightbox
-        function openImageInLightbox(galleryPath, imageIndex) {
+        function openImageInLightbox(galleryPath, userImageNumber) {
             const images = document.querySelectorAll(`[data-fancybox="gallery-${galleryPath}"]`);
-            if (images.length > imageIndex) {
+            // Convert 1-based user number to 0-based array index
+            const arrayIndex = userImageNumber - 1;
+            if (images.length > arrayIndex && arrayIndex >= 0) {
                 // Trigger click on the specific image to open Fancybox
-                images[imageIndex].click();
+                images[arrayIndex].click();
                 return true;
             }
             return false;
@@ -718,7 +722,7 @@
             const urlParams = new URLSearchParams(window.location.search);
             const hash = window.location.hash;
             
-            // Handle hash-based navigation (e.g., #gallery-events/Saturday%20Market-22)
+            // Handle hash-based navigation (e.g., #gallery-events/Saturday%20Market-25)
             if (hash.startsWith('#gallery-')) {
                 const hashContent = hash.substring(9); // Remove '#gallery-'
                 const parts = hashContent.split('-');
@@ -726,12 +730,12 @@
                 if (parts.length >= 1) {
                     // Extract gallery path (everything except potentially the last number)
                     let galleryPath = parts.slice(0, -1).join('-');
-                    let imageIndex = null;
+                    let userImageNumber = null;
                     
                     // Check if the last part is a number (image index)
                     const lastPart = parts[parts.length - 1];
                     if (!isNaN(lastPart) && lastPart !== '') {
-                        imageIndex = parseInt(lastPart);
+                        userImageNumber = parseInt(lastPart);
                         // Gallery path is everything except the last part
                         galleryPath = parts.slice(0, -1).join('-');
                     } else {
@@ -742,16 +746,21 @@
                     // Decode URL encoding
                     galleryPath = decodeURIComponent(galleryPath);
                     
-                    console.log('Deep link detected:', { galleryPath, imageIndex });
+                    console.log('Deep link detected:', { 
+                        originalHash: hash,
+                        galleryPath, 
+                        userImageNumber,
+                        note: userImageNumber ? `Will open image #${userImageNumber} (array index ${userImageNumber - 1})` : 'No specific image'
+                    });
                     
                     // Load gallery first
                     loadGallery(galleryPath).then(() => {
-                        // If image index is specified, open that image after a short delay
-                        if (imageIndex !== null && imageIndex >= 0) {
+                        // If image number is specified, open that image after a short delay
+                        if (userImageNumber !== null && userImageNumber >= 1) {
                             setTimeout(() => {
-                                const success = openImageInLightbox(galleryPath, imageIndex);
+                                const success = openImageInLightbox(galleryPath, userImageNumber);
                                 if (!success) {
-                                    console.warn(`Image index ${imageIndex} not found in gallery ${galleryPath}`);
+                                    console.warn(`Image #${userImageNumber} not found in gallery ${galleryPath}`);
                                 }
                             }, 500); // Wait for masonry to initialize
                         }
