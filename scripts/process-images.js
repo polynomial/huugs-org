@@ -10,6 +10,31 @@ const THUMBNAIL_SIZE = 400;
 const WEB_SIZE = 1080;
 const SUPPORTED_FORMATS = ['jpg', 'jpeg', 'png', 'webp', 'tiff', 'gif'];
 
+// Watermark configuration - using Tenor Sans style
+const WATERMARK_TEXT = '© Huugs.org';
+const WATERMARK_STYLE = {
+    name: 'Tenor Sans',
+    svg: (text, width, height) => `
+        <svg width="${width}" height="${height}">
+            <defs>
+                <style>
+                    .text { 
+                        font-family: 'Tenor Sans', 'Times New Roman', serif; 
+                        font-size: 30px; 
+                        font-weight: normal; 
+                        fill: white; 
+                        stroke: rgba(0,0,0,0.4); 
+                        stroke-width: 0.5;
+                        text-anchor: middle;
+                        letter-spacing: 1px;
+                    }
+                </style>
+            </defs>
+            <text x="${width/2}" y="${height/2 + 10}" class="text">${text}</text>
+        </svg>
+    `
+};
+
 console.log('🖼️  Starting photo gallery processing...');
 
 // Create output directories
@@ -40,8 +65,53 @@ async function getImageFiles() {
     return allFiles.sort();
 }
 
+// Create watermark buffer
+async function createWatermarkBuffer() {
+    const watermarkWidth = Math.max(200, WATERMARK_TEXT.length * 20);
+    const watermarkHeight = 50;
+    
+    const watermarkSvg = WATERMARK_STYLE.svg(WATERMARK_TEXT, watermarkWidth, watermarkHeight);
+    
+    return await sharp(Buffer.from(watermarkSvg))
+        .png()
+        .toBuffer();
+}
+
+// Apply watermark to an image
+async function applyWatermark(imageBuffer, watermarkBuffer, imageWidth, imageHeight) {
+    // Calculate watermark size (8% of image width, max 250px, min 100px)
+    const watermarkWidth = Math.min(250, Math.max(100, Math.round(imageWidth * 0.08)));
+    
+    // Resize watermark to appropriate size
+    const resizedWatermark = await sharp(watermarkBuffer)
+        .resize(watermarkWidth, null, {
+            fit: 'inside',
+            withoutEnlargement: true
+        })
+        .png()
+        .toBuffer();
+    
+    const watermarkMetadata = await sharp(resizedWatermark).metadata();
+    
+    // Position watermark in bottom-right corner with 20px margin
+    const left = imageWidth - watermarkMetadata.width - 20;
+    const top = imageHeight - watermarkMetadata.height - 20;
+    
+    // Apply watermark
+    return await sharp(imageBuffer)
+        .composite([
+            {
+                input: resizedWatermark,
+                left: left,
+                top: top,
+                blend: 'over'
+            }
+        ])
+        .toBuffer();
+}
+
 // Process a single image
-async function processImage(imagePath) {
+async function processImage(imagePath, watermarkBuffer) {
     const relativePath = path.relative(PICS_DIR, imagePath);
     const pathParts = relativePath.split(path.sep);
     const fileName = pathParts.pop();
@@ -70,7 +140,7 @@ async function processImage(imagePath) {
         const thumbnailPath = path.join(outputBasePath, 'thumbnails', `${baseName}.jpg`);
         const webPath = path.join(outputBasePath, 'web', `${baseName}.jpg`);
         
-        // Generate thumbnail
+        // Generate thumbnail (no watermark on thumbnails)
         await sharp(imagePath)
             .rotate() // Auto-rotate based on EXIF orientation
             .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE, { 
@@ -80,15 +150,37 @@ async function processImage(imagePath) {
             .jpeg({ quality: 85 })
             .toFile(thumbnailPath);
         
-        // Generate web version
-        await sharp(imagePath)
+        // Generate web version with watermark
+        const webImageBuffer = await sharp(imagePath)
             .rotate() // Auto-rotate based on EXIF orientation
             .resize(WEB_SIZE, WEB_SIZE, { 
                 fit: 'inside',
                 withoutEnlargement: true 
             })
+            .withMetadata()
+            .withExifMerge({
+                IFD0: {
+                    Copyright: '© Huugs.org'
+                }
+            })
             .jpeg({ quality: 90 })
-            .toFile(webPath);
+            .toBuffer();
+        
+        // Get dimensions of the web-sized image
+        const webMetadata = await sharp(webImageBuffer).metadata();
+        
+        // Apply watermark to web image
+        const watermarkedBuffer = await applyWatermark(
+            webImageBuffer, 
+            watermarkBuffer, 
+            webMetadata.width, 
+            webMetadata.height
+        );
+        
+        // Save watermarked web image
+        await fs.writeFile(webPath, watermarkedBuffer);
+        
+        console.log(`✅ ${fileName}: thumbnail + watermarked web version created`);
         
         return {
             name: baseName,
@@ -188,6 +280,11 @@ async function processImages() {
             return;
         }
         
+        // Create watermark buffer once for efficiency
+        console.log('🎨 Creating watermark buffer...');
+        const watermarkBuffer = await createWatermarkBuffer();
+        console.log('✅ Watermark buffer created');
+        
         // Process all images
         let processedCount = 0;
         let skippedCount = 0;
@@ -195,7 +292,7 @@ async function processImages() {
         
         for (const filePath of imageFiles) {
             try {
-                const result = await processImage(filePath);
+                const result = await processImage(filePath, watermarkBuffer);
                 if (result) {
                     processedImages.push(result);
                     processedCount++;
@@ -230,7 +327,7 @@ async function processImages() {
         
         // Generate summary
         console.log('\n✅ Photo gallery processing complete!');
-        console.log(`   📸 Processed: ${processedCount} images`);
+        console.log(`   📸 Processed: ${processedCount} images (with watermarks)`);
         console.log(`   ⚠️  Skipped: ${skippedCount} images`);
         console.log(`   📁 Galleries: ${Object.keys(galleries).length}`);
         console.log(`   📄 Configuration saved to: public/gallery-config.json`);
@@ -242,7 +339,7 @@ async function processImages() {
             console.log(`   • ${gallery.name}: ${gallery.images.length} photos`);
         });
         
-        console.log('\n🚀 Your photography website is ready!');
+        console.log('\n🚀 Your watermarked photography website is ready!');
         console.log('   Run "npm start" to start the local server');
         
     } catch (error) {

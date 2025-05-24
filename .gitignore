@@ -108,18 +108,14 @@ jspm_packages/
 !thumbnails/
 
 # Generated build/development files
-public/
 screenshot.png
 
 # Ignore build results
 build/results/
 
-# Ignore public directory except favicon
-public/*
-!public/favicon.ico
-!public/index.html
-!public/CNAME
-!public/assets/
-!public/bio.html
-!public/gallery-config.json
-!public/navigation.json
+# Ignore specific files in public directory that we don't want to commit
+public/screenshot.png
+public/*.log
+
+# Allow everything else in public directory to be committed
+# This enables automatic deployment of processed images and pages

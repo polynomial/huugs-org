@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watermark Preview - Huugs Media</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #222;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1, h2 {
+            text-align: center;
+            color: #e74c3c;
+        }
+        
+        .preview-section {
+            background-color: #333;
+            padding: 30px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        .watermark-logo {
+            text-align: center;
+            padding: 20px;
+            background-color: #444;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .watermark-logo img {
+            max-width: 200px;
+            background-color: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .image-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .image-container {
+            text-align: center;
+        }
+        
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+        
+        .image-label {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #bbb;
+        }
+        
+        .watermark-highlight {
+            border: 2px solid #e74c3c;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .watermark-highlight::after {
+            content: "Watermark Here →";
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(231, 76, 60, 0.9);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .note {
+            background-color: #2c3e50;
+            padding: 15px;
+            border-left: 4px solid #e74c3c;
+            margin: 20px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .image-comparison {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 "© Huugs.org" Watermark Collection</h1>
+        <p style="text-align: center; color: #bbb;">Professional typography options featuring your website URL with copyright</p>
+        
+        <!-- Featured Tenor Sans -->
+        <div class="preview-section" style="border: 2px solid #e74c3c;">
+            <h2>⭐ Featured: Tenor Sans</h2>
+            <p style="text-align: center; margin-bottom: 30px; color: #e74c3c; font-weight: bold;">Elegant display serif with larger 30px font size - sophisticated and distinctive</p>
+            
+            <!-- Tenor Sans -->
+            <div style="margin-bottom: 20px; border: 1px solid #777; border-radius: 8px; padding: 20px; background-color: #444;">
+                <h3 style="color: #e74c3c; margin-bottom: 10px;">🎯 Tenor Sans (Recommended)</h3>
+                <p style="color: #bbb; margin-bottom: 15px;">Elegant display serif - sophisticated and distinctive for professional branding</p>
+                <div class="image-comparison">
+                    <div class="image-container">
+                        <img src="images/events/saturday_market/web/bubble_IMG_6738.jpg" alt="Original Image">
+                        <div class="image-label">Original Image</div>
+                    </div>
+                    <div class="image-container">
+                        <img src="watermark-sample-tenor.jpg" alt="Tenor Sans Style" class="watermark-highlight">
+                        <div class="image-label">Tenor Sans (30px)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Other Font Options -->
+        <div class="preview-section">
+            <h2>🖋️ Alternative Typography Options</h2>
+            <p style="text-align: center; margin-bottom: 30px;">Additional professional fonts for comparison (24px size)</p>
+            
+            <!-- Helvetica Light -->
+            <div style="margin-bottom: 40px; border: 1px solid #555; border-radius: 8px; padding: 20px;">
+                <h3 style="color: #e74c3c; margin-bottom: 10px;">1. Helvetica Light</h3>
+                <p style="color: #bbb; margin-bottom: 15px;">Ultra-clean and professional - the gold standard for minimal design</p>
+                <div class="image-comparison">
+                    <div class="image-container">
+                        <img src="images/events/saturday_market/web/bubble_IMG_6738.jpg" alt="Original Image">
+                        <div class="image-label">Original Image</div>
+                    </div>
+                    <div class="image-container">
+                        <img src="watermark-sample-helvetica.jpg" alt="Helvetica Style" class="watermark-highlight">
+                        <div class="image-label">Helvetica Light</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Futura Light -->
+            <div style="margin-bottom: 40px; border: 1px solid #555; border-radius: 8px; padding: 20px;">
+                <h3 style="color: #e74c3c; margin-bottom: 10px;">2. Futura Light</h3>
+                <p style="color: #bbb; margin-bottom: 15px;">Geometric precision - perfect for modern and architectural photography</p>
+                <div class="image-comparison">
+                    <div class="image-container">
+                        <img src="images/events/saturday_market/web/bubble_IMG_6738.jpg" alt="Original Image">
+                        <div class="image-label">Original Image</div>
+                    </div>
+                    <div class="image-container">
+                        <img src="watermark-sample-futura.jpg" alt="Futura Style" class="watermark-highlight">
+                        <div class="image-label">Futura Light</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Optima -->
+            <div style="margin-bottom: 40px; border: 1px solid #555; border-radius: 8px; padding: 20px;">
+                <h3 style="color: #e74c3c; margin-bottom: 10px;">3. Optima</h3>
+                <p style="color: #bbb; margin-bottom: 15px;">Humanist elegance - sophisticated choice for fine art and portraits</p>
+                <div class="image-comparison">
+                    <div class="image-container">
+                        <img src="images/events/saturday_market/web/bubble_IMG_6738.jpg" alt="Original Image">
+                        <div class="image-label">Original Image</div>
+                    </div>
+                    <div class="image-container">
+                        <img src="watermark-sample-optima.jpg" alt="Optima Style" class="watermark-highlight">
+                        <div class="image-label">Optima</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Avenir Light -->
+            <div style="margin-bottom: 40px; border: 1px solid #555; border-radius: 8px; padding: 20px;">
+                <h3 style="color: #e74c3c; margin-bottom: 10px;">4. Avenir Light</h3>
+                <p style="color: #bbb; margin-bottom: 15px;">Friendly yet professional - excellent for lifestyle and wedding photography</p>
+                <div class="image-comparison">
+                    <div class="image-container">
+                        <img src="images/events/saturday_market/web/bubble_IMG_6738.jpg" alt="Original Image">
+                        <div class="image-label">Original Image</div>
+                    </div>
+                    <div class="image-container">
+                        <img src="watermark-sample-avenir.jpg" alt="Avenir Style" class="watermark-highlight">
+                        <div class="image-label">Avenir Light</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Lato Light -->
+            <div style="margin-bottom: 40px; border: 1px solid #555; border-radius: 8px; padding: 20px;">
+                <h3 style="color: #e74c3c; margin-bottom: 10px;">5. Lato Light</h3>
+                <p style="color: #bbb; margin-bottom: 15px;">Modern and approachable - great for commercial and event photography</p>
+                <div class="image-comparison">
+                    <div class="image-container">
+                        <img src="images/events/saturday_market/web/bubble_IMG_6738.jpg" alt="Original Image">
+                        <div class="image-label">Original Image</div>
+                    </div>
+                    <div class="image-container">
+                        <img src="watermark-sample-lato.jpg" alt="Lato Style" class="watermark-highlight">
+                        <div class="image-label">Lato Light</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Open Sans Light -->
+            <div style="margin-bottom: 40px; border: 1px solid #555; border-radius: 8px; padding: 20px;">
+                <h3 style="color: #e74c3c; margin-bottom: 10px;">6. Open Sans Light</h3>
+                <p style="color: #bbb; margin-bottom: 15px;">Highly readable and neutral - versatile for all photography types</p>
+                <div class="image-comparison">
+                    <div class="image-container">
+                        <img src="images/events/saturday_market/web/bubble_IMG_6738.jpg" alt="Original Image">
+                        <div class="image-label">Original Image</div>
+                    </div>
+                    <div class="image-container">
+                        <img src="watermark-sample-opensans.jpg" alt="Open Sans Style" class="watermark-highlight">
+                        <div class="image-label">Open Sans Light</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Source Sans Pro Light -->
+            <div style="margin-bottom: 40px; border: 1px solid #555; border-radius: 8px; padding: 20px;">
+                <h3 style="color: #e74c3c; margin-bottom: 10px;">7. Source Sans Pro Light</h3>
+                <p style="color: #bbb; margin-bottom: 15px;">Technical precision - ideal for documentary and journalistic work</p>
+                <div class="image-comparison">
+                    <div class="image-container">
+                        <img src="images/events/saturday_market/web/bubble_IMG_6738.jpg" alt="Original Image">
+                        <div class="image-label">Original Image</div>
+                    </div>
+                    <div class="image-container">
+                        <img src="watermark-sample-source.jpg" alt="Source Sans Style" class="watermark-highlight">
+                        <div class="image-label">Source Sans Pro Light</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Roboto Light -->
+            <div style="margin-bottom: 40px; border: 1px solid #555; border-radius: 8px; padding: 20px;">
+                <h3 style="color: #e74c3c; margin-bottom: 10px;">8. Roboto Light</h3>
+                <p style="color: #bbb; margin-bottom: 15px;">Contemporary and digital-friendly - perfect for modern lifestyle shots</p>
+                <div class="image-comparison">
+                    <div class="image-container">
+                        <img src="images/events/saturday_market/web/bubble_IMG_6738.jpg" alt="Original Image">
+                        <div class="image-label">Original Image</div>
+                    </div>
+                    <div class="image-container">
+                        <img src="watermark-sample-roboto.jpg" alt="Roboto Style" class="watermark-highlight">
+                        <div class="image-label">Roboto Light</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Montserrat Light -->
+            <div style="margin-bottom: 40px; border: 1px solid #555; border-radius: 8px; padding: 20px;">
+                <h3 style="color: #e74c3c; margin-bottom: 10px;">9. Montserrat Light</h3>
+                <p style="color: #bbb; margin-bottom: 15px;">Urban and stylish - excellent for fashion and creative photography</p>
+                <div class="image-comparison">
+                    <div class="image-container">
+                        <img src="images/events/saturday_market/web/bubble_IMG_6738.jpg" alt="Original Image">
+                        <div class="image-label">Original Image</div>
+                    </div>
+                    <div class="image-container">
+                        <img src="watermark-sample-montserrat.jpg" alt="Montserrat Style" class="watermark-highlight">
+                        <div class="image-label">Montserrat Light</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Proxima Nova Light -->
+            <div style="margin-bottom: 40px; border: 1px solid #555; border-radius: 8px; padding: 20px;">
+                <h3 style="color: #e74c3c; margin-bottom: 10px;">10. Proxima Nova Light</h3>
+                <p style="color: #bbb; margin-bottom: 15px;">Versatile and popular - works beautifully for any photography genre</p>
+                <div class="image-comparison">
+                    <div class="image-container">
+                        <img src="images/events/saturday_market/web/bubble_IMG_6738.jpg" alt="Original Image">
+                        <div class="image-label">Original Image</div>
+                    </div>
+                    <div class="image-container">
+                        <img src="watermark-sample-proxima.jpg" alt="Proxima Nova Style" class="watermark-highlight">
+                        <div class="image-label">Proxima Nova Light</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Information and Notes -->
+        <div class="preview-section">
+            <h2>ℹ️ Watermark Specifications</h2>
+            <div class="note">
+                <strong>Technical Details:</strong>
+                <ul>
+                    <li>🎯 <strong>Position:</strong> Bottom-right corner with 20px margin</li>
+                    <li>📏 <strong>Size:</strong> 8% of image width (min 100px, max 250px)</li>
+                    <li>🎨 <strong>Text:</strong> "© Huugs.org" in white with subtle black outline</li>
+                    <li>🔍 <strong>Featured Font:</strong> Tenor Sans at 30px for better visibility</li>
+                    <li>📱 <strong>Responsive:</strong> Scales appropriately with image size</li>
+                    <li>📋 <strong>EXIF Copyright:</strong> Web images include "© Huugs.org" in metadata</li>
+                </ul>
+            </div>
+            
+            <div class="note">
+                <strong>Font Recommendations by Genre:</strong>
+                <ul>
+                    <li><strong>Professional/Branding:</strong> Tenor Sans (featured)</li>
+                    <li><strong>Fine Art/Gallery:</strong> Optima, Avenir Light</li>
+                    <li><strong>Wedding/Lifestyle:</strong> Avenir Light, Lato Light</li>
+                    <li><strong>Corporate/Commercial:</strong> Helvetica Light, Source Sans Pro</li>
+                    <li><strong>Fashion/Creative:</strong> Montserrat Light, Futura Light</li>
+                    <li><strong>Documentary/Journalism:</strong> Source Sans Pro, Open Sans</li>
+                    <li><strong>Modern/Digital:</strong> Roboto Light, Proxima Nova</li>
+                    <li><strong>Universal/Versatile:</strong> Proxima Nova, Open Sans</li>
+                </ul>
+            </div>
+            
+            <div class="note">
+                <strong>Next Steps:</strong>
+                <p>Choose your preferred style and I can:</p>
+                <ul>
+                    <li>Apply it to all your existing images</li>
+                    <li>Set up automatic watermarking for new photos</li>
+                    <li>Adjust size, position, or opacity</li>
+                    <li>Create variations with different weights or spacing</li>
+                    <li>Test on different image types and backgrounds</li>
+                </ul>
+            </div>
+        </div>
+        
+        <footer style="text-align: center; margin-top: 40px; color: #666;">
+            <p>"© Huugs.org" Watermark Typography Collection - Featuring Tenor Sans</p>
+        </footer>
+    </div>
+</body>
+</html> 
