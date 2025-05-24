@@ -57,6 +57,9 @@ async function processImage(imagePath) {
             return null;
         }
         
+        // Get metadata after rotation to ensure correct dimensions
+        const rotatedMetadata = await sharp(imagePath).rotate().metadata();
+        
         // Create output path structure
         const outputBasePath = path.join(OUTPUT_DIR, dirPath);
         await fs.mkdir(`${outputBasePath}/thumbnails`, { recursive: true });
@@ -69,6 +72,7 @@ async function processImage(imagePath) {
         
         // Generate thumbnail
         await sharp(imagePath)
+            .rotate() // Auto-rotate based on EXIF orientation
             .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE, { 
                 fit: 'inside',
                 withoutEnlargement: true 
@@ -78,6 +82,7 @@ async function processImage(imagePath) {
         
         // Generate web version
         await sharp(imagePath)
+            .rotate() // Auto-rotate based on EXIF orientation
             .resize(WEB_SIZE, WEB_SIZE, { 
                 fit: 'inside',
                 withoutEnlargement: true 
@@ -90,9 +95,9 @@ async function processImage(imagePath) {
             filename: fileName,
             thumbnailPath: `/images/${dirPath}/thumbnails/${baseName}.jpg`,
             webPath: `/images/${dirPath}/web/${baseName}.jpg`,
-            aspectRatio: metadata.width / metadata.height,
-            width: metadata.width,
-            height: metadata.height,
+            aspectRatio: rotatedMetadata.width / rotatedMetadata.height,
+            width: rotatedMetadata.width,
+            height: rotatedMetadata.height,
             dirPath: dirPath
         };
         

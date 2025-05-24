@@ -7,5 +7,23 @@
     "hasImages": true,
     "imageCount": 216,
     "category": "events"
+  },
+  {
+    "name": "Emerald Photographic Society 2025-05-15",
+    "path": "portfolio/Emerald Photographic Society 2025-05-15",
+    "slug": "emerald-photographic-society-2025-05-15",
+    "level": 1,
+    "hasImages": true,
+    "imageCount": 16,
+    "category": "portfolio"
+  },
+  {
+    "name": "BigTen Championships - Hayward Field, Eugene, Oregon 2025-05",
+    "path": "track/BigTen Championships - Hayward Field, Eugene, Oregon 2025-05",
+    "slug": "bigten-championships---hayward-field,-eugene,-oregon-2025-05",
+    "level": 1,
+    "hasImages": true,
+    "imageCount": 111,
+    "category": "track"
   }
 ]
