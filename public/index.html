@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Huugs Media Gallery</title>
+    <title>Huugs Media - Capturing the Essence of Sports</title>
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -14,792 +14,183 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&family=Bebas+Neue&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     
-    <!-- Fancybox CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css" />
-    
-    <!-- Masonry CSS -->
-    <style>
-        /* Base styles (preserved from original) */
-        body {
-            background-color: #222;
-            color: #fff;
-            font-family: 'Montserrat', Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
-        }
-        
-        header {
-            background-color: #1f1f1f;
-            color: #fff;
-            padding: 30px 0;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        }
-        
-        h1, h2, h3 {
-            margin: 0 0 15px 0;
-        }
-        
-        .logo {
-            max-width: 180px;
-            margin-bottom: 15px;
-        }
-        
-        .subtitle {
-            font-size: 1.1rem;
-            color: rgba(255, 255, 255, 0.9);
-            max-width: 600px;
-            margin: 0 auto 20px;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        /* Navigation styles */
-        .nav {
-            margin: 20px 0;
-            text-align: center;
-        }
-        
-        .nav a {
-            display: inline-block;
-            padding: 8px 15px;
-            margin: 0 5px;
-            background-color: #e74c3c;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 4px;
-            font-weight: bold;
-            transition: background-color 0.2s ease, transform 0.2s ease;
-        }
-        
-        .nav a:hover {
-            background-color: #c0392b;
-            transform: translateY(-2px);
-        }
-        
-        .nav a.active {
-            background-color: #c0392b;
-        }
-        
-        /* Dynamic navigation tree */
-        .gallery-navigation {
-            background-color: #333;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .gallery-tree {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        
-        .gallery-tree li {
-            margin: 5px 0;
-        }
-        
-        .gallery-tree a {
-            display: block;
-            padding: 8px 12px;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 4px;
-            transition: background-color 0.2s ease;
-        }
-        
-        .gallery-tree a:hover {
-            background-color: #e74c3c;
-        }
-        
-        .gallery-tree a.active {
-            background-color: #e74c3c;
-            font-weight: bold;
-        }
-        
-        .gallery-tree .level-1 {
-            padding-left: 20px;
-            font-size: 0.9rem;
-        }
-        
-        .gallery-tree .level-2 {
-            padding-left: 40px;
-            font-size: 0.85rem;
-        }
-        
-        .image-count {
-            color: #999;
-            font-size: 0.8rem;
-            margin-left: 10px;
-        }
-        
-        /* Status indicator */
-        .status {
-            background-color: #333;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-            text-align: center;
-            display: none;
-        }
-        
-        .status.visible {
-            display: block;
-        }
-        
-        .status.loading {
-            background-color: #3498db;
-        }
-        
-        .status.success {
-            background-color: #27ae60;
-        }
-        
-        .status.error {
-            background-color: #e74c3c;
-        }
-        
-        /* Collections grid (home page) */
-        .collection-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .collection-card {
-            background-color: #333;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s ease-in-out;
-        }
-        
-        .collection-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        .collection-card a {
-            text-decoration: none;
-            color: inherit;
-        }
-        
-        .collection-card img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-        }
-        
-        .collection-info {
-            padding: 15px;
-        }
-        
-        .collection-info h3 {
-            margin: 0 0 5px 0;
-            font-size: 1.2rem;
-        }
-        
-        .collection-info p {
-            margin: 0;
-            color: #b0b0b0;
-            font-size: 0.9rem;
-        }
-        
-        /* Masonry gallery styles */
-        .gallery-container {
-            display: none;
-        }
-        
-        .gallery-container.visible {
-            display: block;
-        }
-        
-        .gallery-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .gallery-title {
-            font-size: 1.8rem;
-            margin: 0;
-        }
-        
-        .gallery-controls {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        
-        .back-btn {
-            background-color: #666;
-            border: none;
-            color: #fff;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-        }
-        
-        .back-btn:hover {
-            background-color: #777;
-        }
-        
-        /* Masonry grid */
-        .masonry-grid {
-            /* Remove CSS Grid - let Masonry.js handle layout */
-            width: 100%;
-        }
-        
-        .masonry-item {
-            background-color: #333;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            transition: transform 0.2s ease;
-            cursor: pointer;
-            width: 250px;  /* Fixed width for Masonry */
-            margin-bottom: 15px;
-        }
-        
-        .masonry-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-        }
-        
-        .masonry-item img {
-            width: 100%;
-            height: auto;
-            display: block;
-            transition: opacity 0.3s ease;
-        }
-        
-        .masonry-item img:hover {
-            opacity: 0.9;
-        }
-        
-        /* Loading animation */
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #666;
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 10px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        /* Footer styles (preserved) */
-        footer {
-            background-color: #1f1f1f;
-            color: #fff;
-            text-align: center;
-            padding: 20px;
-            margin-top: 30px;
-        }
-        
-        .footer-logo {
-            max-width: 120px;
-            margin-bottom: 15px;
-        }
-        
-        .footer-info p {
-            margin: 5px 0;
-        }
-        
-        .tagline {
-            font-style: italic;
-            color: rgba(255, 255, 255, 0.7);
-        }
-        
-        /* Responsive design */
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-            
-            .masonry-item {
-                width: 200px;  /* Smaller width for tablets */
-                margin-bottom: 10px;
-            }
-            
-            .gallery-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .gallery-navigation {
-                padding: 15px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .masonry-item {
-                width: 150px;  /* Smaller width for mobile */
-                margin-bottom: 8px;
-            }
-            
-            .nav a {
-                margin: 5px 2px;
-                padding: 6px 10px;
-                font-size: 0.9rem;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <header>
-        <img src="/assets/huugs-media-logo.png" alt="Huugs Media" class="logo">
-        <h1>Huugs Media</h1>
-        <p class="subtitle">Creative photography that captures the essence of every moment</p>
-        <div class="nav">
-            <a href="#" onclick="showHome(); return false;" id="nav-home" class="active">Home</a>
-            <a href="#" onclick="showGalleryNavigation(); return false;" id="nav-browse">Browse Galleries</a>
-            <a href="/bio.html">About</a>
+<body class="type-2">
+    <!-- Navigation -->
+    <nav class="nav-wrapper">
+        <div class="nav-container">
+            <img src="/assets/huugs-media-logo.png" alt="Huugs Media" class="logo-nav">
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">Our Story</a></li>
+                <li><a href="#highlights">Portfolio</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <button class="mobile-menu-btn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
-    </header>
-    
-    <div class="container">
-        <!-- Status indicator -->
-        <div id="status" class="status">
-            <span id="status-text">Loading...</span>
-        </div>
-        
-        <!-- Home/Collections view -->
-        <div id="home-container">
-            <h2>Our Collections</h2>
-            <div id="collections-grid" class="collection-grid">
-                <!-- Collections will be loaded here -->
+    </nav>
+
+    <!-- Hero Section with Slider -->
+    <section class="hero" id="home">
+        <div class="hero-slider">
+            <div class="hero-slide active">
+                <img src="/pics/Sports/BigTen Championships - Hayward Field, Eugene, Oregon 2025-05/bigten_meet_IMG_8504.JPG" alt="Sports Action" onerror="this.src='/assets/hero-placeholder.jpg'">
+            </div>
+            <div class="hero-slide">
+                <img src="/pics/Sports/BigTen Championships - Hayward Field, Eugene, Oregon 2025-05/bigten_meet_IMG_7935.JPG" alt="Athletic Performance" onerror="this.src='/assets/hero-placeholder.jpg'">
+            </div>
+            <div class="hero-slide">
+                <img src="/pics/Sports/BigTen Championships - Hayward Field, Eugene, Oregon 2025-05/bigten_meet_IMG_8281.JPG" alt="Competition" onerror="this.src='/assets/hero-placeholder.jpg'">
             </div>
         </div>
-        
-        <!-- Gallery navigation view -->
-        <div id="navigation-container" style="display: none;">
-            <h2>Browse All Galleries</h2>
-            <div class="gallery-navigation">
-                <ul id="gallery-tree" class="gallery-tree">
-                    <!-- Navigation tree will be loaded here -->
-                </ul>
+        <div class="hero-content">
+            <p class="tagline">Where Legends Are Made</p>
+            <h1>Huugs Media</h1>
+            <p class="subtitle">Elite sports photography that captures the intensity, emotion, and glory of athletic competition</p>
+            <div class="cta-buttons">
+                <a href="#highlights" class="cta-btn cta-primary">View Portfolio</a>
+                <a href="#about" class="cta-btn cta-secondary">Our Story</a>
             </div>
         </div>
-        
-        <!-- Gallery view -->
-        <div id="gallery-container" class="gallery-container">
-            <div class="gallery-header">
-                <h2 id="gallery-title" class="gallery-title">Gallery</h2>
-                <div class="gallery-controls">
-                    <a href="#" onclick="showHome(); return false;" class="back-btn">← Back to Collections</a>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="stats-container">
+            <div class="stat-item">
+                <div class="stat-number">20</div>
+                <div class="stat-label">Years of Experience</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">10</div>
+                <div class="stat-label">Countries</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">1M+</div>
+                <div class="stat-label">Views Worldwide</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Passion</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about-section" id="about">
+        <div class="about-content">
+            <div class="about-text">
+                <h2>Our Story</h2>
+                <p>For over 20 years, I've dedicated my life to capturing moments that matter. My journey has taken me across 10 countries, from bustling street corners to serene landscapes, from historical moments to the raw energy of athletic competition.</p>
+                <p>My work spans landscape photography, historical documentary, and street art – but regardless of the subject, my mission remains the same: to convey and instill a sense of joy and wonder at the world around us.</p>
+                <p>Through my lens, I aim to remind viewers of this incredible opportunity we have to live an amazing life, surrounded by beautiful people and breathtaking scenes. Every photograph is a celebration of the human spirit and the magnificent world we inhabit.</p>
+                <p>With millions of people having experienced my work, I continue to be humbled and inspired by the power of photography to connect us all through shared moments of beauty, triumph, and emotion.</p>
+            </div>
+            <div class="about-image">
+                <img src="/pics/Sports/BigTen Championships - Hayward Field, Eugene, Oregon 2025-05/bigten_meet_IMG_7871.JPG" alt="About Huugs Media" onerror="this.src='/assets/placeholder.jpg'">
+            </div>
+        </div>
+    </section>
+
+    <!-- Highlights Section -->
+    <section class="highlights-section" id="highlights">
+        <div class="highlights-container">
+            <h2>Portfolio Highlights</h2>
+            <div class="highlights-masonry">
+                <div class="highlight-item large">
+                    <img src="/pics/Sports/BigTen Championships - Hayward Field, Eugene, Oregon 2025-05/bigten_meet_IMG_7788.JPG" alt="Championship Moment" onerror="this.src='/assets/placeholder.jpg'">
+                    <div class="highlight-overlay">
+                        <h3>BigTen Championships</h3>
+                        <p>Hayward Field, Eugene</p>
+                    </div>
+                </div>
+                <div class="highlight-item">
+                    <img src="/pics/Sports/BigTen Championships - Hayward Field, Eugene, Oregon 2025-05/bigten_meet_IMG_8120.JPG" alt="Athletic Focus" onerror="this.src='/assets/placeholder.jpg'">
+                    <div class="highlight-overlay">
+                        <h3>Focus & Determination</h3>
+                        <p>The moments before glory</p>
+                    </div>
+                </div>
+                <div class="highlight-item">
+                    <img src="/pics/Sports/BigTen Championships - Hayward Field, Eugene, Oregon 2025-05/bigten_meet_IMG_7859.JPG" alt="Victory Celebration" onerror="this.src='/assets/placeholder.jpg'">
+                    <div class="highlight-overlay">
+                        <h3>Victory</h3>
+                        <p>When hard work pays off</p>
+                    </div>
+                </div>
+                <div class="highlight-item">
+                    <img src="/pics/Sports/BigTen Championships - Hayward Field, Eugene, Oregon 2025-05/bigten_meet_IMG_8174.JPG" alt="Competition" onerror="this.src='/assets/placeholder.jpg'">
+                    <div class="highlight-overlay">
+                        <h3>Competition</h3>
+                        <p>Where champions rise</p>
+                    </div>
+                </div>
+                <div class="highlight-item">
+                    <img src="/pics/Sports/BigTen Championships - Hayward Field, Eugene, Oregon 2025-05/bigten_meet_IMG_9250.JPG" alt="Team Unity" onerror="this.src='/assets/placeholder.jpg'">
+                    <div class="highlight-overlay">
+                        <h3>United in Purpose</h3>
+                        <p>The power of teamwork</p>
+                    </div>
+                </div>
+                <div class="highlight-item">
+                    <img src="/pics/Sports/BigTen Championships - Hayward Field, Eugene, Oregon 2025-05/bigten_meet_IMG_7886.JPG" alt="Athletic Excellence" onerror="this.src='/assets/placeholder.jpg'">
+                    <div class="highlight-overlay">
+                        <h3>Excellence in Motion</h3>
+                        <p>Pushing beyond limits</p>
+                    </div>
                 </div>
             </div>
-            
-            <div id="masonry-grid" class="masonry-grid">
-                <!-- Gallery images will be loaded here -->
+            <div class="highlights-cta">
+                <a href="/highlights.html" class="cta-btn cta-primary">View Full Portfolio</a>
             </div>
         </div>
-    </div>
-    
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact-section" id="contact">
+        <div class="contact-container">
+            <h2>Let's Create Something Amazing</h2>
+            <p class="contact-intro">Whether you're looking to capture the essence of your sporting event, document a historical moment, or bring your creative vision to life, I'm here to help tell your story.</p>
+            <div class="contact-info">
+                <div class="contact-item">
+                    <h3>Get in Touch</h3>
+                    <p>Ready to work together? Let's discuss your project and create images that inspire joy and wonder.</p>
+                    <a href="/bio.html" class="cta-btn cta-secondary">Contact Me</a>
+                </div>
+                <div class="contact-item">
+                    <h3>Follow the Journey</h3>
+                    <p>Join me as I continue to explore the world, one frame at a time.</p>
+                    <div class="social-links">
+                        <a href="#">📷</a>
+                        <a href="#">📧</a>
+                        <a href="#">📱</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
     <footer>
-        <img src="/assets/huugs-media-logo.png" alt="Huugs Media" class="footer-logo">
-        <div class="footer-info">
-            <p>&copy; 2023 Huugs Media. All rights reserved.</p>
-            <p class="tagline">Creating visual stories that connect and inspire</p>
+        <div class="footer-content">
+            <img src="/assets/huugs-media-logo.png" alt="Huugs Media" class="footer-logo">
+            <div class="footer-links">
+                <a href="#home">Home</a>
+                <a href="#about">Our Story</a>
+                <a href="#highlights">Portfolio</a>
+                <a href="#contact">Contact</a>
+            </div>
+            <p class="copyright">&copy; 2025 Huugs Media. All rights reserved. Capturing moments that inspire joy and wonder.</p>
         </div>
     </footer>
-    
-    <!-- Fancybox JavaScript -->
-    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
-    
-    <!-- Masonry JavaScript -->
-    <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
-    <script src="https://unpkg.com/imagesloaded@5/imagesloaded.pkgd.min.js"></script>
-    
-    <script>
-        // Global state
-        let galleryConfig = null;
-        let navigationData = null;
-        let currentView = 'home';
-        let currentGallery = null;
-        let masonryInstance = null;
-        
-        // Initialize Fancybox
-        function initFancybox() {
-            Fancybox.bind("[data-fancybox]", {
-                Toolbar: {
-                    display: {
-                        left: ["infobar"],
-                        middle: [
-                            "zoomIn",
-                            "zoomOut",
-                            "toggle1to1",
-                            "rotateCCW",
-                            "rotateCW",
-                            "flipX",
-                            "flipY",
-                        ],
-                        right: ["slideshow", "download", "thumbs", "close"],
-                    },
-                },
-                Thumbs: {
-                    autoStart: false,
-                },
-                on: {
-                    // Update URL hash when image changes in lightbox
-                    "reveal": (fancybox, slide) => {
-                        const groupName = slide.groupName;
-                        const index = slide.index;
-                        if (groupName && typeof index !== 'undefined') {
-                            // Extract gallery path from group name (format: gallery-{path})
-                            const galleryPath = groupName.replace('gallery-', '');
-                            // Convert 0-based index to 1-based for user-friendly URLs
-                            const userFriendlyIndex = index + 1;
-                            const newHash = `#gallery-${galleryPath}-${userFriendlyIndex}`;
-                            history.replaceState(null, null, newHash);
-                        }
-                    },
-                    // Clear hash when lightbox closes
-                    "destroy": () => {
-                        if (currentGallery) {
-                            history.replaceState(null, null, `#gallery-${currentGallery}`);
-                        }
-                    }
-                }
-            });
-        }
-        
-        // Function to open specific image in lightbox
-        function openImageInLightbox(galleryPath, userImageNumber) {
-            const images = document.querySelectorAll(`[data-fancybox="gallery-${galleryPath}"]`);
-            // Convert 1-based user number to 0-based array index
-            const arrayIndex = userImageNumber - 1;
-            if (images.length > arrayIndex && arrayIndex >= 0) {
-                // Trigger click on the specific image to open Fancybox
-                images[arrayIndex].click();
-                return true;
-            }
-            return false;
-        }
-        
-        // Status management
-        function showStatus(message, type = 'loading') {
-            const status = document.getElementById('status');
-            const statusText = document.getElementById('status-text');
-            
-            statusText.innerHTML = type === 'loading' ? 
-                '<div class="loading-spinner"></div>' + message : message;
-            
-            status.className = `status visible ${type}`;
-            
-            if (type !== 'loading') {
-                setTimeout(() => {
-                    status.classList.remove('visible');
-                }, 3000);
-            }
-        }
-        
-        function hideStatus() {
-            const status = document.getElementById('status');
-            status.classList.remove('visible');
-        }
-        
-        // Load configuration files
-        async function loadConfig() {
-            try {
-                showStatus('Loading gallery configuration...');
-                
-                const [configResponse, navResponse] = await Promise.all([
-                    fetch('/gallery-config.json'),
-                    fetch('/navigation.json')
-                ]);
-                
-                if (!configResponse.ok || !navResponse.ok) {
-                    throw new Error('Failed to load configuration files');
-                }
-                
-                window.galleryConfig = await configResponse.json();
-                window.navigationData = await navResponse.json();
-                
-                // Also assign to global variables for compatibility
-                galleryConfig = window.galleryConfig;
-                navigationData = window.navigationData;
-                
-                console.log('✅ Configuration loaded:', {
-                    galleries: Object.keys(galleryConfig.galleries).length,
-                    navigation: navigationData.length
-                });
-                
-                hideStatus();
-                return true;
-            } catch (error) {
-                console.error('Error loading config:', error);
-                showStatus('Error loading gallery configuration. Please try refreshing the page.', 'error');
-                return false;
-            }
-        }
-        
-        // Show home view
-        function showHome() {
-            currentView = 'home';
-            document.getElementById('home-container').style.display = 'block';
-            document.getElementById('navigation-container').style.display = 'none';
-            document.getElementById('gallery-container').classList.remove('visible');
-            
-            // Update navigation
-            document.getElementById('nav-home').classList.add('active');
-            document.getElementById('nav-browse').classList.remove('active');
-            
-            if (galleryConfig) {
-                renderCollections();
-            }
-        }
-        
-        // Show gallery navigation
-        function showGalleryNavigation() {
-            currentView = 'navigation';
-            document.getElementById('home-container').style.display = 'none';
-            document.getElementById('navigation-container').style.display = 'block';
-            document.getElementById('gallery-container').classList.remove('visible');
-            
-            // Update navigation
-            document.getElementById('nav-home').classList.remove('active');
-            document.getElementById('nav-browse').classList.add('active');
-            
-            if (navigationData) {
-                renderNavigation();
-            }
-        }
-        
-        // Render collections on home page
-        function renderCollections() {
-            const grid = document.getElementById('collections-grid');
-            let html = '';
-            
-            // Show all galleries as collections - removed arbitrary 12 limit
-            const allGalleries = Object.keys(galleryConfig.galleries);
-            
-            allGalleries.forEach(galleryPath => {
-                const gallery = galleryConfig.galleries[galleryPath];
-                if (gallery.images.length > 0) {
-                    const firstImage = gallery.images[0];
-                    const displayName = gallery.name;
-                    
-                    html += `
-                        <div class="collection-card">
-                            <a href="#" onclick="loadGallery('${galleryPath}'); return false;">
-                                <img src="${firstImage.thumbnailPath}" alt="${displayName}" loading="lazy">
-                                <div class="collection-info">
-                                    <h3>${displayName}</h3>
-                                    <p>${gallery.images.length} photos</p>
-                                </div>
-                            </a>
-                        </div>
-                    `;
-                }
-            });
-            
-            if (html === '') {
-                html = '<p>No galleries available. Please process images first.</p>';
-            }
-            
-            grid.innerHTML = html;
-        }
-        
-        // Render navigation tree
-        function renderNavigation() {
-            const tree = document.getElementById('gallery-tree');
-            let html = '';
-            
-            navigationData.forEach(item => {
-                if (item.hasImages) {
-                    const displayName = item.name;
-                    const levelClass = item.level > 0 ? `level-${item.level}` : '';
-                    
-                    html += `
-                        <li>
-                            <a href="#" onclick="loadGallery('${item.path}'); return false;" 
-                               class="${levelClass}">
-                                ${displayName}
-                                <span class="image-count">(${item.imageCount} photos)</span>
-                            </a>
-                        </li>
-                    `;
-                }
-            });
-            
-            tree.innerHTML = html;
-        }
-        
-        // Load and display a gallery
-        async function loadGallery(galleryPath) {
-            if (!galleryConfig || !galleryConfig.galleries[galleryPath]) {
-                showStatus('Gallery not found', 'error');
-                return Promise.reject('Gallery not found');
-            }
-            
-            currentView = 'gallery';
-            currentGallery = galleryPath;
-            
-            const gallery = galleryConfig.galleries[galleryPath];
-            
-            // Show gallery container
-            document.getElementById('home-container').style.display = 'none';
-            document.getElementById('navigation-container').style.display = 'none';
-            document.getElementById('gallery-container').classList.add('visible');
-            
-            // Update title
-            const displayName = gallery.name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-            document.getElementById('gallery-title').textContent = displayName;
-            
-            // Clear previous masonry
-            if (masonryInstance) {
-                masonryInstance.destroy();
-                masonryInstance = null;
-            }
-            
-            showStatus(`Loading ${gallery.images.length} photos...`);
-            
-            // Update URL hash for gallery (if not already a deep link)
-            if (!window.location.hash.includes(`gallery-${galleryPath}-`)) {
-                history.replaceState(null, null, `#gallery-${galleryPath}`);
-            }
-            
-            // Render images
-            const grid = document.getElementById('masonry-grid');
-            let html = '';
-            
-            gallery.images.forEach((image, index) => {
-                html += `
-                    <div class="masonry-item">
-                        <img src="${image.thumbnailPath}" 
-                             alt="${image.name}"
-                             data-fancybox="gallery-${galleryPath}"
-                             data-src="${image.webPath}"
-                             data-caption="${image.name}"
-                             loading="lazy">
-                    </div>
-                `;
-            });
-            
-            grid.innerHTML = html;
-            
-            // Return a promise that resolves when masonry is initialized
-            return new Promise((resolve) => {
-                // Initialize masonry after images load
-                imagesLoaded(grid, function() {
-                    // Initialize masonry layout
-                    masonryInstance = new Masonry(grid, {
-                        itemSelector: '.masonry-item',
-                        columnWidth: 250,  // Fixed width to match CSS
-                        gutter: 15,
-                        fitWidth: true  // Center the grid
-                    });
-                    
-                    hideStatus();
-                    initFancybox();
-                    resolve();
-                });
-            });
-        }
-        
-        // Handle URL parameters and hash fragments
-        function handleURLParams() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const hash = window.location.hash;
-            
-            // Handle hash-based navigation (e.g., #gallery-events/Saturday%20Market-25)
-            if (hash.startsWith('#gallery-')) {
-                const hashContent = hash.substring(9); // Remove '#gallery-'
-                const parts = hashContent.split('-');
-                
-                if (parts.length >= 1) {
-                    // Extract gallery path (everything except potentially the last number)
-                    let galleryPath = parts.slice(0, -1).join('-');
-                    let userImageNumber = null;
-                    
-                    // Check if the last part is a number (image index)
-                    const lastPart = parts[parts.length - 1];
-                    if (!isNaN(lastPart) && lastPart !== '') {
-                        userImageNumber = parseInt(lastPart);
-                        // Gallery path is everything except the last part
-                        galleryPath = parts.slice(0, -1).join('-');
-                    } else {
-                        // No image index, include the last part in gallery path
-                        galleryPath = parts.join('-');
-                    }
-                    
-                    // Decode URL encoding
-                    galleryPath = decodeURIComponent(galleryPath);
-                    
-                    console.log('Deep link detected:', { 
-                        originalHash: hash,
-                        galleryPath, 
-                        userImageNumber,
-                        note: userImageNumber ? `Will open image #${userImageNumber} (array index ${userImageNumber - 1})` : 'No specific image'
-                    });
-                    
-                    // Load gallery first
-                    loadGallery(galleryPath).then(() => {
-                        // If image number is specified, open that image after a short delay
-                        if (userImageNumber !== null && userImageNumber >= 1) {
-                            setTimeout(() => {
-                                const success = openImageInLightbox(galleryPath, userImageNumber);
-                                if (!success) {
-                                    console.warn(`Image #${userImageNumber} not found in gallery ${galleryPath}`);
-                                }
-                            }, 500); // Wait for masonry to initialize
-                        }
-                    });
-                    return;
-                }
-            }
-            
-            // Handle traditional query parameters
-            if (urlParams.has('gallery')) {
-                const galleryPath = urlParams.get('gallery');
-                loadGallery(galleryPath);
-            } else if (urlParams.has('browse')) {
-                showGalleryNavigation();
-            } else if (!hash || hash === '#') {
-                showHome();
-            }
-        }
-        
-        // Initialize application
-        async function init() {
-            const success = await loadConfig();
-            if (success) {
-                showHome();
-                handleURLParams();
-            }
-        }
-        
-        // Start application when DOM is loaded
-        document.addEventListener('DOMContentLoaded', init);
-        
-        // Handle browser back/forward and hash changes
-        window.addEventListener('popstate', function() {
-            handleURLParams();
-        });
-        
-        window.addEventListener('hashchange', function() {
-            handleURLParams();
-        });
-    </script>
+
+    <script src="script.js"></script>
 </body>
 </html> 
