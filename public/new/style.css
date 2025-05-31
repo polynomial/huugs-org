@@ -154,11 +154,13 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
+    visibility: hidden;
     opacity: 0;
-    transition: opacity 1s ease;
+    transition: visibility 0s, opacity 0.5s ease-in-out;
 }
 
 .hero-slide.active {
+    visibility: visible;
     opacity: 1;
 }
 
@@ -339,18 +341,14 @@ body {
     left: -50%;
     width: 200%;
     height: 200%;
-    background: linear-gradient(45deg, transparent, rgba(255,68,68,0.3), transparent);
+    background: linear-gradient(45deg, transparent, rgba(255,68,68,0.1), transparent);
     transform: rotate(45deg);
-    transition: all 0.5s ease;
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .about-image:hover::before {
-    animation: shine 0.5s ease;
-}
-
-@keyframes shine {
-    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-    100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    opacity: 1;
 }
 
 /* Highlights Section */

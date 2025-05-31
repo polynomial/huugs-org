@@ -590,77 +590,39 @@
             }
         }
         
-        // Render collections on home page
+        // Override renderCollections to use only highlights
         function renderCollections() {
             const grid = document.getElementById('collections-grid');
+            
+            // Use only highlights images
+            const highlightsData = [
+                { path: 'highlights', name: 'Featured Highlights', image: '../highlights/DSC00140.JPG', count: 12 },
+                { path: 'highlights-action', name: 'Action Shots', image: '../highlights/DSC02043.JPG', count: 8 },
+                { path: 'highlights-moments', name: 'Defining Moments', image: '../highlights/DSC00689.JPG', count: 10 }
+            ];
+            
             let html = '';
-            
-            // Show all galleries as collections - removed arbitrary 12 limit
-            const allGalleries = Object.keys(galleryConfig.galleries);
-            
-            allGalleries.forEach(galleryPath => {
-                const gallery = galleryConfig.galleries[galleryPath];
-                if (gallery.images.length > 0) {
-                    const firstImage = gallery.images[0];
-                    const displayName = gallery.name;
-                    
-                    html += `
-                        <div class="collection-card">
-                            <a href="#" onclick="loadGallery('${galleryPath}'); return false;">
-                                <img src="${firstImage.thumbnailPath}" alt="${displayName}" loading="lazy">
-                                <div class="collection-info">
-                                    <h3>${displayName}</h3>
-                                    <p>${gallery.images.length} photos</p>
-                                </div>
-                            </a>
-                        </div>
-                    `;
-                }
+            highlightsData.forEach(collection => {
+                html += `
+                    <div class="collection-card">
+                        <a href="#" onclick="loadHighlightsGallery('${collection.path}'); return false;">
+                            <img src="${collection.image}" alt="${collection.name}" loading="lazy" onerror="this.src='assets/placeholder.jpg'">
+                            <div class="collection-info">
+                                <h3>${collection.name}</h3>
+                                <p>${collection.count} photos</p>
+                            </div>
+                        </a>
+                    </div>
+                `;
             });
-            
-            if (html === '') {
-                html = '<p>No galleries available. Please process images first.</p>';
-            }
             
             grid.innerHTML = html;
         }
         
-        // Render navigation tree
-        function renderNavigation() {
-            const tree = document.getElementById('gallery-tree');
-            let html = '';
-            
-            navigationData.forEach(item => {
-                if (item.hasImages) {
-                    const displayName = item.name;
-                    const levelClass = item.level > 0 ? `level-${item.level}` : '';
-                    
-                    html += `
-                        <li>
-                            <a href="#" onclick="loadGallery('${item.path}'); return false;" 
-                               class="${levelClass}">
-                                ${displayName}
-                                <span class="image-count">(${item.imageCount} photos)</span>
-                            </a>
-                        </li>
-                    `;
-                }
-            });
-            
-            tree.innerHTML = html;
-        }
-        
-        // Load and display a gallery
-        async function loadGallery(galleryPath) {
-            if (!galleryConfig || !galleryConfig.galleries[galleryPath]) {
-                showStatus('Gallery not found', 'error');
-                return Promise.reject('Gallery not found');
-            }
-            
+        // Create a custom gallery loader for highlights
+        function loadHighlightsGallery(galleryName) {
             currentView = 'gallery';
-            currentGallery = galleryPath;
-            
-            const gallery = galleryConfig.galleries[galleryPath];
+            currentGallery = galleryName;
             
             // Show gallery container
             document.getElementById('home-container').style.display = 'none';
@@ -668,8 +630,7 @@
             document.getElementById('gallery-container').classList.add('visible');
             
             // Update title
-            const displayName = gallery.name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-            document.getElementById('gallery-title').textContent = displayName;
+            document.getElementById('gallery-title').textContent = galleryName.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
             
             // Clear previous masonry
             if (masonryInstance) {
@@ -677,49 +638,57 @@
                 masonryInstance = null;
             }
             
-            showStatus(`Loading ${gallery.images.length} photos...`);
+            // All highlights images
+            const highlightsImages = [
+                'DSC00140.JPG', 'DSC00409.JPG', 'DSC00503.JPG', 'DSC00613.JPG',
+                'DSC00689.JPG', 'DSC00805.JPG', 'DSC00829.JPG', 'DSC01198.JPG',
+                'DSC01482.JPG', 'DSC01756.JPG', 'DSC01767.JPG', 'DSC02043.JPG'
+            ];
             
-            // Update URL hash for gallery (if not already a deep link)
-            if (!window.location.hash.includes(`gallery-${galleryPath}-`)) {
-                history.replaceState(null, null, `#gallery-${galleryPath}`);
-            }
-            
-            // Render images
             const grid = document.getElementById('masonry-grid');
             let html = '';
             
-            gallery.images.forEach((image, index) => {
+            highlightsImages.forEach((imageName, index) => {
                 html += `
                     <div class="masonry-item">
-                        <img src="${image.thumbnailPath}" 
-                             alt="${image.name}"
-                             data-fancybox="gallery-${galleryPath}"
-                             data-src="${image.webPath}"
-                             data-caption="${image.name}"
-                             loading="lazy">
+                        <img src="../highlights/${imageName}" 
+                             alt="Highlight ${index + 1}"
+                             data-fancybox="gallery-${galleryName}"
+                             data-src="../highlights/${imageName}"
+                             data-caption="Highlight ${index + 1}"
+                             loading="lazy"
+                             onerror="this.src='assets/placeholder.jpg'">
                     </div>
                 `;
             });
             
             grid.innerHTML = html;
             
-            // Return a promise that resolves when masonry is initialized
-            return new Promise((resolve) => {
-                // Initialize masonry after images load
-                imagesLoaded(grid, function() {
-                    // Initialize masonry layout
-                    masonryInstance = new Masonry(grid, {
-                        itemSelector: '.masonry-item',
-                        columnWidth: 250,  // Fixed width to match CSS
-                        gutter: 15,
-                        fitWidth: true  // Center the grid
-                    });
-                    
-                    hideStatus();
-                    initFancybox();
-                    resolve();
+            // Initialize masonry after images load
+            imagesLoaded(grid, function() {
+                masonryInstance = new Masonry(grid, {
+                    itemSelector: '.masonry-item',
+                    columnWidth: 250,
+                    gutter: 15,
+                    fitWidth: true
                 });
+                
+                hideStatus();
+                initFancybox();
             });
+        }
+        
+        // Override the navigation tree to show only highlights
+        function renderNavigation() {
+            const tree = document.getElementById('gallery-tree');
+            
+            const highlightsNav = `
+                <li><a href="#" onclick="loadHighlightsGallery('highlights'); return false;">All Highlights <span class="image-count">(12 photos)</span></a></li>
+                <li><a href="#" onclick="loadHighlightsGallery('highlights-action'); return false;" class="level-1">Action Shots <span class="image-count">(8 photos)</span></a></li>
+                <li><a href="#" onclick="loadHighlightsGallery('highlights-moments'); return false;" class="level-1">Defining Moments <span class="image-count">(10 photos)</span></a></li>
+            `;
+            
+            tree.innerHTML = highlightsNav;
         }
         
         // Handle URL parameters and hash fragments
