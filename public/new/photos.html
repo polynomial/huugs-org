@@ -805,6 +805,30 @@
         window.addEventListener('hashchange', function() {
             handleURLParams();
         });
+        
+        // Placeholder for gallery loading functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const galleriesDiv = document.getElementById('galleries');
+            galleriesDiv.innerHTML = `
+                <div class="gallery-grid">
+                    <div class="gallery-item">
+                        <img src="../highlights/DSC00140.JPG" alt="Featured Photography" onerror="this.src='assets/placeholder.jpg'">
+                        <h3>Highlights Collection</h3>
+                        <p>Our best captures</p>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="../highlights/DSC02043.JPG" alt="Sports Photography" onerror="this.src='assets/placeholder.jpg'">
+                        <h3>Athletic Excellence</h3>
+                        <p>Capturing peak performance</p>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="../highlights/DSC00689.JPG" alt="Competition" onerror="this.src='assets/placeholder.jpg'">
+                        <h3>Competition Spirit</h3>
+                        <p>Where champions are made</p>
+                    </div>
+                </div>
+            `;
+        });
     </script>
 </body>
 </html> 
