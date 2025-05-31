@@ -201,9 +201,35 @@
             margin-top: 60px;
         }
         
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
         .footer-logo {
             max-width: 120px;
             margin-bottom: 15px;
+        }
+        
+        .footer-links {
+            margin: 20px 0;
+        }
+        
+        .footer-links a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 15px;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: #e74c3c;
+        }
+        
+        .copyright {
+            margin: 15px 0 0 0;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
         }
         
         .footer-info p {
@@ -242,9 +268,9 @@
         <p class="subtitle">Featured Highlights from Our Portfolio</p>
         <div class="nav">
             <a href="/">Home</a>
-            <a href="/photos.html">Full Gallery</a>
-            <a href="/highlights.html" class="active">Highlights</a>
-            <a href="/bio.html">About</a>
+            <a href="/#about">Our Story</a>
+            <a href="/highlights.html" class="active">Portfolio</a>
+            <a href="/#contact">Contact</a>
         </div>
     </header>
     
@@ -330,10 +356,15 @@
     </div>
     
     <footer>
-        <img src="/assets/huugs-media-logo.png" alt="Huugs Media" class="footer-logo">
-        <div class="footer-info">
-            <p>&copy; 2025 Huugs Media. All rights reserved.</p>
-            <p class="tagline">Capturing the defining moments in sports</p>
+        <div class="footer-content">
+            <img src="/assets/huugs-media-logo.png" alt="Huugs Media" class="footer-logo">
+            <div class="footer-links">
+                <a href="/">Home</a>
+                <a href="/#about">Our Story</a>
+                <a href="/highlights.html">Portfolio</a>
+                <a href="/#contact">Contact</a>
+            </div>
+            <p class="copyright">&copy; 2025 Huugs Media. All rights reserved. Capturing moments that inspire joy and wonder.</p>
         </div>
     </footer>
     
