@@ -68,10 +68,10 @@ function initNavScrollEffect() {
     
     window.addEventListener('scroll', () => {
         if (window.scrollY > 50) {
-            nav.style.background = 'rgba(17, 17, 17, 0.98)';
+            nav.style.background = 'rgba(26, 26, 26, 0.98)';
             nav.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.5)';
         } else {
-            nav.style.background = 'rgba(17, 17, 17, 0.95)';
+            nav.style.background = 'rgba(26, 26, 26, 0.95)';
             nav.style.boxShadow = 'none';
         }
     });

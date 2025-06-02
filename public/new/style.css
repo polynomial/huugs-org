@@ -9,7 +9,7 @@ body {
     font-family: 'Montserrat', Arial, sans-serif;
     overflow-x: hidden;
     transition: all 0.3s ease;
-    background: #111;
+    background: #1a1a1a;
     color: #fff;
 }
 
@@ -21,7 +21,7 @@ body {
     width: 100%;
     z-index: 1000;
     transition: all 0.3s ease;
-    background: rgba(17, 17, 17, 0.95);
+    background: rgba(26, 26, 26, 0.95);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
 }
@@ -98,7 +98,7 @@ body {
     top: 60px;
     left: 0;
     right: 0;
-    background: rgba(17, 17, 17, 0.98);
+    background: rgba(26, 26, 26, 0.98);
     flex-direction: column;
     padding: 20px;
     gap: 20px;
@@ -248,7 +248,7 @@ body {
 /* Stats Section */
 .stats-section {
     padding: 80px 0;
-    background: #111;
+    background: #1a1a1a;
 }
 
 .stats-container {
@@ -289,7 +289,7 @@ body {
 /* About Section */
 .about-section {
     padding: 100px 0;
-    background: #111;
+    background: #1a1a1a;
     position: relative;
 }
 
@@ -354,7 +354,7 @@ body {
 /* Highlights Section */
 .highlights-section {
     padding: 100px 0;
-    background: #111;
+    background: #1a1a1a;
 }
 
 .highlights-container {
@@ -434,7 +434,7 @@ body {
 /* Contact Section */
 .contact-section {
     padding: 100px 0;
-    background: #111;
+    background: #1a1a1a;
     border-top: 1px solid #333;
 }
 
@@ -471,7 +471,7 @@ body {
 
 .contact-item {
     padding: 40px;
-    background: #111;
+    background: #1a1a1a;
     border: 2px solid #333;
     transition: all 0.3s ease;
 }
@@ -535,7 +535,7 @@ body {
 
 /* Footer */
 footer {
-    background: #111;
+    background: #1a1a1a;
     padding: 80px 0 40px;
     border-top: 1px solid #333;
 }
