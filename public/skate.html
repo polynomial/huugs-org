@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting to Skate Park Gallery - Huugs Media</title>
+    
+    <!-- Meta refresh redirect -->
+    <meta http-equiv="refresh" content="0; url=https://photos.app.goo.gl/wMetdAKc53GwgrYQ8">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://photos.app.goo.gl/wMetdAKc53GwgrYQ8">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        .redirect-container {
+            max-width: 500px;
+            padding: 2rem;
+        }
+        .logo {
+            max-width: 200px;
+            margin-bottom: 2rem;
+        }
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #ff6b35;
+        }
+        p {
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        .redirect-link {
+            display: inline-block;
+            background: #ff6b35;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+        }
+        .redirect-link:hover {
+            background: #e55a2b;
+        }
+        .loading {
+            margin-top: 2rem;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="redirect-container">
+        <img src="/assets/huugs-media-logo.png" alt="Huugs Media" class="logo" onerror="this.style.display='none'">
+        <h1>Skate Park Gallery</h1>
+        <p>You're being redirected to our Skate Park photo collection from Eugene, Oregon (2025).</p>
+        <p>If you're not redirected automatically, click the link below:</p>
+        <a href="https://photos.app.goo.gl/wMetdAKc53GwgrYQ8" class="redirect-link">View Skate Park Photos</a>
+        <div class="loading">
+            <p>Redirecting in <span id="countdown">3</span> seconds...</p>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript redirect fallback with countdown
+        let countdown = 3;
+        const countdownElement = document.getElementById('countdown');
+        
+        const timer = setInterval(() => {
+            countdown--;
+            countdownElement.textContent = countdown;
+            
+            if (countdown <= 0) {
+                clearInterval(timer);
+                window.location.href = 'https://photos.app.goo.gl/wMetdAKc53GwgrYQ8';
+            }
+        }, 1000);
+        
+        // Immediate redirect for browsers that support it
+        setTimeout(() => {
+            window.location.href = 'https://photos.app.goo.gl/wMetdAKc53GwgrYQ8';
+        }, 100);
+    </script>
+</body>
+</html> 
