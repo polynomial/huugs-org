@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track & Field Gallery - Huugs Media</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&family=Bebas+Neue&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            color: white;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: rgba(26, 26, 26, 0.95);
+            padding: 2rem 0;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 3rem;
+            color: #ff6b35;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+
+        .nav-home {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+        }
+
+        .nav-home a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .nav-home a:hover {
+            color: #ff6b35;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .albums-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .album-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .album-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 107, 53, 0.3);
+        }
+
+        .album-image {
+            width: 100%;
+            height: 250px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .album-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .album-card:hover .album-image img {
+            transform: scale(1.05);
+        }
+
+        .album-content {
+            padding: 1.5rem;
+        }
+
+        .album-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .album-date {
+            color: #ff6b35;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .album-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #ff6b35, #e55a2b);
+            color: white;
+            padding: 0.7rem 1.5rem;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .album-link:hover {
+            background: linear-gradient(135deg, #e55a2b, #cc4e24);
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+        }
+
+        .stats {
+            text-align: center;
+            margin: 2rem 0;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stats h2 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 2rem;
+            color: #ff6b35;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .albums-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .container {
+                padding: 2rem 1rem;
+            }
+
+            .nav-home {
+                position: static;
+                text-align: center;
+                margin-bottom: 1rem;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            opacity: 0.7;
+        }
+
+        .empty-state h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #ff6b35;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-home">
+        <a href="/">&larr; Back to Home</a>
+    </div>
+
+    <div class="header">
+        <h1>Track & Field Gallery</h1>
+        <p>Capturing the speed, power, and grace of track and field competition</p>
+    </div>
+
+    <div class="container">
+        <div class="stats">
+            <h2>Track Meet Collection</h2>
+            <p>8 photo albums from track and field events</p>
+        </div>
+
+        
+        <div class="albums-grid">
+            
+            <div class="album-card" data-date="2025-06-07">
+                <div class="album-image">
+                    <img src="/assets/placeholder.jpg" alt="Track Meet" 
+                         onerror="this.src='/assets/placeholder.jpg'">
+                </div>
+                <div class="album-content">
+                    <h3 class="album-title">Track Meet</h3>
+                    <p class="album-date">June 6, 2025</p>
+                    <a href="https://photos.app.goo.gl/JQwpoEjKQFSeNFa8A" class="album-link" target="_blank" rel="noopener">
+                        View Photos
+                    </a>
+                </div>
+            </div>
+        
+            <div class="album-card" data-date="2025-06-07">
+                <div class="album-image">
+                    <img src="/assets/placeholder.jpg" alt="Track Meet" 
+                         onerror="this.src='/assets/placeholder.jpg'">
+                </div>
+                <div class="album-content">
+                    <h3 class="album-title">Track Meet</h3>
+                    <p class="album-date">June 6, 2025</p>
+                    <a href="https://photos.app.goo.gl/HYEXM1dSqsL39DG77" class="album-link" target="_blank" rel="noopener">
+                        View Photos
+                    </a>
+                </div>
+            </div>
+        
+            <div class="album-card" data-date="2025-06-07">
+                <div class="album-image">
+                    <img src="/assets/placeholder.jpg" alt="Track Meet" 
+                         onerror="this.src='/assets/placeholder.jpg'">
+                </div>
+                <div class="album-content">
+                    <h3 class="album-title">Track Meet</h3>
+                    <p class="album-date">June 6, 2025</p>
+                    <a href="https://photos.app.goo.gl/GiZqen3TDbikmCS98" class="album-link" target="_blank" rel="noopener">
+                        View Photos
+                    </a>
+                </div>
+            </div>
+        
+            <div class="album-card" data-date="2025-06-07">
+                <div class="album-image">
+                    <img src="/assets/placeholder.jpg" alt="Track Meet" 
+                         onerror="this.src='/assets/placeholder.jpg'">
+                </div>
+                <div class="album-content">
+                    <h3 class="album-title">Track Meet</h3>
+                    <p class="album-date">June 6, 2025</p>
+                    <a href="https://photos.app.goo.gl/MuBFuTgYmLfwE4ws7" class="album-link" target="_blank" rel="noopener">
+                        View Photos
+                    </a>
+                </div>
+            </div>
+        
+            <div class="album-card" data-date="2025-06-07">
+                <div class="album-image">
+                    <img src="/assets/placeholder.jpg" alt="Track Meet" 
+                         onerror="this.src='/assets/placeholder.jpg'">
+                </div>
+                <div class="album-content">
+                    <h3 class="album-title">Track Meet</h3>
+                    <p class="album-date">June 6, 2025</p>
+                    <a href="https://photos.app.goo.gl/tdmpo3mTb4Rdg2LV6" class="album-link" target="_blank" rel="noopener">
+                        View Photos
+                    </a>
+                </div>
+            </div>
+        
+            <div class="album-card" data-date="2025-06-07">
+                <div class="album-image">
+                    <img src="/assets/placeholder.jpg" alt="Track Meet" 
+                         onerror="this.src='/assets/placeholder.jpg'">
+                </div>
+                <div class="album-content">
+                    <h3 class="album-title">Track Meet</h3>
+                    <p class="album-date">June 6, 2025</p>
+                    <a href="https://photos.app.goo.gl/MEZexwoBUukrLd5i9" class="album-link" target="_blank" rel="noopener">
+                        View Photos
+                    </a>
+                </div>
+            </div>
+        
+            <div class="album-card" data-date="2025-06-07">
+                <div class="album-image">
+                    <img src="/assets/placeholder.jpg" alt="Track Meet" 
+                         onerror="this.src='/assets/placeholder.jpg'">
+                </div>
+                <div class="album-content">
+                    <h3 class="album-title">Track Meet</h3>
+                    <p class="album-date">June 6, 2025</p>
+                    <a href="https://photos.app.goo.gl/sRki7HVcxZDv3MY99" class="album-link" target="_blank" rel="noopener">
+                        View Photos
+                    </a>
+                </div>
+            </div>
+        
+            <div class="album-card" data-date="2025-06-07">
+                <div class="album-image">
+                    <img src="/assets/placeholder.jpg" alt="Track Meet" 
+                         onerror="this.src='/assets/placeholder.jpg'">
+                </div>
+                <div class="album-content">
+                    <h3 class="album-title">Track Meet</h3>
+                    <p class="album-date">June 6, 2025</p>
+                    <a href="https://photos.app.goo.gl/ff8fvTqsM1BHbbWJ9" class="album-link" target="_blank" rel="noopener">
+                        View Photos
+                    </a>
+                </div>
+            </div>
+        
+        </div>
+        
+    </div>
+
+    <script>
+        // Add any interactive features here
+        console.log('Track Gallery loaded with 8 albums');
+    </script>
+</body>
+</html>

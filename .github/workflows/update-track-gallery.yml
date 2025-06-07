@@ -1,0 +1,74 @@
+name: Update Track Gallery
+
+on:
+  push:
+    paths:
+      - 'track_albums'
+    branches:
+      - main
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  update-track-gallery:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Install Nix
+        uses: cachix/install-nix-action@v25
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+          
+      - name: Generate Track Gallery
+        run: |
+          echo "🏃 Generating track gallery from updated track_albums file..."
+          nix-shell --run "node scripts/generate-track-gallery.js"
+          
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if git diff --quiet public/track/index.html; then
+            echo "No changes detected in track gallery"
+            echo "changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected in track gallery"
+            echo "changes=true" >> $GITHUB_OUTPUT
+          fi
+          
+      - name: Commit and push changes
+        if: steps.check_changes.outputs.changes == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add public/track/index.html
+          git commit -m "🏃 Auto-update track gallery from track_albums changes"
+          git push
+          
+      - name: Create summary
+        run: |
+          echo "## Track Gallery Update Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.check_changes.outputs.changes }}" == "true" ]; then
+            echo "✅ **Track gallery updated successfully!**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "📊 **Statistics:**" >> $GITHUB_STEP_SUMMARY
+            
+            # Count albums in track_albums file
+            ALBUM_COUNT=$(grep -c "https://photos.app.goo.gl" track_albums || echo "0")
+            echo "- Albums processed: $ALBUM_COUNT" >> $GITHUB_STEP_SUMMARY
+            echo "- Output file: \`public/track/index.html\`" >> $GITHUB_STEP_SUMMARY
+            echo "- Live URL: https://huugs.org/track" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "🎯 **Next Steps:**" >> $GITHUB_STEP_SUMMARY
+            echo "- The updated gallery will be live once GitHub Pages deploys" >> $GITHUB_STEP_SUMMARY
+            echo "- Visit https://huugs.org/track to see the updated gallery" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "ℹ️ **No changes needed**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "The track gallery is already up to date with the current track_albums file." >> $GITHUB_STEP_SUMMARY
+          fi 
