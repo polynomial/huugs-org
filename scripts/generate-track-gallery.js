@@ -5,6 +5,14 @@ const path = require('path');
 const https = require('https');
 const { promisify } = require('util');
 
+// Check if puppeteer is available, fall back to simple HTTP if not
+let puppeteer;
+try {
+    puppeteer = require('puppeteer');
+} catch (e) {
+    console.log('⚠️  Puppeteer not available, falling back to simple HTTP scraping');
+}
+
 // Promisify fs functions
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
@@ -78,12 +86,147 @@ class TrackGalleryGenerator {
 
     async fetchAlbumData(url) {
         try {
-            const html = await this.fetchUrl(url);
-            const albumData = this.parseAlbumData(html, url);
+            let albumData;
+            
+            if (puppeteer && process.env.PUPPETEER_EXECUTABLE_PATH) {
+                albumData = await this.fetchAlbumDataWithPuppeteer(url);
+            } else {
+                console.log(`   📄 Using fallback HTTP scraping for ${url}`);
+                const html = await this.fetchUrl(url);
+                albumData = this.parseAlbumData(html, url);
+            }
+            
             return albumData;
         } catch (error) {
             console.warn(`⚠️  Could not fetch data for ${url}: ${error.message}`);
             return this.createFallbackAlbumData(url);
+        }
+    }
+
+    async fetchAlbumDataWithPuppeteer(url) {
+        let browser;
+        try {
+            browser = await puppeteer.launch({
+                headless: true,
+                executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--disable-gpu'
+                ]
+            });
+
+            const page = await browser.newPage();
+            await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+            
+            console.log(`   🌐 Loading page: ${url}`);
+            await page.goto(url, { waitUntil: 'networkidle0', timeout: 30000 });
+
+            // Wait for content to load and try to trigger photo loading
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // Scroll down to trigger lazy loading of photos
+            await page.evaluate(() => {
+                window.scrollTo(0, 500);
+            });
+            
+            await new Promise(resolve => setTimeout(resolve, 3000));
+
+            // Try to extract album title
+            const title = await page.evaluate(() => {
+                // Try various selectors for the album title
+                const selectors = [
+                    'h1',
+                    '[data-test-id="album-title"]',
+                    '.VfPpkd-LgbsSe',
+                    '.album-title',
+                    'title'
+                ];
+                
+                for (const selector of selectors) {
+                    const element = document.querySelector(selector);
+                    if (element && element.textContent && element.textContent.trim()) {
+                        return element.textContent.trim();
+                    }
+                }
+                
+                // Check document title
+                if (document.title) {
+                    return document.title.replace(/ - Google Photos$/, '').trim();
+                }
+                
+                return null;
+            });
+
+            // Try to extract date information
+            const date = await page.evaluate(() => {
+                // Look for date patterns in the page
+                const text = document.body.innerText;
+                const datePatterns = [
+                    /(\w+\s+\d{1,2},\s+\d{4})/g,
+                    /(\d{4}-\d{2}-\d{2})/g,
+                    /(\d{1,2}\/\d{1,2}\/\d{4})/g
+                ];
+                
+                for (const pattern of datePatterns) {
+                    const matches = text.match(pattern);
+                    if (matches && matches[0]) {
+                        try {
+                            const testDate = new Date(matches[0]);
+                            if (!isNaN(testDate.getTime()) && testDate.getFullYear() > 2020) {
+                                return testDate.toISOString().split('T')[0];
+                            }
+                        } catch (e) {
+                            // Continue
+                        }
+                    }
+                }
+                return null;
+            });
+
+            // Extract the first photo from the album
+            const heroImage = await page.evaluate(() => {
+                // Look for images that are clearly album photos
+                const images = document.querySelectorAll('img');
+                
+                for (const img of images) {
+                    if (img.src && img.src.includes('googleusercontent.com')) {
+                        // Look for images with photo sizing parameters (indicates they're actual photos)
+                        if (img.src.includes('=w') && img.src.includes('-h')) {
+                            // Get a good sized version for the hero image
+                            return img.src.replace(/=w\d+-h\d+/, '=w600-h400');
+                        }
+                    }
+                }
+                
+                // Fallback: any googleusercontent image
+                for (const img of images) {
+                    if (img.src && img.src.includes('googleusercontent.com')) {
+                        return img.src;
+                    }
+                }
+                
+                return null;
+            });
+
+            console.log(`   📝 Extracted - Title: "${title}", Date: "${date}", Image: ${heroImage ? 'Found' : 'Not found'}`);
+
+            return {
+                url,
+                title: title || 'Track Meet',
+                date: date || new Date().toISOString().split('T')[0],
+                heroImage: heroImage || '/assets/placeholder.jpg',
+                id: this.generateId(url)
+            };
+
+        } catch (error) {
+            console.warn(`   ❌ Puppeteer failed for ${url}: ${error.message}`);
+            throw error;
+        } finally {
+            if (browser) {
+                await browser.close();
+            }
         }
     }
 
@@ -221,11 +364,20 @@ class TrackGalleryGenerator {
     }
 
     generateHTML() {
-        const albumsHTML = this.albums.map(album => `
+        const albumsHTML = this.albums.map(album => {
+            const hasRealHeroImage = album.heroImage && album.heroImage !== '/assets/placeholder.jpg';
+            
+            return `
             <div class="album-card" data-date="${album.date}">
-                <div class="album-image">
-                    <img src="${this.escapeHtml(album.heroImage)}" alt="${this.escapeHtml(album.title)}" 
-                         onerror="this.src='/assets/placeholder.jpg'">
+                <div class="album-image ${hasRealHeroImage ? '' : 'text-hero'}">
+                    ${hasRealHeroImage ? 
+                        `<img src="${this.escapeHtml(album.heroImage)}" alt="${this.escapeHtml(album.title)}" 
+                             onerror="this.parentElement.classList.add('text-hero'); this.style.display='none';">` :
+                        `<div class="text-hero-content">
+                            <h4>${this.escapeHtml(album.title)}</h4>
+                            <p>Track & Field</p>
+                        </div>`
+                    }
                 </div>
                 <div class="album-content">
                     <h3 class="album-title">${this.escapeHtml(album.title)}</h3>
@@ -235,7 +387,8 @@ class TrackGalleryGenerator {
                     </a>
                 </div>
             </div>
-        `).join('');
+        `;
+        }).join('');
 
         return `<!DOCTYPE html>
 <html lang="en">
@@ -347,6 +500,34 @@ class TrackGalleryGenerator {
 
         .album-card:hover .album-image img {
             transform: scale(1.05);
+        }
+
+        .album-image.text-hero {
+            background: linear-gradient(135deg, #ff6b35, #e55a2b, #ff8c42);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .text-hero-content {
+            text-align: center;
+            color: white;
+            padding: 2rem;
+        }
+
+        .text-hero-content h4 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .text-hero-content p {
+            font-size: 1rem;
+            opacity: 0.9;
+            font-weight: 500;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
 
         .album-content {
