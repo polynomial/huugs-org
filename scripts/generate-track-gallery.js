@@ -185,38 +185,12 @@ class TrackGalleryGenerator {
                 return null;
             });
 
-            // Extract the first photo from the album
-            const heroImage = await page.evaluate(() => {
-                // Look for images that are clearly album photos
-                const images = document.querySelectorAll('img');
-                
-                for (const img of images) {
-                    if (img.src && img.src.includes('googleusercontent.com')) {
-                        // Look for images with photo sizing parameters (indicates they're actual photos)
-                        if (img.src.includes('=w') && img.src.includes('-h')) {
-                            // Get a good sized version for the hero image
-                            return img.src.replace(/=w\d+-h\d+/, '=w600-h400');
-                        }
-                    }
-                }
-                
-                // Fallback: any googleusercontent image
-                for (const img of images) {
-                    if (img.src && img.src.includes('googleusercontent.com')) {
-                        return img.src;
-                    }
-                }
-                
-                return null;
-            });
-
-            console.log(`   📝 Extracted - Title: "${title}", Date: "${date}", Image: ${heroImage ? 'Found' : 'Not found'}`);
+            console.log(`   📝 Extracted - Title: "${title}", Date: "${date}"`);
 
             return {
                 url,
                 title: title || 'Track Meet',
                 date: date || new Date().toISOString().split('T')[0],
-                heroImage: heroImage || '/assets/placeholder.jpg',
                 id: this.generateId(url)
             };
 
@@ -344,7 +318,6 @@ class TrackGalleryGenerator {
             url,
             title: 'Track Meet',
             date: new Date().toISOString().split('T')[0],
-            heroImage: '/assets/placeholder.jpg',
             id: this.generateId(url)
         };
     }
@@ -364,31 +337,17 @@ class TrackGalleryGenerator {
     }
 
     generateHTML() {
-        const albumsHTML = this.albums.map(album => {
-            const hasRealHeroImage = album.heroImage && album.heroImage !== '/assets/placeholder.jpg';
-            
-            return `
-            <div class="album-card" data-date="${album.date}">
-                <div class="album-image ${hasRealHeroImage ? '' : 'text-hero'}">
-                    ${hasRealHeroImage ? 
-                        `<img src="${this.escapeHtml(album.heroImage)}" alt="${this.escapeHtml(album.title)}" 
-                             onerror="this.parentElement.classList.add('text-hero'); this.style.display='none';">` :
-                        `<div class="text-hero-content">
-                            <h4>${this.escapeHtml(album.title)}</h4>
-                            <p>Track & Field</p>
-                        </div>`
-                    }
-                </div>
-                <div class="album-content">
+        const albumsHTML = this.albums.map(album => `
+            <div class="album-item" data-date="${album.date}">
+                <div class="album-info">
                     <h3 class="album-title">${this.escapeHtml(album.title)}</h3>
                     <p class="album-date">${this.formatDate(album.date)}</p>
-                    <a href="${this.escapeHtml(album.url)}" class="album-link" target="_blank" rel="noopener">
-                        View Photos
-                    </a>
                 </div>
+                <a href="${this.escapeHtml(album.url)}" class="album-link" target="_blank" rel="noopener">
+                    View Photos →
+                </a>
             </div>
-        `;
-        }).join('');
+        `).join('');
 
         return `<!DOCTYPE html>
 <html lang="en">
@@ -463,75 +422,32 @@ class TrackGalleryGenerator {
         }
 
         .albums-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
             margin-top: 2rem;
         }
 
-        .album-card {
+        .album-item {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 12px;
-            overflow: hidden;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .album-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        .album-item:hover {
+            background: rgba(255, 255, 255, 0.08);
             border-color: rgba(255, 107, 53, 0.3);
+            transform: translateX(10px);
         }
 
-        .album-image {
-            width: 100%;
-            height: 250px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .album-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.3s ease;
-        }
-
-        .album-card:hover .album-image img {
-            transform: scale(1.05);
-        }
-
-        .album-image.text-hero {
-            background: linear-gradient(135deg, #ff6b35, #e55a2b, #ff8c42);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        .text-hero-content {
-            text-align: center;
-            color: white;
-            padding: 2rem;
-        }
-
-        .text-hero-content h4 {
-            font-family: 'Bebas Neue', cursive;
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .text-hero-content p {
-            font-size: 1rem;
-            opacity: 0.9;
-            font-weight: 500;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-        }
-
-        .album-content {
-            padding: 1.5rem;
+        .album-info {
+            flex: 1;
         }
 
         .album-title {
@@ -540,31 +456,31 @@ class TrackGalleryGenerator {
             font-weight: 600;
             margin-bottom: 0.5rem;
             color: white;
+            margin: 0;
         }
 
         .album-date {
-            color: #ff6b35;
+            color: rgba(255, 255, 255, 0.7);
             font-size: 0.9rem;
-            margin-bottom: 1rem;
-            font-weight: 500;
+            font-weight: 400;
+            margin: 0.25rem 0 0 0;
         }
 
         .album-link {
-            display: inline-block;
             background: linear-gradient(135deg, #ff6b35, #e55a2b);
             color: white;
-            padding: 0.7rem 1.5rem;
+            padding: 0.8rem 1.5rem;
             text-decoration: none;
             border-radius: 25px;
             font-weight: 600;
             transition: all 0.3s ease;
             font-size: 0.9rem;
+            white-space: nowrap;
         }
 
         .album-link:hover {
             background: linear-gradient(135deg, #e55a2b, #cc4e24);
-            transform: translateY(-1px);
-            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+            transform: scale(1.05);
         }
 
         .stats {
@@ -588,9 +504,19 @@ class TrackGalleryGenerator {
                 font-size: 2rem;
             }
 
-            .albums-grid {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
+            .album-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+                padding: 1.5rem;
+            }
+
+            .album-item:hover {
+                transform: none;
+            }
+
+            .album-link {
+                align-self: flex-end;
             }
 
             .container {

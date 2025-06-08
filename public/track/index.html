@@ -71,75 +71,32 @@
         }
 
         .albums-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
             margin-top: 2rem;
         }
 
-        .album-card {
+        .album-item {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 12px;
-            overflow: hidden;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .album-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        .album-item:hover {
+            background: rgba(255, 255, 255, 0.08);
             border-color: rgba(255, 107, 53, 0.3);
+            transform: translateX(10px);
         }
 
-        .album-image {
-            width: 100%;
-            height: 250px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .album-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.3s ease;
-        }
-
-        .album-card:hover .album-image img {
-            transform: scale(1.05);
-        }
-
-        .album-image.text-hero {
-            background: linear-gradient(135deg, #ff6b35, #e55a2b, #ff8c42);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        .text-hero-content {
-            text-align: center;
-            color: white;
-            padding: 2rem;
-        }
-
-        .text-hero-content h4 {
-            font-family: 'Bebas Neue', cursive;
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .text-hero-content p {
-            font-size: 1rem;
-            opacity: 0.9;
-            font-weight: 500;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-        }
-
-        .album-content {
-            padding: 1.5rem;
+        .album-info {
+            flex: 1;
         }
 
         .album-title {
@@ -148,31 +105,31 @@
             font-weight: 600;
             margin-bottom: 0.5rem;
             color: white;
+            margin: 0;
         }
 
         .album-date {
-            color: #ff6b35;
+            color: rgba(255, 255, 255, 0.7);
             font-size: 0.9rem;
-            margin-bottom: 1rem;
-            font-weight: 500;
+            font-weight: 400;
+            margin: 0.25rem 0 0 0;
         }
 
         .album-link {
-            display: inline-block;
             background: linear-gradient(135deg, #ff6b35, #e55a2b);
             color: white;
-            padding: 0.7rem 1.5rem;
+            padding: 0.8rem 1.5rem;
             text-decoration: none;
             border-radius: 25px;
             font-weight: 600;
             transition: all 0.3s ease;
             font-size: 0.9rem;
+            white-space: nowrap;
         }
 
         .album-link:hover {
             background: linear-gradient(135deg, #e55a2b, #cc4e24);
-            transform: translateY(-1px);
-            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+            transform: scale(1.05);
         }
 
         .stats {
@@ -196,9 +153,19 @@
                 font-size: 2rem;
             }
 
-            .albums-grid {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
+            .album-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+                padding: 1.5rem;
+            }
+
+            .album-item:hover {
+                transform: none;
+            }
+
+            .album-link {
+                align-self: flex-end;
             }
 
             .container {
@@ -244,116 +211,84 @@
         
         <div class="albums-grid">
             
-            <div class="album-card" data-date="2025-06-08">
-                <div class="album-image ">
-                    <img src="https://lh3.googleusercontent.com/a/ACg8ocK5ZDkaa5sSRJYxFtwDw_VghGBFL5zJzdSTGpfJgkzyZ9PGOh_8=s32-p-no" alt="BigTen Championships - Hayward Field, Eugene, Oregon 2025-05 - Google Photos" 
-                             onerror="this.parentElement.classList.add('text-hero'); this.style.display='none';">
-                </div>
-                <div class="album-content">
+            <div class="album-item" data-date="2025-06-08">
+                <div class="album-info">
                     <h3 class="album-title">BigTen Championships - Hayward Field, Eugene, Oregon 2025-05 - Google Photos</h3>
                     <p class="album-date">June 7, 2025</p>
-                    <a href="https://photos.app.goo.gl/JQwpoEjKQFSeNFa8A" class="album-link" target="_blank" rel="noopener">
-                        View Photos
-                    </a>
                 </div>
+                <a href="https://photos.app.goo.gl/JQwpoEjKQFSeNFa8A" class="album-link" target="_blank" rel="noopener">
+                    View Photos →
+                </a>
             </div>
         
-            <div class="album-card" data-date="2025-06-08">
-                <div class="album-image ">
-                    <img src="https://lh3.googleusercontent.com/a/ACg8ocK5ZDkaa5sSRJYxFtwDw_VghGBFL5zJzdSTGpfJgkzyZ9PGOh_8=s32-p-no" alt="4j Sub-districts 5/2025 - Eugene Oregon - Google Photos" 
-                             onerror="this.parentElement.classList.add('text-hero'); this.style.display='none';">
-                </div>
-                <div class="album-content">
+            <div class="album-item" data-date="2025-06-08">
+                <div class="album-info">
                     <h3 class="album-title">4j Sub-districts 5/2025 - Eugene Oregon - Google Photos</h3>
                     <p class="album-date">June 7, 2025</p>
-                    <a href="https://photos.app.goo.gl/HYEXM1dSqsL39DG77" class="album-link" target="_blank" rel="noopener">
-                        View Photos
-                    </a>
                 </div>
+                <a href="https://photos.app.goo.gl/HYEXM1dSqsL39DG77" class="album-link" target="_blank" rel="noopener">
+                    View Photos →
+                </a>
             </div>
         
-            <div class="album-card" data-date="2025-06-08">
-                <div class="album-image ">
-                    <img src="https://lh3.googleusercontent.com/a/ACg8ocK5ZDkaa5sSRJYxFtwDw_VghGBFL5zJzdSTGpfJgkzyZ9PGOh_8=s32-p-no" alt="Sheldon Track Meet - Eugene, Oregon - Google Photos" 
-                             onerror="this.parentElement.classList.add('text-hero'); this.style.display='none';">
-                </div>
-                <div class="album-content">
+            <div class="album-item" data-date="2025-06-08">
+                <div class="album-info">
                     <h3 class="album-title">Sheldon Track Meet - Eugene, Oregon - Google Photos</h3>
                     <p class="album-date">June 7, 2025</p>
-                    <a href="https://photos.app.goo.gl/GiZqen3TDbikmCS98" class="album-link" target="_blank" rel="noopener">
-                        View Photos
-                    </a>
                 </div>
+                <a href="https://photos.app.goo.gl/GiZqen3TDbikmCS98" class="album-link" target="_blank" rel="noopener">
+                    View Photos →
+                </a>
             </div>
         
-            <div class="album-card" data-date="2025-06-08">
-                <div class="album-image ">
-                    <img src="https://lh3.googleusercontent.com/a/ACg8ocK5ZDkaa5sSRJYxFtwDw_VghGBFL5zJzdSTGpfJgkzyZ9PGOh_8=s32-p-no" alt="4J Districts - Eugene, Oregon - Google Photos" 
-                             onerror="this.parentElement.classList.add('text-hero'); this.style.display='none';">
-                </div>
-                <div class="album-content">
-                    <h3 class="album-title">4J Districts - Eugene, Oregon - Google Photos</h3>
+            <div class="album-item" data-date="2025-06-08">
+                <div class="album-info">
+                    <h3 class="album-title">4J Districts - 2025/05/08 - Eugene, Oregon - Google Photos</h3>
                     <p class="album-date">June 7, 2025</p>
-                    <a href="https://photos.app.goo.gl/tdmpo3mTb4Rdg2LV6" class="album-link" target="_blank" rel="noopener">
-                        View Photos
-                    </a>
                 </div>
+                <a href="https://photos.app.goo.gl/tdmpo3mTb4Rdg2LV6" class="album-link" target="_blank" rel="noopener">
+                    View Photos →
+                </a>
             </div>
         
-            <div class="album-card" data-date="2025-06-08">
-                <div class="album-image ">
-                    <img src="https://lh3.googleusercontent.com/a/ACg8ocK5ZDkaa5sSRJYxFtwDw_VghGBFL5zJzdSTGpfJgkzyZ9PGOh_8=s32-p-no" alt="South Track Meet - Eugene, Oregon - Google Photos" 
-                             onerror="this.parentElement.classList.add('text-hero'); this.style.display='none';">
-                </div>
-                <div class="album-content">
-                    <h3 class="album-title">South Track Meet - Eugene, Oregon - Google Photos</h3>
+            <div class="album-item" data-date="2025-06-08">
+                <div class="album-info">
+                    <h3 class="album-title">Sheldon Track Meet - 2025/05/13 - Eugene, Oregon - Google Photos</h3>
                     <p class="album-date">June 7, 2025</p>
-                    <a href="https://photos.app.goo.gl/sRki7HVcxZDv3MY99" class="album-link" target="_blank" rel="noopener">
-                        View Photos
-                    </a>
                 </div>
+                <a href="https://photos.app.goo.gl/MEZexwoBUukrLd5i9" class="album-link" target="_blank" rel="noopener">
+                    View Photos →
+                </a>
             </div>
         
-            <div class="album-card" data-date="2025-06-08">
-                <div class="album-image ">
-                    <img src="https://lh3.googleusercontent.com/a/ACg8ocK5ZDkaa5sSRJYxFtwDw_VghGBFL5zJzdSTGpfJgkzyZ9PGOh_8=s32-p-no" alt="Cal Young Track Meet - Google Photos" 
-                             onerror="this.parentElement.classList.add('text-hero'); this.style.display='none';">
-                </div>
-                <div class="album-content">
-                    <h3 class="album-title">Cal Young Track Meet - Google Photos</h3>
+            <div class="album-item" data-date="2025-06-08">
+                <div class="album-info">
+                    <h3 class="album-title">South Track Meet - 2025/04/30 - Eugene, Oregon - Google Photos</h3>
                     <p class="album-date">June 7, 2025</p>
-                    <a href="https://photos.app.goo.gl/ff8fvTqsM1BHbbWJ9" class="album-link" target="_blank" rel="noopener">
-                        View Photos
-                    </a>
                 </div>
+                <a href="https://photos.app.goo.gl/sRki7HVcxZDv3MY99" class="album-link" target="_blank" rel="noopener">
+                    View Photos →
+                </a>
             </div>
         
-            <div class="album-card" data-date="2025-05-16">
-                <div class="album-image ">
-                    <img src="https://lh3.googleusercontent.com/a/ACg8ocK5ZDkaa5sSRJYxFtwDw_VghGBFL5zJzdSTGpfJgkzyZ9PGOh_8=s32-p-no" alt="Thurston Track Meet 2025-05-16 - Google Photos" 
-                             onerror="this.parentElement.classList.add('text-hero'); this.style.display='none';">
+            <div class="album-item" data-date="2025-06-08">
+                <div class="album-info">
+                    <h3 class="album-title">Cal Young Track Meet - 2025/04/24 - Eugene, Oregon - Google Photos</h3>
+                    <p class="album-date">June 7, 2025</p>
                 </div>
-                <div class="album-content">
+                <a href="https://photos.app.goo.gl/ff8fvTqsM1BHbbWJ9" class="album-link" target="_blank" rel="noopener">
+                    View Photos →
+                </a>
+            </div>
+        
+            <div class="album-item" data-date="2025-05-16">
+                <div class="album-info">
                     <h3 class="album-title">Thurston Track Meet 2025-05-16 - Google Photos</h3>
                     <p class="album-date">May 15, 2025</p>
-                    <a href="https://photos.app.goo.gl/MuBFuTgYmLfwE4ws7" class="album-link" target="_blank" rel="noopener">
-                        View Photos
-                    </a>
                 </div>
-            </div>
-        
-            <div class="album-card" data-date="2025-05-13">
-                <div class="album-image ">
-                    <img src="https://lh3.googleusercontent.com/a/ACg8ocK5ZDkaa5sSRJYxFtwDw_VghGBFL5zJzdSTGpfJgkzyZ9PGOh_8=s32-p-no" alt="Sheldon Track Meet 2025-05-13 - Google Photos" 
-                             onerror="this.parentElement.classList.add('text-hero'); this.style.display='none';">
-                </div>
-                <div class="album-content">
-                    <h3 class="album-title">Sheldon Track Meet 2025-05-13 - Google Photos</h3>
-                    <p class="album-date">May 12, 2025</p>
-                    <a href="https://photos.app.goo.gl/MEZexwoBUukrLd5i9" class="album-link" target="_blank" rel="noopener">
-                        View Photos
-                    </a>
-                </div>
+                <a href="https://photos.app.goo.gl/MuBFuTgYmLfwE4ws7" class="album-link" target="_blank" rel="noopener">
+                    View Photos →
+                </a>
             </div>
         
         </div>
