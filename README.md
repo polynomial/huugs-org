@@ -11,6 +11,7 @@ A beautiful, responsive photography gallery website that automatically generates
 ⚡ **Optimized Images** - Automatically generates thumbnails and web-optimized versions  
 🎨 **Professional Design** - Clean, modern interface with your branding  
 📄 **Bio Page** - Professional about page for your photography business  
+🔗 **Direct Links** - Share direct links to specific sections (e.g., `http://localhost:3000/#highlights`)
 
 ## Quick Start
 
@@ -25,24 +26,132 @@ pics/
 │       ├── photo1.jpg
 │       ├── photo2.jpg
 │       └── ...
-└── track/
-    └── bigten/
+├── track/
+│   └── bigten/
+│       ├── photo1.jpg
+│       └── photo2.jpg
+└── portfolio/
+    └── new-additions-2024/
         ├── photo1.jpg
         └── photo2.jpg
 ```
 
 ### 2. Process Images
 ```bash
-npm run process-images
+# Set up nix environment (if needed)
+if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
+  . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
+fi
+
+# Process images with watermarks
+nix-shell --run "node scripts/process-images.js"
 ```
 
 ### 3. Start the Server
 ```bash
-npm start
+nix-shell --run "node server.js"
 ```
 
 ### 4. View Your Website
 Open http://localhost:3000 in your browser
+
+## 📸 Adding New Portfolio Photos (Complete Workflow)
+
+This section covers the complete process for adding new portfolio photos to both the dynamic gallery system and the prominent highlights section on the main page.
+
+### Step 1: Organize Your New Photos
+```bash
+# Create a dedicated portfolio directory
+mkdir -p pics/portfolio/new-additions-$(date +%Y)
+
+# Copy your new photos to the directory
+# Name your files descriptively (e.g., 5_STARS_Canon_EOS_R3_RF85mm_F1.2_L_USM_112A1909.JPG)
+cp /path/to/your/new/photos/* pics/portfolio/new-additions-$(date +%Y)/
+```
+
+### Step 2: Process Images with Watermarks
+```bash
+# Set up nix environment
+if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
+  . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
+fi
+
+# Process all images (creates thumbnails and web versions with watermarks)
+nix-shell --run "node scripts/process-images.js"
+```
+
+This will:
+- ✅ Create 400px thumbnails for fast loading
+- ✅ Create 1080px web versions with watermarks
+- ✅ Generate gallery configuration files
+- ✅ Update navigation structure
+
+### Step 3: Add Best Photos to Main Highlights Section
+```bash
+# Copy your best photos to the highlights directory
+cp public/images/portfolio/new-additions-*/web/5_STARS_*.jpg public/highlights/
+cp public/images/portfolio/new-additions-*/web/your_best_photos.jpg public/highlights/
+```
+
+### Step 4: Update Highlights Section HTML
+Edit `public/index.html` to add your new photos to the Portfolio Highlights section:
+
+```html
+<!-- Add new highlight items -->
+<div class="highlight-item">
+    <img src="/highlights/your_new_photo.jpg" alt="Your Description" onerror="this.src='/assets/placeholder.jpg'">
+    <div class="highlight-overlay">
+        <h3>Your Title</h3>
+        <p>Your description</p>
+    </div>
+</div>
+```
+
+**Pro Tips for Highlights Layout:**
+- Use `<div class="highlight-item large">` for featured images (spans 2 columns)
+- Place your best wide-angle shot first as a large item
+- End with your best telephoto shot as a large item (bookend style)
+- Mix different focal lengths and styles throughout
+
+### Step 5: Start Server and Test
+```bash
+# Start the local server
+nix-shell --run "node server.js" &
+
+# Test that images load
+curl -I http://localhost:3000/highlights/your_new_photo.jpg
+
+# Visit the website
+open http://localhost:3000
+```
+
+### Step 6: Share Direct Links
+Your website supports direct links to specific sections:
+- **Portfolio Highlights**: `http://localhost:3000/#highlights`
+- **About Section**: `http://localhost:3000/#about`  
+- **Contact Section**: `http://localhost:3000/#contact`
+- **Home**: `http://localhost:3000/#home`
+
+### Example Complete Workflow
+```bash
+# 1. Add photos
+mkdir -p pics/portfolio/summer-session-2024
+cp ~/Downloads/new_portfolio_photos/* pics/portfolio/summer-session-2024/
+
+# 2. Process images
+if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
+  . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
+fi
+nix-shell --run "node scripts/process-images.js"
+
+# 3. Copy best photos to highlights
+cp public/images/portfolio/summer-session-2024/web/5_STARS_*.jpg public/highlights/
+
+# 4. Update public/index.html (add new highlight items)
+# 5. Test website
+nix-shell --run "node server.js" &
+open http://localhost:3000/#highlights
+```
 
 ## 🚀 Automated Deployment
 
@@ -55,13 +164,14 @@ This project includes automated deployment to GitHub Pages with custom domain su
 
 ### Usage (Every time you add photos)
 1. **Add photos** to `pics/` directory
-2. **Commit and push**:
+2. **Process and update highlights** (follow workflow above)
+3. **Commit and push**:
    ```bash
-   git add pics/
-   git commit -m "Add new photos"
+   git add pics/ public/
+   git commit -m "Add new portfolio photos"
    git push
    ```
-3. **Automatic magic**: GitHub Actions will:
+4. **Automatic magic**: GitHub Actions will:
    - Process your images
    - Generate thumbnails and web versions
    - Deploy to https://huugs.org

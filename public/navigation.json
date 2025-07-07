@@ -1,29 +1,29 @@
 [
   {
-    "name": "Saturday Market",
-    "path": "events/Saturday Market",
-    "slug": "saturday-market",
+    "name": "Bubble Bro",
+    "path": "People/Bubble Bro",
+    "slug": "bubble-bro",
     "level": 1,
     "hasImages": true,
     "imageCount": 31,
-    "category": "events"
+    "category": "People"
   },
   {
-    "name": "Emerald Photographic Society 2025-05-15",
-    "path": "portfolio/Emerald Photographic Society 2025-05-15",
-    "slug": "emerald-photographic-society-2025-05-15",
+    "name": "New-Additions-2024",
+    "path": "portfolio/new-additions-2024",
+    "slug": "new-additions-2024",
     "level": 1,
     "hasImages": true,
-    "imageCount": 16,
+    "imageCount": 15,
     "category": "portfolio"
   },
   {
     "name": "BigTen Championships - Hayward Field, Eugene, Oregon 2025-05",
-    "path": "track/BigTen Championships - Hayward Field, Eugene, Oregon 2025-05",
+    "path": "Sports/BigTen Championships - Hayward Field, Eugene, Oregon 2025-05",
     "slug": "bigten-championships---hayward-field,-eugene,-oregon-2025-05",
     "level": 1,
     "hasImages": true,
     "imageCount": 111,
-    "category": "track"
+    "category": "Sports"
   }
 ]
