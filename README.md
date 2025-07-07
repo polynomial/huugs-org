@@ -346,6 +346,195 @@ MIT License - Feel free to customize for your photography business!
 
 **🚀 Your photography website is ready!**
 
-Visit http://localhost:3000 to see your galleries in action. # Force workflow trigger
-# Debugging deployment
-# Trigger optimized deployment after fixing GitHub Pages settings
+Visit http://localhost:3000 to see your galleries in action.
+
+## 🏃 Updating Track Gallery (Complete Workflow)
+
+The track gallery displays your track and field photography albums hosted on Google Photos. This section covers the complete process for adding new track albums and updating the gallery page.
+
+### How Track Gallery Works
+
+The track gallery system automatically generates a beautiful gallery page from Google Photos album URLs. It:
+- ✅ **Reads URLs** from the `track_albums` file
+- ✅ **Scrapes album data** (titles, dates) from Google Photos
+- ✅ **Generates HTML** with responsive design
+- ✅ **Sorts albums** by date (newest first)
+- ✅ **Updates automatically** via GitHub Actions
+
+### Step 1: Add New Album URLs
+
+Edit the `track_albums` file in the root directory:
+
+```bash
+# Edit the track_albums file
+nano track_albums
+
+# Add your new Google Photos album URLs (one per line)
+# Example format:
+https://photos.app.goo.gl/your-new-album-url-here
+https://photos.app.goo.gl/another-album-url-here
+```
+
+**Getting Google Photos URLs:**
+1. Open your Google Photos album
+2. Click the "Share" button 
+3. Copy the shareable link
+4. Paste it into `track_albums` file
+
+### Step 2: Generate Updated Track Gallery
+
+```bash
+# Set up nix environment (if needed)
+if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
+  . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
+fi
+
+# Generate track gallery from updated track_albums file
+nix-shell --run "node scripts/generate-track-gallery.js"
+```
+
+This will:
+- ✅ **Process all URLs** in the `track_albums` file
+- ✅ **Extract album titles** and dates from Google Photos
+- ✅ **Generate** `public/track/index.html` with beautiful design
+- ✅ **Sort albums** by date (newest first)
+- ✅ **Include responsive** design and branding
+
+### Step 3: Test the Track Gallery
+
+```bash
+# Start the local server
+nix-shell --run "node server.js" &
+
+# Test the track gallery
+curl -I http://localhost:3000/track/index.html
+
+# Visit the track gallery
+open http://localhost:3000/track/index.html
+```
+
+### Step 4: Deploy to Live Site
+
+```bash
+# Commit the changes
+git add track_albums public/track/index.html
+git commit -m "Add new track albums to gallery
+
+- Added [Album Name] from [Date]
+- Added [Another Album] from [Date]
+- Total albums: [number]
+- Updated track gallery automatically"
+
+# Push to trigger deployment
+git push origin main
+```
+
+### 🚀 Automated Workflow (GitHub Actions)
+
+**Even easier option**: Just push changes to `track_albums` and let automation handle everything!
+
+1. **Edit `track_albums`** file with new URLs
+2. **Commit and push**:
+   ```bash
+   git add track_albums
+   git commit -m "Add new track albums"
+   git push origin main
+   ```
+3. **GitHub Actions automatically**:
+   - ✅ Detects changes to `track_albums`
+   - ✅ Runs the generation script
+   - ✅ Commits updated HTML
+   - ✅ Deploys to https://huugs.org/track
+
+**Automation Features:**
+- **Triggers** on changes to `track_albums` file
+- **Runs** the generation script in cloud environment
+- **Commits** updated `public/track/index.html`
+- **Deploys** automatically to live site
+- **No manual intervention** required!
+
+### Example Complete Workflow
+
+```bash
+# Method 1: Manual (immediate testing)
+echo "https://photos.app.goo.gl/your-new-album-url" >> track_albums
+if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
+  . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
+fi
+nix-shell --run "node scripts/generate-track-gallery.js"
+nix-shell --run "node server.js" &
+open http://localhost:3000/track/index.html
+
+# Method 2: Automated (just push and wait)
+echo "https://photos.app.goo.gl/your-new-album-url" >> track_albums
+git add track_albums
+git commit -m "Add new track album from recent meet"
+git push origin main
+# Wait 2-3 minutes for automation to complete
+```
+
+### Track Albums File Format
+
+```bash
+# track_albums file format (one URL per line)
+https://photos.app.goo.gl/album1-url-here
+https://photos.app.goo.gl/album2-url-here
+https://photos.app.goo.gl/album3-url-here
+
+# Empty lines are ignored
+# Comments can be added with #
+```
+
+### Generated Track Gallery Features
+
+The generated track gallery includes:
+- 🎨 **Modern design** with dark theme and orange accents
+- 📱 **Responsive layout** that works on all devices
+- 🏃 **Track-specific branding** with appropriate fonts and colors
+- 🔗 **External links** to Google Photos albums
+- 📊 **Statistics** showing total album count
+- 🗓️ **Date sorting** with newest albums first
+- ⚡ **Fast loading** with optimized CSS and minimal JavaScript
+
+### Troubleshooting Track Gallery
+
+**Gallery not updating?**
+```bash
+# Check if script ran successfully
+nix-shell --run "node scripts/generate-track-gallery.js"
+
+# Check if file was generated
+ls -la public/track/index.html
+```
+
+**Albums not showing correctly?**
+```bash
+# Verify Google Photos URLs are accessible
+curl -I "https://photos.app.goo.gl/your-album-url"
+
+# Check track_albums file format
+cat track_albums
+```
+
+**Server not finding track gallery?**
+```bash
+# Access via full path
+curl -I http://localhost:3000/track/index.html
+# The track gallery is at /track/index.html, not /track/
+```
+
+### Track Gallery Script Details
+
+The `scripts/generate-track-gallery.js` script:
+- **Reads** all URLs from `track_albums` file
+- **Scrapes** album titles and dates using Puppeteer (if available)
+- **Falls back** to simple HTTP scraping if Puppeteer unavailable
+- **Generates** responsive HTML with embedded CSS
+- **Sorts** albums by date (newest first)
+- **Handles errors** gracefully with fallback data
+
+---
+
+**🏃 Your track gallery is ready!**
+
+Visit http://localhost:3000/track/index.html to see your track albums in action.
