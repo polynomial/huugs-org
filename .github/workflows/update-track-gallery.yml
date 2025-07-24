@@ -53,6 +53,14 @@ jobs:
           git commit -m "🏃 Auto-update track gallery from track_albums changes"
           git push
           
+      - name: Trigger deployment workflow
+        if: steps.check_changes.outputs.changes == 'true'
+        run: |
+          echo "🚀 Triggering deployment workflow to deploy updated track gallery..."
+          gh workflow run deploy.yml --ref main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
       - name: Create summary
         run: |
           echo "## Track Gallery Update Summary" >> $GITHUB_STEP_SUMMARY
@@ -70,7 +78,8 @@ jobs:
             echo "- Live URL: https://huugs.org/track" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "🎯 **Next Steps:**" >> $GITHUB_STEP_SUMMARY
-            echo "- The updated gallery will be live once GitHub Pages deploys" >> $GITHUB_STEP_SUMMARY
+            echo "- 🚀 Deployment workflow has been triggered automatically" >> $GITHUB_STEP_SUMMARY
+            echo "- The updated gallery will be live in 2-3 minutes" >> $GITHUB_STEP_SUMMARY
             echo "- Visit https://huugs.org/track to see the updated gallery" >> $GITHUB_STEP_SUMMARY
           else
             echo "ℹ️ **No changes needed**" >> $GITHUB_STEP_SUMMARY
