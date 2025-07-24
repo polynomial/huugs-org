@@ -12,11 +12,16 @@ jobs:
   update-track-gallery:
     runs-on: ubuntu-latest
     
+    permissions:
+      contents: write  # Required to push changes back to repository
+      pull-requests: read
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Install Nix
         uses: cachix/install-nix-action@v25
