@@ -165,7 +165,7 @@ class TrackGalleryGenerator {
                 const text = document.body.innerText;
                 const datePatterns = [
                     /(\w+\s+\d{1,2},\s+\d{4})/g,
-                    /(\d{4}-\d{2}-\d{2})/g,
+                    /(\d{4}-\d{1,2}-\d{1,2})/g,  // Fixed: allow single-digit months/days
                     /(\d{1,2}\/\d{1,2}\/\d{4})/g
                 ];
                 
@@ -185,12 +185,18 @@ class TrackGalleryGenerator {
                 return null;
             });
 
-            console.log(`   📝 Extracted - Title: "${title}", Date: "${date}"`);
+            // If no date found in page content, try extracting from title
+            let extractedDate = date;
+            if (!extractedDate && title) {
+                extractedDate = this.extractDateFromTitle(title);
+            }
+
+            console.log(`   📝 Extracted - Title: "${title}", Date: "${extractedDate}"`);
 
             return {
                 url,
                 title: title || 'Track Meet',
-                date: date || new Date().toISOString().split('T')[0],
+                date: extractedDate || new Date().toISOString().split('T')[0],
                 id: this.generateId(url)
             };
 
@@ -240,6 +246,11 @@ class TrackGalleryGenerator {
         // Extract date information
         let date = this.extractDate(html);
         
+        // If no date found in HTML content, try extracting from title
+        if (!date && title) {
+            date = this.extractDateFromTitle(title);
+        }
+        
         // Extract first image for hero
         let heroImage = this.extractHeroImage(html);
         
@@ -275,7 +286,7 @@ class TrackGalleryGenerator {
         // Try to extract date from various sources
         const datePatterns = [
             /(\w+\s+\d{1,2},\s+\d{4})/g,
-            /(\d{4}-\d{2}-\d{2})/g,
+            /(\d{4}-\d{1,2}-\d{1,2})/g,  // Fixed: allow single-digit months/days
             /(\d{1,2}\/\d{1,2}\/\d{4})/g
         ];
         
@@ -285,6 +296,33 @@ class TrackGalleryGenerator {
                 try {
                     const date = new Date(matches[0]);
                     if (!isNaN(date.getTime())) {
+                        return date.toISOString().split('T')[0];
+                    }
+                } catch (e) {
+                    // Continue to next pattern
+                }
+            }
+        }
+        
+        return null;
+    }
+
+    extractDateFromTitle(title) {
+        // Extract date from title using patterns that match common date formats in album titles
+        const titleDatePatterns = [
+            /(\d{4}-\d{1,2}-\d{1,2})/g,  // YYYY-M-DD or YYYY-MM-DD
+            /(\d{4}-\d{2}-\d{2})/g,      // YYYY-MM-DD (exact match)
+            /(\w+\s+\d{1,2},\s+\d{4})/g, // Month DD, YYYY
+            /(\d{1,2}\/\d{1,2}\/\d{4})/g, // MM/DD/YYYY
+            /(\d{4}\/\d{1,2}\/\d{1,2})/g  // YYYY/MM/DD
+        ];
+        
+        for (const pattern of titleDatePatterns) {
+            const matches = title.match(pattern);
+            if (matches && matches[0]) {
+                try {
+                    const date = new Date(matches[0]);
+                    if (!isNaN(date.getTime()) && date.getFullYear() > 2020) {
                         return date.toISOString().split('T')[0];
                     }
                 } catch (e) {
@@ -591,6 +629,21 @@ class TrackGalleryGenerator {
 
     formatDate(dateStr) {
         try {
+            // Parse ISO date string manually to avoid timezone issues
+            const parts = dateStr.split('-');
+            if (parts.length === 3) {
+                const year = parseInt(parts[0]);
+                const month = parseInt(parts[1]) - 1; // months are 0-indexed
+                const day = parseInt(parts[2]);
+                const date = new Date(year, month, day);
+                return date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            }
+            
+            // Fallback to original method
             const date = new Date(dateStr);
             return date.toLocaleDateString('en-US', {
                 year: 'numeric',
