@@ -2,7 +2,7 @@
 
 pkgs.mkShell {
   buildInputs = with pkgs; [
-    nodejs_20
+    nodejs_22
     python3
   ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
     chromium  # For Puppeteer (Linux only)
