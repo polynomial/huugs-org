@@ -86,36 +86,41 @@ class TrackGalleryGenerator {
 
     async fetchAlbumData(url) {
         try {
-            let albumData;
-            
-            if (puppeteer && process.env.PUPPETEER_EXECUTABLE_PATH) {
-                albumData = await this.fetchAlbumDataWithPuppeteer(url);
-            } else {
-                console.log(`   📄 Using fallback HTTP scraping for ${url}`);
-                const html = await this.fetchUrl(url);
-                albumData = this.parseAlbumData(html, url);
+            if (puppeteer) {
+                return await this.fetchAlbumDataWithPuppeteer(url);
             }
-            
-            return albumData;
+
+            console.log(`   📄 Using fallback HTTP scraping for ${url}`);
+            const html = await this.fetchUrl(url);
+            return this.parseAlbumData(html, url);
         } catch (error) {
             console.warn(`⚠️  Could not fetch data for ${url}: ${error.message}`);
             return this.createFallbackAlbumData(url);
         }
     }
 
+    getPuppeteerLaunchOptions() {
+        const options = {
+            headless: true,
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-gpu'
+            ]
+        };
+
+        if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+            options.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+        }
+
+        return options;
+    }
+
     async fetchAlbumDataWithPuppeteer(url) {
         let browser;
         try {
-            browser = await puppeteer.launch({
-                headless: true,
-                executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
-                args: [
-                    '--no-sandbox',
-                    '--disable-setuid-sandbox',
-                    '--disable-dev-shm-usage',
-                    '--disable-gpu'
-                ]
-            });
+            browser = await puppeteer.launch(this.getPuppeteerLaunchOptions());
 
             const page = await browser.newPage();
             await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');

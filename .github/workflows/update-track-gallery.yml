@@ -14,7 +14,7 @@ jobs:
     
     permissions:
       contents: write  # Required to push changes back to repository
-      pull-requests: read
+      actions: write   # Required to trigger deploy workflow
     
     steps:
       - name: Checkout repository
@@ -32,10 +32,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install Puppeteer Chrome
+        run: npx puppeteer browsers install chrome
+
       - name: Generate Track Gallery
         run: |
           echo "🏃 Generating track gallery from updated track_albums file..."
           node scripts/generate-track-gallery.js
+        timeout-minutes: 15
           
       - name: Check for changes
         id: check_changes
