@@ -26,12 +26,12 @@ jobs:
     
     steps:
     - name: 📂 Checkout Repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         fetch-depth: 0  # Get full history for better caching
     
     - name: 🔧 Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: '22'
         cache: 'npm'
@@ -76,7 +76,7 @@ jobs:
         echo "🎯 Only thumbnails and web versions will be deployed"
     
     - name: 🔧 Setup GitHub Pages
-      uses: actions/configure-pages@v4
+      uses: actions/configure-pages@v6
     
     - name: 📁 Prepare Deployment Package
       run: |
@@ -86,13 +86,13 @@ jobs:
         echo "✅ Deployment package ready"
     
     - name: 📤 Upload Pages Artifact
-      uses: actions/upload-pages-artifact@v3
+      uses: actions/upload-pages-artifact@v5
       with:
         path: ./public
     
     - name: 🚀 Deploy to GitHub Pages
       id: deployment
-      uses: actions/deploy-pages@v4
+      uses: actions/deploy-pages@v5
     
     - name: 🎉 Deployment Success
       run: |
