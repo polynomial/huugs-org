@@ -60,22 +60,25 @@ body {
     color: #ff4444;
 }
 
-/* Mobile photos banner (QR code visitors) */
-.mobile-photos-banner {
+/* Nav photos button (QR code visitors, mobile only) */
+.nav-photos-btn {
     display: none;
     background: #ff4444;
     color: #fff;
-    text-align: center;
+    border: 2px solid #ff4444;
     text-decoration: none;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1px;
-    font-size: 1rem;
-    padding: 14px 20px;
+    font-size: 0.85rem;
+    padding: 8px 18px;
+    transition: all 0.3s ease;
 }
 
-.mobile-photos-banner:active {
-    background: #e03333;
+.nav-photos-btn:hover,
+.nav-photos-btn:active {
+    background: transparent;
+    color: #ff4444;
 }
 
 /* Mobile menu button */
@@ -567,8 +570,10 @@ footer {
 
 /* Responsive design */
 @media (max-width: 768px) {
-    .mobile-photos-banner {
-        display: block;
+    .nav-photos-btn {
+        display: inline-block;
+        margin-left: auto;
+        margin-right: 15px;
     }
 
     .nav-container {
