@@ -60,6 +60,24 @@ body {
     color: #ff4444;
 }
 
+/* Mobile photos banner (QR code visitors) */
+.mobile-photos-banner {
+    display: none;
+    background: #ff4444;
+    color: #fff;
+    text-align: center;
+    text-decoration: none;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 1rem;
+    padding: 14px 20px;
+}
+
+.mobile-photos-banner:active {
+    background: #e03333;
+}
+
 /* Mobile menu button */
 .mobile-menu-btn {
     display: none;
@@ -578,6 +596,10 @@ footer {
 
 /* Responsive design */
 @media (max-width: 768px) {
+    .mobile-photos-banner {
+        display: block;
+    }
+
     .nav-container {
         padding: 15px 20px;
     }
