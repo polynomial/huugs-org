@@ -59,7 +59,15 @@ jobs:
           git config --local user.name "GitHub Action"
           git add public/track/index.html
           git commit -m "🏃 Auto-update track gallery from track_albums changes"
-          git push
+          # Rebase in case main moved while the gallery was generating,
+          # then retry the push a few times to survive concurrent pushes
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push && exit 0
+            echo "Push attempt $i failed, retrying..."
+            sleep 5
+          done
+          echo "All push attempts failed"
+          exit 1
           
       - name: Trigger deployment workflow
         if: steps.check_changes.outputs.changes == 'true'
